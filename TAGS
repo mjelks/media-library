@@ -1,0 +1,28 @@
+
+app/mailers/application_mailer.rb,67
+class ApplicationMailer < ActionMailer::BaseApplicationMailer1,0
+
+app/models/application_record.rb,67
+class ApplicationRecord < ActiveRecord::BaseApplicationRecord1,0
+
+app/jobs/application_job.rb,58
+class ApplicationJob < ActiveJob::BaseApplicationJob1,0
+
+app/controllers/application_controller.rb,79
+class ApplicationController < ActionController::BaseApplicationController1,0
+
+app/helpers/application_helper.rb,47
+module ApplicationHelperApplicationHelper1,0
+
+test/application_system_test_case.rb,95
+class ApplicationSystemTestCase < ActionDispatch::SystemTestCaseApplicationSystemTestCase3,0
+
+test/test_helper.rb,114
+module ActiveSupportActiveSupport5,0
+  class TestCaseTestCase6,0
+  class TestCaseActiveSupport::TestCase6,0
+
+config/application.rb,167
+module DiscogsMediaDiscogsMedia9,0
+  class Application < Rails::ApplicationApplication10,0
+  class Application < Rails::ApplicationDiscogsMedia::Application10,0
