@@ -24,6 +24,11 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to user_url(User.last)
   end
 
+  test "should NOT create user" do
+    post users_url, params: { user: { email_address: "foo", password_digest: "" } }
+    assert_response :unprocessable_entity
+  end
+
   test "should show user" do
     get user_url(@user)
     assert_response :success
@@ -37,6 +42,12 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
   test "should update user" do
     patch user_url(@user), params: { user: { email_address: "one@example.org", password_digest: "password" } }
     assert_redirected_to user_url(@user)
+  end
+
+  test "it should NOT update user" do
+    # empty password example
+    patch user_url(@user), params: { user: { email_address: "one@example.org", password_digest: "" } }
+    assert_response :unprocessable_entity
   end
 
   test "should destroy user" do
