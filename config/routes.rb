@@ -1,8 +1,12 @@
 Rails.application.routes.draw do
+  resources :users
+  resources :artists
   resources :media_types
   resource :session, only: %i[new create destroy]
   resources :passwords, param: :token
-  get "homepage/index"
+  resource :registration, only: %i[new create]
+
+  # get "homepage/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -15,4 +19,8 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "homepage#index"
+
+  if Rails.env.development?
+    mount LetterOpenerWeb::Engine, at: "/letter_opener"
+  end
 end

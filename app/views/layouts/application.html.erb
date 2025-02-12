@@ -26,8 +26,10 @@
     <%= render 'shared/header' %>
     <%= render 'shared/nav' %>
     <main class="w-full bg-stone-400">
+     <div class="max-w-7xl mx-auto px-4 flex space-x-6">
       <%= yield %>
+      </div>
     </main>
     <%= render 'shared/footer' %>
   </body>
-</html>
+</html> 

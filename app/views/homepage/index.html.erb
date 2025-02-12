@@ -1,6 +1,14 @@
   <!-- Body Section -->
-<div class="max-w-7xl mx-auto px-4 py-8">
-    <h2 class="text-3xl font-semibold mb-4">Welcome to My Website</h2>
+  <% content_for :title, "Homepage" %>
+  <div class="w-full">
+    <% if notice.present? %>
+      <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+    <% end %>
+
+    <div class="flex justify-between items-center">
+      <h1 class="font-bold text-4xl">Homepage</h1>
+
+    </div>
     <p class="text-lg text-gray-700">
       This is a simple layout using Tailwind CSS. You can customize the content here.
     </p>

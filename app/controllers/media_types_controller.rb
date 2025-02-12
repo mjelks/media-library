@@ -1,6 +1,6 @@
 class MediaTypesController < ApplicationController
   before_action :set_media_type, only: %i[ show edit update destroy ]
-  allow_unauthenticated_access
+
   # GET /media_types or /media_types.json
   def index
     @media_types = MediaType.all

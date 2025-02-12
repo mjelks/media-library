@@ -38,7 +38,7 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-# gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 1.2"
 
 # let's try rblade for templating engine (on top of erb i believe)
 gem "rblade"
@@ -53,8 +53,7 @@ gem "httparty"
 
 
 group :development, :test do
-  gem "rspec-rails", "~> 5.0"
-  gem "factory_bot_rails"   # For factories (optional, but helpful)
+  gem "minitest-hooks"
   gem "faker"
   # See
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
@@ -69,6 +68,7 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+  gem "letter_opener_web"
 end
 
 group :test do

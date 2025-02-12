@@ -18,4 +18,10 @@ class SessionsController < ApplicationController
     terminate_session
     redirect_to new_session_path
   end
+
+  private
+
+  def session_params
+    params.permit(:email_address, :password, :authenticity_token, :commit)
+  end
 end

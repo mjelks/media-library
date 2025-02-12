@@ -48,6 +48,8 @@ RUN bundle exec bootsnap precompile app/ lib/
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
+RUN curl -L https://github.com/DarthSim/overmind/releases/latest/download/overmind-linux-amd64 -o /usr/local/bin/overmind && \
+    chmod +x /usr/local/bin/overmind
 
 
 
@@ -70,3 +72,4 @@ ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 # Start server via Thruster by default, this can be overwritten at runtime
 EXPOSE 80
 CMD ["./bin/thrust", "./bin/rails", "server"]
+# CMD ["./bin/thrust", "overmind", "start", "-f", "Procfile.dev"]
