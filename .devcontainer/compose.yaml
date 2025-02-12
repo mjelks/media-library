@@ -23,5 +23,10 @@ services:
   selenium:
     image: selenium/standalone-chromium
     restart: unless-stopped
+    shm_size: 2gb
+    ports:
+    - "4444:4444"
+    - "5900:5900"
+    - "7900:7900"
 
   

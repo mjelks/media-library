@@ -18,7 +18,12 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: false
-          cache-version: ${{ github.sha }}
+      
+      - name: Install dependencies
+        run: |
+          gem install net-smtp -v 0.5.0
+          bundle config set --local path 'vendor/bundle'
+          bundle install         
 
       - name: Scan for common Rails security vulnerabilities using static analysis
         run: bin/brakeman --no-pager
@@ -35,7 +40,12 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: false
-          cache-version: ${{ github.sha }}
+
+      - name: Install dependencies
+        run: |
+          gem install net-smtp -v 0.5.0
+          bundle config set --local path 'vendor/bundle'
+          bundle install              
 
       - name: Scan for security vulnerabilities in JavaScript dependencies
         run: bin/importmap audit
@@ -51,7 +61,13 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: false
-          cache-version: ${{ github.sha }}
+
+      - name: Install dependencies
+        run: |
+          gem install net-smtp -v 0.5.0
+          bundle config set --local path 'vendor/bundle'
+          bundle install              
+  
 
       - name: Lint code for consistent style
         run: bin/rubocop -f github
@@ -77,7 +93,12 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: false
-          cache-version: ${{ github.sha }}
+
+      - name: Install dependencies
+        run: |
+          gem install net-smtp -v 0.5.0
+          bundle config set --local path 'vendor/bundle'
+          bundle install              
 
       - name: Run tests
         env:
