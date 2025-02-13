@@ -44,6 +44,7 @@ gem "image_processing", "~> 1.14"
 gem "rblade"
 
 # tailwind for our css
+gem "tailwindcss-ruby", "~> 4.0"
 gem "tailwindcss-rails", "~> 4.0"
 
 gem "dotenv"
