@@ -225,6 +225,7 @@ GEM
     parser (3.3.7.0)
       ast (~> 2.4.1)
       racc
+    plist (3.7.2)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -427,6 +428,7 @@ DEPENDENCIES
   letter_opener_web
   minitest-hooks
   overmind
+  plist
   propshaft
   puma (>= 5.0)
   rails (~> 8.0.1)

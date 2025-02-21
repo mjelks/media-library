@@ -1,0 +1,10 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: Album
+  description: Vinyls and the vintage Record stuff
+
+two:
+  name: CD
+  description: Something recorded on something plastic, like, I don't know ... A DISC???!!
+  
