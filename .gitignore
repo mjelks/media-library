@@ -41,3 +41,6 @@
 /coverage/*
 
 .vscode/*
+# ignore the Library.xml file from itunes library export
+lib/itunes_import/*.xml
+lib/itunes_import/*.json
