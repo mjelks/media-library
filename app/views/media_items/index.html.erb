@@ -1,0 +1,11 @@
+<div>
+  <h1 class="font-bold text-4xl">MediaItems#index</h1>
+  <% @media_items.each do |media_item| %>
+
+    <%= link_to media_item do %>
+      <p><strong> <%= media_item.id %>:  <%= media_item.title %></strong></p>
+    <% end %>
+    
+    <hr />
+  <% end %>
+</div>

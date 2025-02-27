@@ -25,3 +25,9 @@ This will generate a json artifact with the proper formatting
 - `rails c`
 - `parser = ItunesImport::Parser.new`
 - `parser.import_media`
+
+### Step 3: Import Album Data
+
+- `rails c`
+- `parser = ItunesImport::Parser.new`
+- `parser.import_album_art`

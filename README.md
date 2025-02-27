@@ -28,6 +28,15 @@ This is a combination experiment and implementation of my local media library al
 
 - `overmind s`
 - Since we are setup in a `.devcontainer` environment on VSCode, everything should be setup and ready to go locally
+- directive(s) are stored in the `.overmind.env` file
+
+### Temporarily mount host Volumes
+
+If we need access to the Host machine volumes (aka my local machine), run the following command:
+
+- `docker run --mount type=bind,source=/Volumes,target=/mnt/volumes -it discogs_media-rails-app`
+
+This will allow the root level `/Volumes` to be accesseable from inside the container in `/mnt/volumes`
 
 ## Deployment instructions
 

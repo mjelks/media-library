@@ -72,7 +72,14 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
   gem "letter_opener_web"
+  # for importer only
   gem "plist"
+  gem "mimemagic"
+  # gem "taglib-ruby"
+  # debuggers
+  gem "byebug"
+  # annotate rails models
+  gem "annotaterb"
 end
 
 group :test do

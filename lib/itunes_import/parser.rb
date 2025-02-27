@@ -12,12 +12,17 @@ module ItunesImport
     require "open3"
     require "plist"
     require "json"
+    require "cgi"
+    require "mimemagic"
 
     MEDIA_TYPE_CD  = "CD"
     MEDIA_TYPE_MP3 = "mp3"
+    FS_PREFIX = "/mnt/volumes/Thunder18/NOTIMEMACHINE"
+    JSON_MUSIC_DATA_FILENAME="aggregated_music_library.full.json"
 
     # Path to your iTunes/Music library XML file
     # usage: `ItunesImport::Parser.parse` <== assumes Library.xml is in the current dir
+    # STEP 1
     def self.parse(xml_file = "Library.xml")
       xml_path = File.join(__dir__, xml_file)
 
@@ -37,6 +42,7 @@ module ItunesImport
         next if album.nil? || album.strip.empty?
 
         album = album.titleize
+        artist = artist.titleize
         key = "#{album}"
 
         # Initialize album entry if not present
@@ -52,6 +58,7 @@ module ItunesImport
           "track_count" => 0   # Count of tracks per album, init to 0 while we loop through
         }
 
+        # when I did my encoding back in the day of CDs, I never went past 192kbps I believe
         if track_info["Bit Rate"].to_i > 192
           aggregated_albums[key]["media_type"] = MEDIA_TYPE_MP3
         end
@@ -64,7 +71,7 @@ module ItunesImport
       # Convert to JSON and save to file
       json_output = JSON.pretty_generate(aggregated_albums.values)
 
-      output_path = File.join(__dir__, "aggregated_music_library.json")
+      output_path = File.join(__dir__, JSON_MUSIC_DATA_FILENAME)
       File.write(output_path, json_output)
 
       puts "JSON file generated: #{output_path}"
@@ -74,6 +81,7 @@ module ItunesImport
       puts "total albums generated from parse: #{total_albums}"
     end
 
+    # STEP 2
     def import_media
       json = load_json_music_data
 
@@ -87,7 +95,7 @@ module ItunesImport
 
       json.each do |album|
         begin
-          artist = Artist.find_or_create_by(name: album["artist"])
+          artist = Artist.find_or_create_by(name: album["artist"].titleize)
           MediaItem.find_or_create_by(
             title: album["album"],
             artist_id: artist.id,
@@ -104,18 +112,55 @@ module ItunesImport
       end
     end
 
-    def get_album_art
+    # STEP 3
+    def import_album_art
       json = load_json_music_data
       puts puts "total albums generated from parse: #{json.size}"
       json.each do |album|
-        puts "artist: #{album["artist"]} | album: #{album["album"]} | file_location: #{album["location"]}"
+        # puts "artist: #{album["artist"]} | album: #{album["album"]} | file_location: #{album["location"]}"
+        next if location_missing?(album)
+        album_path = CGI.unescape(album["location"].sub("file:///Volumes/media", FS_PREFIX))
+        stdout = get_image_data(album_path)
+        media_item = get_existing_media_item(album)
+        attach_artwork(media_item, stdout, album)
       end
-      # stdout, _stderr, _status = Open3.capture3("exiftool -b -Picture '#{file_path}'")
-      # stdout if stdout && !stdout.empty?
     end
 
-    def load_json_music_data(json_library_file = "aggregated_music_library.json")
-      file = File.open File.join(__dir__, json_library_file)
+    ### HELPER METHODS
+    def location_missing?(album)
+      album["location"].blank? ? true : false
+    end
+
+
+    def get_existing_media_item(album)
+      MediaItem.joins(:artist).where(artist: { name: album["artist"].try(:titleize) }).where(title: album["album"].try(:titleize)).first
+    end
+
+    def attach_artwork(media_item, binary_stdout, album)
+      return if !media_item || !binary_stdout
+      # Get mime type from the binary content (assuming `stdout` is binary data)
+      mime_type = MimeMagic.by_magic(binary_stdout).to_s
+      formatted_name = "#{album["album"]} cover art".parameterize(separator: "_")
+      # puts "formatted name: #{formatted_name}"
+      filename = "#{formatted_name}.#{mime_type.split('/').last}" # This will give you 'cover_art.jpg' or 'cover_art.png' depending on mime type
+      media_item.artwork.attach(io: StringIO.new(binary_stdout), filename: filename, content_type: mime_type)
+    end
+
+    def get_image_data(album_path)
+      Open3.capture3("exiftool '#{album_path}'")
+      # stdout, _stderr, _status = Open3.capture3("exiftool -b -CoverArt '#{album_path}'")
+      stdout, stderr, status = Open3.capture3("exiftool -b -CoverArt -Picture '#{album_path}'")
+      if stdout && !stdout.empty?
+        stdout
+      else
+        puts "stderr: #{stderr}"
+        puts "stdout: #{stdout}"
+        puts "status of get_image_data for #{album_path} on stdout failure/blankitude: #{status.inspect}"
+      end
+    end
+
+    def load_json_music_data
+      file = File.open File.join(__dir__, JSON_MUSIC_DATA_FILENAME)
       JSON.load(file)
     end
   end

@@ -25,6 +25,13 @@
 
   // Configure tool-specific properties.
   // "customizations": {},
+  // "customizations": {
+  //     "vscode": {
+  //         "extensions": [
+  //             "exiftool.vscode-exiftool"
+  //         ]
+  //     }
+  // },
 
   // Uncomment to connect as root instead. More info: https://containers.dev/implementors/json_reference/#remoteUser.
   // "remoteUser": "root",
