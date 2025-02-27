@@ -1,38 +1,44 @@
 require "test_helper"
 
 class MediaItemsControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:default_user)
+    login_as(@user)
+    @media_item = media_items(:one)
+  end
+
   test "should get index" do
-    get media_items_index_url
+    get media_items_url
     assert_response :success
   end
 
   test "should get show" do
-    get media_items_show_url
+    get media_item_url(@media_item.id)
     assert_response :success
   end
 
   test "should get new" do
-    get media_items_new_url
+    get new_media_item_url
     assert_response :success
   end
 
   test "should get create" do
-    get media_items_create_url
+    post media_items_url
     assert_response :success
   end
 
   test "should get edit" do
-    get media_items_edit_url
+    get edit_media_item_url(@media_item.id)
     assert_response :success
   end
 
   test "should get update" do
-    get media_items_update_url
+    put media_item_url(@media_item.id)
     assert_response :success
   end
 
   test "should get destroy" do
-    get media_items_destroy_url
+    delete media_item_url(@media_item.id)
     assert_response :success
   end
 end

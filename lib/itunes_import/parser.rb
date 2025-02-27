@@ -147,9 +147,9 @@ module ItunesImport
     end
 
     def get_image_data(album_path)
-      Open3.capture3("exiftool '#{album_path}'")
+      # Open3.capture3("exiftool '#{album_path}'")
       # stdout, _stderr, _status = Open3.capture3("exiftool -b -CoverArt '#{album_path}'")
-      stdout, stderr, status = Open3.capture3("exiftool -b -CoverArt -Picture '#{album_path}'")
+      stdout, stderr, status = Open3.capture3("exiftool", "-b", "-CoverArt", "-Picture", album_path)
       if stdout && !stdout.empty?
         stdout
       else
