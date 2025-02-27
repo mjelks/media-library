@@ -1,0 +1,12 @@
+<div>
+  <h1 class="font-bold text-4xl"><%= @media_item.title %> </h1>
+  <p><strong>Artist Name:</strong> <%= link_to artist_path(@media_item.artist) do %>
+      <%= @media_item.artist.name %></p>
+    <% end %>
+  <p><strong>Media Type:</strong> <%= @media_item.media_type.name %></p>
+  <%# <h6>MediaItems#show</h6> %>
+  
+  <% if @media_item.artwork.attached? %>
+    <%= image_tag @media_item.artwork %>
+  <% end %>
+</div>

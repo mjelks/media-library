@@ -5,7 +5,12 @@
     <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
   <% end %>
 
-  <h1 class="font-bold text-4xl">Showing artist</h1>
+  <h1 class="font-bold text-4xl">Media Items by this artist:</h1>
+  <% @artist.media_items.each do |media_item| %>
+    <%= link_to media_item_path(media_item) do %>
+      <%= media_item.title %><br />
+    <% end %>
+  <%end %>
 
   <%= render @artist %>
 
