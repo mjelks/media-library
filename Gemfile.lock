@@ -287,7 +287,7 @@ GEM
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.2.1)
-    rblade (1.2.1)
+    rblade (2.0.2)
     rdoc (6.12.0)
       psych (>= 4.0.0)
     regexp_parser (2.10.0)
