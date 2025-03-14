@@ -1,3 +1,4 @@
+ <div data-controller="modal">
   <!-- Menu Section -->
   <nav class="bg-gray-800 text-white py-3">
     <div class="max-w-7xl mx-auto px-4 flex space-x-6">
@@ -13,7 +14,13 @@
           <!--<a href="#"><%= Current.user.email_address %></a>-->
           <%= button_to 'Sign out', session_path, method: :delete %>
         <% else %>
-          <%= link_to 'Sign in', new_session_path %>
+          <button data-action="modal#show"
+                class="hover:text-blue-400 bg-transparent border-none cursor-pointer">Sign in</button>
         <% end %>
     </div>
   </nav>
+
+  <% content_for :modals do %>
+    <%= render partial: 'shared/auth_modal' %>
+  <% end %>
+</div>
