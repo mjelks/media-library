@@ -1,6 +1,32 @@
 @import "tailwindcss";
-/* @plugin "tailwindcss/forms" */
+
 @theme {
     --font-sans: InterVariable, sans-serif;
   }
-/* @config "../../../config/tailwind.config.js"; */
+
+@layer utilities {
+  
+  form {
+    @apply text-gray-200;
+  }
+
+  .button-standard {
+    @apply rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer mr-1;
+  }
+  
+  .button-cancel {
+    @apply rounded-md px-3.5 py-2.5 bg-gray-400 hover:bg-gray-200 text-gray-900 inline-block font-medium cursor-pointer;
+  }
+
+  .tab-header {
+    @apply px-4 py-2 text-lg font-medium text-gray-400 border-b-2 border-transparent;
+  }
+
+  .tab-header:hover {
+    @apply text-white border-blue-500;
+  }
+
+  .tab-header.selected {
+    @apply text-white border-blue-500 font-semibold;
+  }
+}
