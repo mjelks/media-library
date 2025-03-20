@@ -6,9 +6,9 @@ This is a combination experiment and implementation of my local media library al
 
 ### Rails Goals
 
-- Use Rails 8 as vanilla as possible (.erb, test instead of rspec, rails 8 auth)
-- Use Docker container to manage all dependencies inside container
-- Use Tailwindcss for styling
+- Use Rails 8 as vanilla as possible (.erb, test instead of rspec, rails 8 auth)  ✅
+- Use Docker container to manage all dependencies inside container ✅
+- Use Tailwindcss for styling  ✅
 - Deploy using Kamal to external service
 
 ### Functional Goals (features)
@@ -18,7 +18,7 @@ This is a combination experiment and implementation of my local media library al
 - User authentication to add media and add categories
 - Default view to show all media
 - Search functionality
-- import iTunes data to seed initial database
+- Import iTunes data to seed initial database  ✅
 - Album art on main page
 - Play counter to let me know how many times I've played an album
 - maybe SPA up the site and not load pages
@@ -29,6 +29,10 @@ This is a combination experiment and implementation of my local media library al
 - `overmind s`
 - Since we are setup in a `.devcontainer` environment on VSCode, everything should be setup and ready to go locally
 - directive(s) are stored in the `.overmind.env` file
+
+### Credentials Edit
+
+`EDITOR="code --wait" rails credentials:edit`
 
 ### Temporarily mount host Volumes
 
