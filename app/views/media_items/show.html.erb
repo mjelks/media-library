@@ -1,7 +1,7 @@
 <div>
-  <h1 class="font-bold text-4xl"><%= @media_item.title %> </h1>
-  <p><strong>Artist Name:</strong> <%= link_to artist_path(@media_item.artist) do %>
-      <%= @media_item.artist.name %></p>
+  <h1 class="font-bold text-4xl"><%= @media_item.name %> </h1>
+  <p><strong>Artist Name:</strong> <%= link_to media_owner_path(@media_item.media_owner) do %>
+      <%= @media_item.media_owner.name %></p>
     <% end %>
   <p><strong>Media Type:</strong> <%= @media_item.media_type.name %></p>
   <%# <h6>MediaItems#show</h6> %>
