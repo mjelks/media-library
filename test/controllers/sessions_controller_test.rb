@@ -21,7 +21,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert @user.id > 0
     delete session_url
     follow_redirect! if response.redirect?
-    assert_select "h1", "Sign in"
+    assert_select "h1", "Homepage"
   end
 
   test "should redirect and hit request_authentication" do
