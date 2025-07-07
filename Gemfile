@@ -45,7 +45,7 @@ gem "rblade"
 
 # tailwind for our css
 gem "tailwindcss-ruby", "~> 4.0"
-gem "tailwindcss-rails", "~> 4.2"
+gem "tailwindcss-rails", "~> 4.3"
 
 gem "dotenv"
 
