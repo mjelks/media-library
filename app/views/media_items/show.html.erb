@@ -1,5 +1,5 @@
 <div>
-  <h1 class="font-bold text-4xl"><%= @media_item.title %> </h1>
+  <h1 class="font-bold text-4xl"><%= @media_item.name %> </h1>
   <p><strong>Artist Name:</strong> <%= link_to artist_path(@media_item.artist) do %>
       <%= @media_item.artist.name %></p>
     <% end %>
