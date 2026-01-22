@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_20_222808) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_20_193058) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -39,23 +39,31 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_20_222808) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "artists", force: :cascade do |t|
+  create_table "media_item_tracks", force: :cascade do |t|
+    t.string "name"
+    t.integer "play_count"
+    t.integer "media_item_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["media_item_id"], name: "index_media_item_tracks_on_media_item_id"
+  end
+
+  create_table "media_items", force: :cascade do |t|
+    t.string "name"
+    t.integer "play_count"
+    t.integer "media_type_id", null: false
+    t.integer "media_owner_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["media_owner_id"], name: "index_media_items_on_media_owner_id"
+    t.index ["media_type_id"], name: "index_media_items_on_media_type_id"
+  end
+
+  create_table "media_owners", force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "media_items", force: :cascade do |t|
-    t.string "title"
-    t.integer "play_count"
-    t.integer "track_count"
-    t.integer "media_type_id", null: false
-    t.integer "artist_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["artist_id"], name: "index_media_items_on_artist_id"
-    t.index ["media_type_id"], name: "index_media_items_on_media_type_id"
   end
 
   create_table "media_types", force: :cascade do |t|
@@ -84,7 +92,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_20_222808) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "media_items", "artists"
+  add_foreign_key "media_item_tracks", "media_items"
+  add_foreign_key "media_items", "media_owners"
   add_foreign_key "media_items", "media_types"
   add_foreign_key "sessions", "users"
 end
