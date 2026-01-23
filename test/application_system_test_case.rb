@@ -14,12 +14,10 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
 
   def login_as(user)
     # Assuming you have a login path and a form with `email` and `password`
-    visit new_session_url
-    fill_in "email_address", with: user.email_address
-    fill_in "password", with: "password"
-    within("form") do
-      # click_on "Sign in"
-      click_button "commit"
+    within("#modal") do
+      fill_in "email_address", with: user.email_address
+      fill_in "password", with: "password"
+      click_button "Sign in"
     end
   end
 end
