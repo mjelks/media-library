@@ -2,10 +2,10 @@
   <!-- Menu Section -->
   <nav class="bg-gray-800 text-white py-3">
     <div class="max-w-7xl mx-auto px-4 flex space-x-6">
-      <a href="/" class="hover:text-blue-400">Home</a>
-      <a href="/artists" class="hover:text-blue-400">Artists</a>
-      <a href="/media_types" class="hover:text-blue-400">Media Types</a>
-      <a href="/media_items" class="hover:text-blue-400">Media Items</a>
+      <%= link_to "Home", root_path, class: "hover:text-blue-400" %>
+      <%= link_to "Artists", media_owners_path, class: "hover:text-blue-400" %>
+      <%= link_to "Media Types", media_types_path, class: "hover:text-blue-400" %>
+      <%= link_to "Media Items", media_items_path, class: "hover:text-blue-400" %>
       <a href="#" class="hover:text-blue-400">Services</a>
       <a href="#" class="hover:text-blue-400">Contact</a>
       <% if authenticated? %>
