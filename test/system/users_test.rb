@@ -32,6 +32,11 @@ class UsersTest < ApplicationSystemTestCase
     login_as(@user)
 
     click_on "Edit this user", match: :first
+
+    # Wait for the edit form to be ready
+    assert_selector "h1", text: "Editing user"
+    assert_selector "input[name='user[email_address]']"
+
     find("input[name='user[password_digest]']").set("mysecretpassword-deux")
     click_on "Update User"
 
