@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: artists
+# Table name: media_owners
 #
 #  id          :integer          not null, primary key
 #  description :text
@@ -8,6 +8,6 @@
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #
-class Artist < ApplicationRecord
+class MediaOwner < ApplicationRecord
   has_many :media_items
 end

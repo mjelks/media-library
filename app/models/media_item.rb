@@ -22,6 +22,6 @@
 #
 class MediaItem < ApplicationRecord
   belongs_to :media_type
-  belongs_to :artist
+  belongs_to :media_owner
   has_one_attached :artwork
 end

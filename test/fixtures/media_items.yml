@@ -23,13 +23,13 @@
 #  media_type_id   (media_type_id => media_types.id)
 #
 one:
-  title: Analogue
+  name: Analogue
   play_count: 1
   media_type: two
-  artist: one
+  media_owner: one
 
 two:
-  title: These Days
+  name: These Days
   play_count: 3
   media_type: one
-  artist: two
+  media_owner: two
