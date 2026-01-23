@@ -1,0 +1,46 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# == Schema Information
+#
+# Table name: release_tracks
+#
+#  id         :integer          not null, primary key
+#  duration   :string
+#  name       :string           not null
+#  position   :string           not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  release_id :integer          not null
+#
+# Indexes
+#
+#  index_release_tracks_on_release_id               (release_id)
+#  index_release_tracks_on_release_id_and_position  (release_id,position) UNIQUE
+#
+# Foreign Keys
+#
+#  release_id  (release_id => releases.id)
+#
+one_track_one:
+  release: one
+  position: "1"
+  name: Analogue (All I Want)
+  duration: "4:32"
+
+one_track_two:
+  release: one
+  position: "2"
+  name: Celice
+  duration: "3:58"
+
+two_track_one:
+  release: two
+  position: "1"
+  name: Hey God
+  duration: "6:12"
+
+two_track_two:
+  release: two
+  position: "2"
+  name: Something for the Pain
+  duration: "4:29"

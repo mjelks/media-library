@@ -24,6 +24,19 @@ This is a combination experiment and implementation of my local media library al
 - maybe SPA up the site and not load pages
     - look into using the turbo / hotwire stuff for that
 
+### RDBMS Structure
+
+Since this is a trivial single use instance (for personal use only), going to use sqlite as I expect no more than 1 user at a time ... ME :)
+
+After trial and error with Relational structure, going to follow approach recommened by Claude's analyis of Discogs' structure since that is the source I will be querying / inserting against.
+
+[Table Structure](vendor/readme-assets/01.png)
+
+[Sample Tree](vendor/readme-assets/02.png)
+
+[Sample Tree](vendor/readme-assets/03.png)
+
+
 # Local Dev instructions
 
 - `overmind s`

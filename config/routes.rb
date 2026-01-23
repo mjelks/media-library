@@ -3,6 +3,8 @@ Rails.application.routes.draw do
   resources :media_owners
   resources :media_types
   resources :media_items
+  resources :releases
+  resources :genres
   resource :session, only: %i[new create destroy]
   resources :passwords, param: :token
   resource :registration, only: %i[new create]

@@ -1,0 +1,23 @@
+<div class="max-w-4xl">
+  <h1 class="font-bold text-4xl mb-6"><%= @genre.name %></h1>
+
+  <% if @genre.releases.any? %>
+    <h2 class="font-bold text-xl mb-4">Releases in this genre</h2>
+    <div class="space-y-2">
+      <% @genre.releases.each do |release| %>
+        <%= link_to release_path(release), class: "block p-4 hover:bg-gray-100 rounded-lg border" do %>
+          <p class="font-semibold"><%= release.title %></p>
+          <p class="text-gray-600 text-sm"><%= release.media_owner.name %> <span class="text-gray-400">(<%= release.original_year %>)</span></p>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-gray-500">No releases in this genre yet.</p>
+  <% end %>
+
+  <div class="flex gap-2 mt-8">
+    <%= link_to "Edit", edit_genre_path(@genre), class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 font-medium" %>
+    <%= link_to "Back", genres_path, class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 font-medium" %>
+    <%= button_to "Delete", @genre, method: :delete, class: "rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium", data: { turbo_confirm: "Are you sure?" } %>
+  </div>
+</div>

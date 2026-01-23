@@ -1,12 +1,73 @@
-<div>
-  <h1 class="font-bold text-4xl"><%= @media_item.name %> </h1>
-  <p><strong>Media Owner:</strong> <%= link_to media_owner_path(@media_item.media_owner) do %>
-      <%= @media_item.media_owner.name %></p>
+<div class="max-w-4xl">
+  <div class="flex gap-8 mb-8">
+    <% if @media_item.artwork.attached? %>
+      <%= image_tag @media_item.artwork, class: "w-64 h-64 object-cover rounded-lg shadow-lg" %>
+    <% else %>
+      <div class="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+        <span class="text-gray-400">No Artwork</span>
+      </div>
     <% end %>
-  <p><strong>Media Type:</strong> <%= @media_item.media_type.name %></p>
-  <%# <h6>MediaItems#show</h6> %>
-  
-  <% if @media_item.artwork.attached? %>
-    <%= image_tag @media_item.artwork %>
+
+    <div class="flex-1">
+      <h1 class="font-bold text-4xl mb-2"><%= @media_item.title %></h1>
+
+      <% if @media_item.media_owner %>
+        <p class="text-xl text-gray-600 mb-4">
+          <%= link_to @media_item.media_owner.name, media_owner_path(@media_item.media_owner), class: "hover:underline" %>
+        </p>
+      <% end %>
+
+      <div class="space-y-2 text-gray-600">
+        <p><strong>Format:</strong> <%= @media_item.media_type.name %></p>
+        <% if @media_item.year %>
+          <p><strong>Year:</strong> <%= @media_item.year %></p>
+        <% end %>
+        <% if @media_item.release&.original_year %>
+          <p><strong>Original Release:</strong> <%= @media_item.release.original_year %></p>
+        <% end %>
+        <% if @media_item.genres.any? %>
+          <p><strong>Genre:</strong> <%= @media_item.genres.map(&:name).join(", ") %></p>
+        <% end %>
+        <% if @media_item.play_count && @media_item.play_count > 0 %>
+          <p><strong>Play Count:</strong> <%= @media_item.play_count %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% if @media_item.description.present? %>
+    <div class="mb-6">
+      <h2 class="font-bold text-xl mb-2">Description</h2>
+      <p class="text-gray-600"><%= @media_item.description %></p>
+    </div>
   <% end %>
+
+  <% if @media_item.notes.present? %>
+    <div class="mb-6">
+      <h2 class="font-bold text-xl mb-2">Notes</h2>
+      <p class="text-gray-600"><%= @media_item.notes %></p>
+    </div>
+  <% end %>
+
+  <% if @media_item.release_tracks.any? %>
+    <div class="mb-6">
+      <h2 class="font-bold text-xl mb-2">Track Listing</h2>
+      <ol class="list-decimal list-inside space-y-1">
+        <% @media_item.release_tracks.each do |track| %>
+          <li class="text-gray-600">
+            <%= track.name %>
+            <% if track.duration.present? %>
+              <span class="text-gray-400">(<%= track.duration %>)</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ol>
+    </div>
+  <% end %>
+
+  <div class="flex gap-2 mt-8">
+    <%= link_to "Edit", edit_media_item_path(@media_item), class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 font-medium" %>
+    <%= link_to "Back", media_items_path, class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 font-medium" %>
+    <%= button_to "Delete", @media_item, method: :delete, class: "rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium", data: { turbo_confirm: "Are you sure?" } %>
+  </div>
 </div>

@@ -9,5 +9,6 @@
 #  updated_at  :datetime         not null
 #
 class MediaOwner < ApplicationRecord
-  has_many :media_items
+  has_many :releases
+  has_many :media_items, through: :releases
 end
