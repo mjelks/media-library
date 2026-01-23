@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   resources :passwords, param: :token
   resource :registration, only: %i[new create]
 
+  # Discogs search
+  resources :discogs, only: %i[index show]
+
   # get "homepage/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
