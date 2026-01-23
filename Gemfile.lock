@@ -201,6 +201,7 @@ GEM
       prism (~> 1.5)
     minitest-hooks (1.5.3)
       minitest (> 5.3)
+    minitest-mock (5.27.0)
     msgpack (1.8.0)
     multi_xml (0.8.1)
       bigdecimal (>= 3.1, < 5)
@@ -447,7 +448,9 @@ DEPENDENCIES
   kamal
   letter_opener_web
   mimemagic
+  minitest
   minitest-hooks
+  minitest-mock
   overmind
   plist
   propshaft
