@@ -52,6 +52,8 @@ gem "dotenv"
 # required for API call to Discogs
 gem "httparty"
 
+# gem "discogs-wrapper"
+
 
 group :development, :test do
   gem "minitest-hooks"
