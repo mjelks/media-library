@@ -1,0 +1,37 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# == Schema Information
+#
+# Table name: releases
+#
+#  id                 :integer          not null, primary key
+#  additional_info    :text
+#  description        :text
+#  original_year      :integer
+#  record_label       :string
+#  title              :string           not null
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  discogs_release_id :integer
+#  media_owner_id     :integer          not null
+#
+# Indexes
+#
+#  index_releases_on_media_owner_id  (media_owner_id)
+#  index_releases_on_original_year   (original_year)
+#
+# Foreign Keys
+#
+#  media_owner_id  (media_owner_id => media_owners.id)
+#
+one:
+  title: Analogue
+  description: Fifth studio album
+  original_year: 2005
+  media_owner: one
+
+two:
+  title: These Days
+  description: Sixth studio album
+  original_year: 1995
+  media_owner: two

@@ -5,18 +5,27 @@
     <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
   <% end %>
 
-  <h1 class="font-bold text-4xl">Media Items by this media owner:</h1>
-  <% @media_owner.media_items.each do |media_item| %>
-    <%= link_to media_item_path(media_item) do %>
-      <%= media_item.name %><br />
-    <% end %>
-  <%end %>
-
   <%= render @media_owner %>
 
-  <%= link_to "Edit this media owner", edit_media_owner_path(@media_owner), class: "mt-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= link_to "Back to media owners", media_owners_path, class: "ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <div class="inline-block ml-2">
-    <%= button_to "Destroy this media owner", @media_owner, method: :delete, class: "mt-2 rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium" %>
+  <% if @media_owner.releases.any? %>
+    <h2 class="font-bold text-2xl mt-6 mb-4">Releases</h2>
+    <div class="space-y-2">
+      <% @media_owner.releases.each do |release| %>
+        <div class="p-3 bg-gray-50 rounded">
+          <p class="font-semibold"><%= release.title %> <span class="text-gray-500">(<%= release.original_year %>)</span></p>
+          <% if release.media_items.any? %>
+            <p class="text-sm text-gray-600">
+              Formats: <%= release.media_items.includes(:media_type).map { |mi| mi.media_type.name }.uniq.join(", ") %>
+            </p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="mt-6 flex gap-2">
+    <%= link_to "Edit this media owner", edit_media_owner_path(@media_owner), class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
+    <%= link_to "Back to media owners", media_owners_path, class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
+    <%= button_to "Destroy this media owner", @media_owner, method: :delete, class: "rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium" %>
   </div>
 </div>

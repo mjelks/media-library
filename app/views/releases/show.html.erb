@@ -1,0 +1,72 @@
+<div class="max-w-4xl">
+  <h1 class="font-bold text-4xl mb-2"><%= @release.title %></h1>
+
+  <p class="text-xl text-gray-600 mb-4">
+    <%= link_to @release.media_owner.name, media_owner_path(@release.media_owner), class: "hover:underline" %>
+  </p>
+
+  <div class="space-y-2 text-gray-600 mb-6">
+    <% if @release.original_year %>
+      <p><strong>Year:</strong> <%= @release.original_year %></p>
+    <% end %>
+    <% if @release.genres.any? %>
+      <p><strong>Genre:</strong> <%= @release.genres.map(&:name).join(", ") %></p>
+    <% end %>
+  </div>
+
+  <% if @release.description.present? %>
+    <div class="mb-6">
+      <h2 class="font-bold text-xl mb-2">Description</h2>
+      <p class="text-gray-600"><%= @release.description %></p>
+    </div>
+  <% end %>
+
+  <% if @release.additional_info.present? %>
+    <div class="mb-6">
+      <h2 class="font-bold text-xl mb-2">Additional Info</h2>
+      <p class="text-gray-600"><%= @release.additional_info %></p>
+    </div>
+  <% end %>
+
+  <% if @release.release_tracks.any? %>
+    <div class="mb-6">
+      <h2 class="font-bold text-xl mb-2">Track Listing</h2>
+      <ol class="list-decimal list-inside space-y-1">
+        <% @release.release_tracks.each do |track| %>
+          <li class="text-gray-600">
+            <%= track.name %>
+            <% if track.duration.present? %>
+              <span class="text-gray-400">(<%= track.duration %>)</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ol>
+    </div>
+  <% end %>
+
+  <% if @release.media_items.any? %>
+    <div class="mb-6">
+      <h2 class="font-bold text-xl mb-2">Your Copies</h2>
+      <div class="space-y-2">
+        <% @release.media_items.each do |item| %>
+          <%= link_to media_item_path(item), class: "block p-3 bg-gray-50 rounded hover:bg-gray-100" do %>
+            <span class="font-medium"><%= item.media_type.name %></span>
+            <% if item.year %>
+              <span class="text-gray-500">(<%= item.year %>)</span>
+            <% end %>
+            <% if item.notes.present? %>
+              <span class="text-gray-400 text-sm"> - <%= truncate(item.notes, length: 50) %></span>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="flex gap-2 mt-8">
+    <%= link_to "Add Copy", new_media_item_path(release_id: @release.id), class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
+    <%= link_to "Edit", edit_release_path(@release), class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 font-medium" %>
+    <%= link_to "Back", releases_path, class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 font-medium" %>
+    <%= button_to "Delete", @release, method: :delete, class: "rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium", data: { turbo_confirm: "Are you sure? This will delete all associated media items." } %>
+  </div>
+</div>

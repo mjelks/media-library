@@ -19,7 +19,13 @@ class UsersTest < ApplicationSystemTestCase
     visit users_url
     login_as(@user)
 
+    assert_selector "h1", text: "Users"
     click_on "New user"
+
+    # Wait for the new user form to be ready
+    assert_selector "h1", text: "New user"
+    assert_selector "input[name='user[email_address]']"
+
     fill_in "Email address", with: "foo@example.com"
     find("input[name='user[password_digest]']").set("mysecretpassword")
 
@@ -46,6 +52,8 @@ class UsersTest < ApplicationSystemTestCase
   test "should destroy User" do
     visit user_url(@user)
     login_as(@user)
+
+    assert_selector "h1", text: "Showing user"
     click_on "Destroy this user", match: :first
 
     assert_text "User was successfully destroyed"

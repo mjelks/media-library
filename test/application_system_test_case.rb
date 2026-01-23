@@ -24,5 +24,8 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
       fill_in "password", with: "password"
       click_button "Sign in"
     end
+
+    # Wait for the login to complete and modal to close
+    assert_no_selector "#modal", visible: true
   end
 end

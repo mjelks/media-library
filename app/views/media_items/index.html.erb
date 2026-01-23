@@ -1,11 +1,25 @@
 <div>
-  <h1 class="font-bold text-4xl">MediaItems#index</h1>
-  <% @media_items.each do |media_item| %>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="font-bold text-4xl">Media Items</h1>
+    <%= link_to "Add New", new_media_item_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
+  </div>
 
+  <% @media_items.each do |media_item| %>
     <%= link_to media_item do %>
-      <p><strong> <%= media_item.id %>:  <%= media_item.name %></strong></p>
+      <div class="flex items-center gap-4 p-4 hover:bg-gray-100 rounded-lg">
+        <% if media_item.artwork.attached? %>
+          <%= image_tag media_item.artwork, class: "w-16 h-16 object-cover rounded" %>
+        <% else %>
+          <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+            <span class="text-gray-400">No Art</span>
+          </div>
+        <% end %>
+        <div>
+          <p class="font-semibold"><%= media_item.title %></p>
+          <p class="text-gray-600 text-sm"><%= media_item.media_owner&.name %></p>
+          <p class="text-gray-400 text-xs"><%= media_item.media_type.name %> <%= media_item.year if media_item.year %></p>
+        </div>
+      </div>
     <% end %>
-    
-    <hr />
   <% end %>
 </div>
