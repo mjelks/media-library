@@ -1,6 +1,6 @@
 class MediaItemsController < ApplicationController
   def index
-    @media_items = MediaItem.order(Arel.sql("LOWER(title)"))
+    @media_items = MediaItem.order(Arel.sql("LOWER(name)"))
   end
 
   def show

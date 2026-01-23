@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   resources :users
-  resources :artists
+  resources :media_owners
   resources :media_types
   resources :media_items
   resource :session, only: %i[new create destroy]

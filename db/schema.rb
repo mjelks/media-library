@@ -10,26 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_20_193058) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_23_010337) do
   create_table "active_storage_attachments", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "record_type", null: false
-    t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "record_id", null: false
+    t.string "record_type", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
   create_table "active_storage_blobs", force: :cascade do |t|
-    t.string "key", null: false
-    t.string "filename", null: false
-    t.string "content_type"
-    t.text "metadata"
-    t.string "service_name", null: false
     t.bigint "byte_size", null: false
     t.string "checksum"
+    t.string "content_type"
     t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
@@ -40,52 +40,52 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_193058) do
   end
 
   create_table "media_item_tracks", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "media_item_id", null: false
     t.string "name"
     t.integer "play_count"
-    t.integer "media_item_id", null: false
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["media_item_id"], name: "index_media_item_tracks_on_media_item_id"
   end
 
   create_table "media_items", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "media_owner_id", null: false
+    t.integer "media_type_id", null: false
     t.string "name"
     t.integer "play_count"
-    t.integer "media_type_id", null: false
-    t.integer "media_owner_id", null: false
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["media_owner_id"], name: "index_media_items_on_media_owner_id"
     t.index ["media_type_id"], name: "index_media_items_on_media_type_id"
   end
 
   create_table "media_owners", force: :cascade do |t|
-    t.string "name"
-    t.text "description"
     t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name"
     t.datetime "updated_at", null: false
   end
 
   create_table "media_types", force: :cascade do |t|
-    t.string "name"
-    t.text "description"
     t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name"
     t.datetime "updated_at", null: false
   end
 
   create_table "sessions", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.string "ip_address"
-    t.string "user_agent"
     t.datetime "created_at", null: false
+    t.string "ip_address"
     t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.integer "user_id", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
+    t.datetime "created_at", null: false
     t.string "email_address", null: false
     t.string "password_digest", null: false
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end

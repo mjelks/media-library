@@ -2,7 +2,7 @@
 
 # == Schema Information
 #
-# Table name: artists
+# Table name: media_owners
 #
 #  id          :integer          not null, primary key
 #  description :text
