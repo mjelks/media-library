@@ -24,6 +24,17 @@
       </div>
 
       <div>
+        <%= f.select :format,
+          options_for_select([
+            ["All Formats", ""],
+            ["Vinyl", "vinyl"],
+            ["CD", "cd"]
+          ], @format_filter),
+          {},
+          class: "px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      </div>
+
+      <div>
         <%= f.submit "Search", class: "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer" %>
       </div>
     </div>
@@ -39,8 +50,8 @@
     <div class="mb-4">
       <p class="text-gray-600">
         Found <%= @results.length %> results for "<%= @query %>"
-        <% if @type_filter.present? %>
-          (filtered by: <%= @type_filter %>)
+        <% if @type_filter.present? || @format_filter.present? %>
+          (filtered by:<%= " #{@type_filter}" if @type_filter.present? %><%= ", #{@format_filter}" if @format_filter.present? %>)
         <% end %>
       </p>
     </div>

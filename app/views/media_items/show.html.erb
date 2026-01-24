@@ -1,7 +1,7 @@
 <div class="max-w-4xl">
   <div class="flex gap-8 mb-8">
-    <% if @media_item.artwork.attached? %>
-      <%= image_tag @media_item.artwork, class: "w-64 h-64 object-cover rounded-lg shadow-lg" %>
+    <% if @media_item.release.cover_image.attached? %>
+      <%= image_tag @media_item.release.cover_image, class: "w-64 h-64 object-cover rounded-lg shadow-lg" %>
     <% else %>
       <div class="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center">
         <span class="text-gray-400">No Artwork</span>

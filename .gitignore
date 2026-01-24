@@ -13,6 +13,7 @@
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
+/storage.bak/*
 !/log/.keep
 !/tmp/.keep
 
@@ -44,4 +45,4 @@
 # ignore the Library.xml file from itunes library export
 lib/itunes_import/*.xml
 lib/itunes_import/*.json
-.byebug.*
+.byebug*

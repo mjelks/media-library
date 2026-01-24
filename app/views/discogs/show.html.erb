@@ -72,14 +72,69 @@
         </div>
       <% end %>
 
-      <% if @release["uri"].present? %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
+      <div class="mt-6 pt-6 border-t border-gray-200 flex gap-4 items-center">
+        <button type="button"
+                onclick="showCatalogModal()"
+                class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer">
+          Add to Catalog?
+        </button>
+
+        <% if @release["uri"].present? %>
           <%= link_to "View on Discogs →",
             @release["uri"],
             target: "_blank",
             class: "text-blue-600 hover:text-blue-800" %>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     </div>
+
+    <!-- Modal -->
+    <div id="catalog-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+        <h2 class="text-xl font-bold mb-4">Add to Catalog?</h2>
+        <p class="text-gray-600 mb-6">Add "<%= @release["title"] %>" to your catalog?</p>
+        <div class="flex gap-4 justify-end">
+
+          <%= form_with url: discogs_path, method: :post, id: "add-to-catalog-form", class: "inline" do |f| %>
+            <%= f.hidden_field :release_id, value: @release_id %>
+            <button type="submit"
+                    class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer">
+              Yes
+            </button>
+          <% end %>
+          <button type="button"
+                  onclick="closeModal()"
+                  class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 cursor-pointer">
+            No
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showCatalogModal() {
+        document.getElementById('catalog-modal').classList.remove('hidden');
+        document.getElementById('catalog-modal').classList.add('flex');
+      }
+
+      function closeModal() {
+        document.getElementById('catalog-modal').classList.add('hidden');
+        document.getElementById('catalog-modal').classList.remove('flex');
+      }
+
+      // Close modal on backdrop click
+      document.getElementById('catalog-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeModal();
+        }
+      });
+
+      // Close modal on Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeModal();
+        }
+      });
+    </script>
   <% end %>
 </div>

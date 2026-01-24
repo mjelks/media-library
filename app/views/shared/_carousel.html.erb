@@ -6,7 +6,7 @@
       <% @carousel_albums.each do |album| %>
         <div class="carousel-item flex-shrink-0 w-48 snap-start">
           <div class="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition">
-            <%= image_tag album.artwork.attached? ? url_for(album.artwork) : "placeholder.jpg",
+            <%= image_tag album.release.cover_image.attached? ? url_for(album.release.cover_image) : "placeholder.jpg",
               alt: album.title,
               class: "w-full h-48 object-cover rounded-lg mb-3" %>
             <h3 class="font-semibold truncate"><%= album.title %></h3>
