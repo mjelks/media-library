@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   resource :registration, only: %i[new create]
 
   # Discogs search
-  resources :discogs, only: %i[index show]
+  resources :discogs, only: %i[index show create]
 
   # get "homepage/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

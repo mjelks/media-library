@@ -25,9 +25,11 @@
 class Release < ApplicationRecord
   belongs_to :media_owner
   has_many :media_items, dependent: :destroy
-  has_many :release_tracks, -> { order(:position) }, dependent: :destroy
+  has_many :release_tracks, dependent: :destroy
   has_many :release_genres, dependent: :destroy
   has_many :genres, through: :release_genres
+
+  has_one_attached :cover_image
 
   validates :title, presence: true
 end
