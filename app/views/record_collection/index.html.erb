@@ -1,0 +1,114 @@
+<% content_for :title, "Record Collection" %>
+
+<div class="p-4 w-full">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="font-bold text-4xl">Record Collection</h1>
+  </div>
+
+  <!-- Skeuomorphic Record Cube Storage Unit -->
+  <div class="relative max-w-[1080px]">
+    <!-- Wooden frame outer border -->
+    <div class="bg-gradient-to-b from-amber-800 via-amber-900 to-amber-950 p-3 rounded-lg shadow-2xl">
+      <!-- Inner frame with wood grain effect -->
+      <div class="bg-gradient-to-br from-amber-700 via-amber-800 to-amber-900 p-2 rounded shadow-inner">
+
+        <!-- 2x3 Grid of Cubes -->
+        <div class="grid grid-cols-2 gap-1" id="cube-grid">
+          <% @cubes.each_with_index do |cube_letter, index| %>
+            <% row = index / 2 %>
+            <% col = index % 2 %>
+
+            <!-- Individual Cube -->
+            <div class="relative aspect-[2/3] sm:aspect-square"
+                 id="cube-<%= cube_letter %>"
+                 data-cube="<%= cube_letter %>"
+                 data-row="<%= row %>"
+                 data-col="<%= col %>">
+
+              <!-- Cube interior with depth effect -->
+              <div class="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-black rounded-sm overflow-hidden">
+                <!-- Top shadow (depth illusion) -->
+                <div class="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-black/60 to-transparent"></div>
+                <!-- Left shadow -->
+                <div class="absolute top-0 left-0 bottom-0 w-4 bg-gradient-to-r from-black/50 to-transparent"></div>
+                <!-- Bottom highlight -->
+                <div class="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-stone-700/30 to-transparent"></div>
+                <!-- Right highlight -->
+                <div class="absolute top-0 right-0 bottom-0 w-2 bg-gradient-to-l from-stone-700/20 to-transparent"></div>
+
+                <!-- Cube label -->
+                <div class="absolute top-1 right-2 text-stone-600 text-xs font-mono opacity-50">
+                  <%= cube_letter %>
+                </div>
+
+                <!-- Records/Locations container -->
+                <div class="absolute inset-4 flex flex-col gap-1 overflow-hidden">
+                  <% locations_in_cube = @locations_by_cube[cube_letter] || [] %>
+
+                  <% if locations_in_cube.any? %>
+                    <% locations_in_cube.each do |location| %>
+                      <%= render partial: 'record_divider', locals: { location: location, cube_letter: cube_letter } %>
+                    <% end %>
+                  <% else %>
+                    <!-- Empty cube placeholder -->
+                    <div class="flex-1 flex items-center justify-center">
+                      <span class="text-stone-700 text-sm italic">Empty</span>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+
+              <!-- Wooden divider edges -->
+              <% if col == 0 %>
+                <!-- Right divider -->
+                <div class="absolute top-0 -right-0.5 bottom-0 w-1 bg-gradient-to-r from-amber-800 via-amber-700 to-amber-800 shadow"></div>
+              <% end %>
+              <% if row < 2 %>
+                <!-- Bottom divider -->
+                <div class="absolute -bottom-0.5 left-0 right-0 h-1 bg-gradient-to-b from-amber-800 via-amber-700 to-amber-800 shadow"></div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wooden feet/stand -->
+    <div class="flex justify-between px-8 -mt-1">
+      <div class="w-16 h-3 bg-gradient-to-b from-amber-900 to-amber-950 rounded-b-lg shadow-lg"></div>
+      <div class="w-16 h-3 bg-gradient-to-b from-amber-900 to-amber-950 rounded-b-lg shadow-lg"></div>
+    </div>
+  </div>
+
+  <!-- Unassigned Locations -->
+  <% unassigned = @locations.select { |l| l.cube_location.blank? } %>
+  <% if unassigned.any? %>
+    <div class="mt-8 max-w-[1280px] mx-auto">
+      <h2 class="font-bold text-xl mb-4 text-stone-700">Unassigned Locations</h2>
+      <div class="bg-stone-200 rounded-lg p-4">
+        <div class="flex flex-wrap gap-2">
+          <% unassigned.each do |location| %>
+            <%= link_to edit_location_path(location), class: "inline-flex items-center gap-2 px-3 py-2 bg-white rounded shadow hover:bg-stone-50 transition" do %>
+              <span class="font-medium"><%= location.name %></span>
+              <span class="text-stone-400 text-sm">(<%= location.media_items.count %> items)</span>
+            <% end %>
+          <% end %>
+        </div>
+        <p class="text-stone-500 text-sm mt-3">Click a location to assign it to a cube.</p>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Legend -->
+  <div class="mt-8 max-w-[1280px] mx-auto">
+    <h2 class="font-bold text-xl mb-4 text-stone-700">Legend</h2>
+    <div class="bg-stone-200 rounded-lg p-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+      <% @locations.select { |l| l.cube_location.present? }.each do |location| %>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-8 rounded" style="background: <%= location_color(location) %>;"></div>
+          <span class="font-medium"><%= location.name %></span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

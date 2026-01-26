@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   resources :locations
   resources :users
   resources :media_owners
+  get "record_collection", to: "record_collection#index"
   resources :media_types
   resources :media_items
   resources :releases

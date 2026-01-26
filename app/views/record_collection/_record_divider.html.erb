@@ -1,0 +1,31 @@
+<%# Record divider representing a location within a cube %>
+<%= link_to location_path(location), class: "group relative block w-full" do %>
+  <div class="relative">
+    <!-- Record divider tab -->
+    <div class="w-full h-7 rounded-sm shadow-md transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5 flex items-center px-2 gap-2"
+         style="background: linear-gradient(135deg, <%= location_color(location) %> 0%, <%= location_color_dark(location) %> 100%);">
+
+      <!-- Divider edge highlight -->
+      <div class="absolute top-0 left-0 right-0 h-px bg-white/20"></div>
+      <div class="absolute bottom-0 left-0 right-0 h-px bg-black/30"></div>
+
+      <!-- Label -->
+      <span class="text-white text-xs font-bold truncate drop-shadow">
+        <%= location.name %>
+      </span>
+
+      <!-- Item count badge -->
+      <% if location.media_items.any? %>
+        <span class="ml-auto text-white/80 text-[10px] bg-black/20 px-1 py-0.5 rounded">
+          <%= location.media_items.count %>
+        </span>
+      <% end %>
+    </div>
+
+    <!-- Stack of records behind (visual depth) -->
+    <div class="absolute -z-10 top-0.5 left-0.5 w-full h-7 rounded-sm opacity-40"
+         style="background: <%= location_color_dark(location) %>;"></div>
+    <div class="absolute -z-20 top-1 left-1 w-full h-7 rounded-sm opacity-20"
+         style="background: <%= location_color_dark(location) %>;"></div>
+  </div>
+<% end %>

@@ -38,6 +38,7 @@ class DiscogsController < ApplicationController
   def show
     @release_id = params[:id]
     @locations = Location.order(:name)
+    @last_selected_location_id = session[:last_selected_location_id]
 
     begin
       discogs = Discogs.new
@@ -55,6 +56,7 @@ class DiscogsController < ApplicationController
 
   def create
     release_id = params[:release_id]
+    session[:last_selected_location_id] = params[:location_id] if params[:location_id].present?
 
     begin
       discogs = Discogs.new
