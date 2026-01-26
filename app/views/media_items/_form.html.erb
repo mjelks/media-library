@@ -1,4 +1,4 @@
-<%= form_with model: @media_item, class: "space-y-6" do |form| %>
+<%= form_with model: @media_item, class: "space-y-6", data: { controller: "location-filter", "location-filter-locations-value": @locations.map { |l| { id: l.id, name: l.name, media_type_id: l.media_type_id } }.to_json } do |form| %>
   <% if @media_item.errors.any? %>
     <div class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md">
       <h2><%= pluralize(@media_item.errors.count, "error") %> prohibited this media item from being saved:</h2>
@@ -21,7 +21,8 @@
     <%= form.label :media_type_id, "Format", class: "block text-sm font-medium text-gray-700" %>
     <%= form.collection_select :media_type_id, @media_types, :id, :name,
         { prompt: "Select a format" },
-        class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+          data: { "location-filter-target": "mediaType", action: "change->location-filter#filterLocations" } } %>
   </div>
 
   <div>
@@ -32,6 +33,14 @@
   <div>
     <%= form.label :play_count, "Play Count", class: "block text-sm font-medium text-gray-700" %>
     <%= form.number_field :play_count, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", min: 0 %>
+  </div>
+
+  <div>
+    <%= form.label :location_id, "Location", class: "block text-sm font-medium text-gray-700" %>
+    <%= form.collection_select :location_id, @locations, :id, :name,
+        { prompt: "Select a location", include_blank: true },
+        { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+          data: { "location-filter-target": "location" } } %>
   </div>
 
   <div>

@@ -11,6 +11,7 @@ class MediaItemsController < ApplicationController
     @media_item = MediaItem.new
     @releases = Release.includes(:media_owner).order(:title)
     @media_types = MediaType.order(:name)
+    @locations = Location.order(:name)
   end
 
   def create
@@ -20,6 +21,7 @@ class MediaItemsController < ApplicationController
     else
       @releases = Release.includes(:media_owner).order(:title)
       @media_types = MediaType.order(:name)
+      @locations = Location.order(:name)
       render :new, status: :unprocessable_entity
     end
   end
@@ -28,6 +30,7 @@ class MediaItemsController < ApplicationController
     @media_item = MediaItem.find(params[:id])
     @releases = Release.includes(:media_owner).order(:title)
     @media_types = MediaType.order(:name)
+    @locations = Location.order(:name)
   end
 
   def update
@@ -37,6 +40,7 @@ class MediaItemsController < ApplicationController
     else
       @releases = Release.includes(:media_owner).order(:title)
       @media_types = MediaType.order(:name)
+      @locations = Location.order(:name)
       render :edit, status: :unprocessable_entity
     end
   end
@@ -50,6 +54,6 @@ class MediaItemsController < ApplicationController
   private
 
   def media_item_params
-    params.require(:media_item).permit(:release_id, :media_type_id, :year, :notes, :play_count, :artwork)
+    params.require(:media_item).permit(:release_id, :media_type_id, :year, :notes, :play_count, :artwork, :location_id)
   end
 end

@@ -1,0 +1,30 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# == Schema Information
+#
+# Table name: locations
+#
+#  id            :integer          not null, primary key
+#  description   :text
+#  name          :string           not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  media_type_id :integer
+#
+# Indexes
+#
+#  index_locations_on_media_type_id  (media_type_id)
+#
+# Foreign Keys
+#
+#  media_type_id  (media_type_id => media_types.id)
+#
+one:
+  name: Vinyl Shelf A
+  description: First vinyl shelf in living room
+  media_type: one
+
+two:
+  name: CD Rack
+  description: CD storage rack
+  media_type: two

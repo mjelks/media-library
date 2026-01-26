@@ -8,17 +8,20 @@
 #  year          :integer
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
+#  location_id   :integer
 #  media_type_id :integer          not null
 #  release_id    :integer
 #
 # Indexes
 #
+#  index_media_items_on_location_id    (location_id)
 #  index_media_items_on_media_type_id  (media_type_id)
 #  index_media_items_on_release_id     (release_id)
 #  index_media_items_on_year           (year)
 #
 # Foreign Keys
 #
+#  location_id    (location_id => locations.id)
 #  media_type_id  (media_type_id => media_types.id)
 #  release_id     (release_id => releases.id)
 #

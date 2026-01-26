@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :locations
   resources :users
   resources :media_owners
   resources :media_types
