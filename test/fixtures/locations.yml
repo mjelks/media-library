@@ -5,8 +5,10 @@
 # Table name: locations
 #
 #  id            :integer          not null, primary key
+#  cube_location :string
 #  description   :text
 #  name          :string           not null
+#  position      :integer
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #  media_type_id :integer

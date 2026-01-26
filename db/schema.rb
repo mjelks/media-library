@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_24_191206) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_26_195612) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -48,9 +48,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_24_191206) do
 
   create_table "locations", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "cube_location"
     t.text "description"
     t.integer "media_type_id"
     t.string "name", null: false
+    t.integer "position"
     t.datetime "updated_at", null: false
     t.index ["media_type_id"], name: "index_locations_on_media_type_id"
   end

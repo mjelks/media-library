@@ -24,6 +24,21 @@
   </div>
 
   <div class="my-5">
+    <%= form.label :cube_location, "Cube Position" %>
+    <%= form.select :cube_location,
+        options_for_select([["", nil], ["A", "A"], ["B", "B"], ["C", "C"], ["D", "D"], ["E", "E"], ["F", "F"]], location.cube_location),
+        {},
+        class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full focus:outline-blue-600" %>
+    <p class="text-gray-500 text-xs mt-1">Which cube this location belongs to</p>
+  </div>
+
+    <div class="my-5">
+    <%= form.label :postiton, "Location order" %>
+    <%= form.number_field :position, class: ["block shadow rounded-md border outline-none px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": location.errors[:position].none?, "border-red-400 focus:outline-red-600": location.errors[:position].any?}] %>
+    <p class="text-gray-500 text-xs mt-1">Order of the location within the cube</p>
+  </div>
+
+  <div class="my-5">
     <%= form.label :description %>
     <%= form.textarea :description, rows: 4, class: ["block shadow rounded-md border outline-none px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": location.errors[:description].none?, "border-red-400 focus:outline-red-600": location.errors[:description].any?}] %>
   </div>

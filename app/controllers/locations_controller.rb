@@ -69,6 +69,6 @@ class LocationsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def location_params
-      params.expect(location: [ :name, :description, :media_type_id ])
+      params.expect(location: [ :name, :description, :media_type_id, :cube_location, :position ])
     end
 end
