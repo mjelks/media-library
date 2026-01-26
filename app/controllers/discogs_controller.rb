@@ -37,6 +37,7 @@ class DiscogsController < ApplicationController
 
   def show
     @release_id = params[:id]
+    @locations = Location.order(:name)
 
     begin
       discogs = Discogs.new
@@ -85,11 +86,13 @@ class DiscogsController < ApplicationController
         if existing_media_item
           flash[:notice] = "'#{release.title}' (#{format_name}) already exists in your catalog."
         else
+          location = Location.find_by(id: params[:location_id])
           MediaItem.create!(
             play_count: 0,
             year: discogs_release["year"],
             release: release,
-            media_type: media_type
+            media_type: media_type,
+            location: location
           )
 
           if release.previously_new_record?
