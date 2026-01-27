@@ -1,5 +1,5 @@
 <%# Record divider representing a location within a cube %>
-<%= link_to location_path(location), class: "group relative block w-full" do %>
+<%= link_to record_collection_location_path(location), class: "group relative block w-full" do %>
   <div class="relative">
     <!-- Record divider tab -->
     <div class="w-full h-7 rounded-sm shadow-md transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5 flex items-center px-2 gap-2"
@@ -17,7 +17,7 @@
       <!-- Item count badge -->
       <% if location.media_items.any? %>
         <span class="ml-auto text-white/80 text-[10px] bg-black/20 px-1 py-0.5 rounded">
-          <%= location.media_items.count %>
+          <%= location.media_items.vinyl.count %>
         </span>
       <% end %>
     </div>

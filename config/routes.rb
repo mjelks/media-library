@@ -3,6 +3,11 @@ Rails.application.routes.draw do
   resources :users
   resources :media_owners
   get "record_collection", to: "record_collection#index"
+  get "record_collection/location/:id", to: "record_collection#show", as: :record_collection_location
+  patch "record_collection/location/:id/reorder", to: "record_collection#reorder", as: :record_collection_reorder
+  patch "record_collection/location/:location_id/move_to_top/:id", to: "record_collection#move_to_top", as: :record_collection_move_to_top
+  patch "record_collection/location/:location_id/move_to_bottom/:id", to: "record_collection#move_to_bottom", as: :record_collection_move_to_bottom
+  get "record_collection/location/:id/add", to: "record_collection#add_to_collection", as: :record_collection_add
   resources :media_types
   resources :media_items
   resources :releases

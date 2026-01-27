@@ -5,6 +5,7 @@
 #  id            :integer          not null, primary key
 #  notes         :text
 #  play_count    :integer
+#  position      :integer
 #  year          :integer
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
@@ -14,10 +15,11 @@
 #
 # Indexes
 #
-#  index_media_items_on_location_id    (location_id)
-#  index_media_items_on_media_type_id  (media_type_id)
-#  index_media_items_on_release_id     (release_id)
-#  index_media_items_on_year           (year)
+#  index_media_items_on_location_id               (location_id)
+#  index_media_items_on_location_id_and_position  (location_id,position)
+#  index_media_items_on_media_type_id             (media_type_id)
+#  index_media_items_on_release_id                (release_id)
+#  index_media_items_on_year                      (year)
 #
 # Foreign Keys
 #

@@ -30,4 +30,17 @@
   .tab-header.selected {
     @apply text-white border-blue-500 font-semibold;
   }
+
+  /* SortableJS drag-and-drop states */
+  .sortable-ghost {
+    @apply opacity-40 bg-gray-100;
+  }
+
+  .sortable-chosen {
+    @apply shadow-lg ring-2 ring-blue-500;
+  }
+
+  .sortable-drag {
+    @apply opacity-100 bg-white;
+  }
 }
