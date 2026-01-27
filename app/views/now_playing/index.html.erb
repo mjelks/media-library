@@ -1,0 +1,111 @@
+<% content_for :title, "Now Playing" %>
+
+<div class="py-4 w-full">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="font-bold text-4xl">Now Playing</h1>
+      <p class="text-gray-500 mt-1">Search your collection and track what you're listening to</p>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to "Back to Collection", record_collection_path,
+          class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-200 font-medium" %>
+    </div>
+  </div>
+
+  <!-- Search with Autocomplete -->
+  <div class="mb-8" data-controller="now-playing-search" data-now-playing-search-url-value="<%= now_playing_search_path %>">
+    <div class="relative">
+      <input type="text"
+             data-now-playing-search-target="input"
+             data-action="input->now-playing-search#search keydown->now-playing-search#handleKeydown"
+             placeholder="Search by artist or album title..."
+             autocomplete="off"
+             class="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+
+      <!-- Results dropdown -->
+      <div data-now-playing-search-target="results"
+           class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+      </div>
+    </div>
+  </div>
+
+  <!-- Now Playing Section (within last 60 minutes) -->
+  <% if @now_playing %>
+    <div class="mb-8">
+      <h2 class="font-bold text-2xl mb-4 text-stone-700">Now Playing</h2>
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 shadow-lg border border-blue-100">
+        <div class="flex items-center gap-6">
+          <%= link_to edit_media_item_path(@now_playing), class: "flex items-center gap-6 flex-1" do %>
+            <% if @now_playing.release&.cover_image&.attached? %>
+              <%= image_tag @now_playing.release.cover_image.variant(resize_to_limit: [150, 150]),
+                  class: "w-36 h-36 object-cover rounded-lg shadow-lg" %>
+            <% else %>
+              <div class="w-36 h-36 bg-gray-200 rounded-lg flex items-center justify-center shadow-lg">
+                <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                </svg>
+              </div>
+            <% end %>
+            <div class="flex-1">
+              <h3 class="font-bold text-2xl text-gray-900"><%= @now_playing.release&.title || "Unknown Album" %></h3>
+              <p class="text-lg text-gray-600 mt-1"><%= @now_playing.release&.media_owner&.name || "Unknown Artist" %></p>
+              <p class="text-sm text-gray-500 mt-2">
+                Started <%= time_ago_in_words(@now_playing.last_played) %> ago
+                <span class="mx-2">&middot;</span>
+                <%= pluralize(@now_playing.play_count || 0, "play") %> total
+              </p>
+            </div>
+          <% end %>
+          <%= button_to "Done Playing", now_playing_done_path(@now_playing),
+              class: "px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors",
+              data: { turbo: false } %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Recently Played Section (older than 60 minutes) -->
+  <% if @recently_played.any? %>
+    <div class="mt-8">
+      <h2 class="font-bold text-2xl mb-4 text-stone-700">Recently Played</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <% @recently_played.each do |item| %>
+          <div class="flex items-center gap-4 p-4 bg-white rounded-lg shadow border border-gray-100 hover:shadow-md transition-shadow">
+            <%= link_to edit_media_item_path(item), class: "flex items-center gap-4 flex-1 min-w-0" do %>
+              <% if item.release&.cover_image&.attached? %>
+                <%= image_tag item.release.cover_image.variant(resize_to_limit: [80, 80]),
+                    class: "w-20 h-20 object-cover rounded-md shadow" %>
+              <% else %>
+                <div class="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center">
+                  <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                  </svg>
+                </div>
+              <% end %>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-lg truncate"><%= item.release&.title || "Unknown Album" %></h3>
+                <p class="text-gray-600 truncate"><%= item.release&.media_owner&.name || "Unknown Artist" %></p>
+                <p class="text-sm text-gray-400">
+                  Played <%= time_ago_in_words(item.last_played) %> ago
+                  <span class="mx-1">&middot;</span>
+                  <%= pluralize(item.play_count || 0, "play") %>
+                </p>
+              </div>
+            <% end %>
+            <%= button_to "Play", now_playing_play_path(item),
+                class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors",
+                data: { turbo: false } %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% elsif @now_playing.nil? %>
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+      <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+      </svg>
+      <p class="text-gray-500 text-lg">No recently played albums</p>
+      <p class="text-gray-400 mt-1">Search for an album above to start tracking your plays</p>
+    </div>
+  <% end %>
+</div>
