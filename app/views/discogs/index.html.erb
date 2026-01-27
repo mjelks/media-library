@@ -7,7 +7,7 @@
         <%= f.text_field :q,
           value: @query,
           placeholder: "Search for artist, album, or track...",
-          autofocus: true,
+          id: "search-input",
           class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" %>
       </div>
 
@@ -58,9 +58,11 @@
     </div>
 
     <% if @results.any? %>
-      <div class="grid gap-4">
+      <div id="results-list" class="grid gap-4">
         <% @results.each do |result| %>
-          <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
+          <div class="result-item border border-gray-200 rounded-lg p-4 hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow cursor-pointer"
+               tabindex="0"
+               <% if result["type"] == "release" %>data-url="<%= discog_path(result["id"]) %>"<% end %>>
             <div class="flex gap-4">
               <% if result["thumb"].present? %>
                 <div class="flex-shrink-0">
@@ -73,7 +75,7 @@
               <div class="flex-1">
                 <h3 class="font-bold text-xl mb-2">
                   <% if result["type"] == "release" %>
-                    <%= link_to result["title"], discog_path(result["id"]), class: "text-blue-600 hover:text-blue-800" %>
+                    <%= link_to result["title"], discog_path(result["id"]), class: "text-blue-600 hover:text-blue-800", tabindex: "-1" %>
                   <% elsif result["type"] == "master" %>
                     <%= result["title"] %>
                   <% else %>
@@ -109,6 +111,70 @@
           </div>
         <% end %>
       </div>
+
+      <script>
+        (function() {
+          const resultsList = document.getElementById('results-list');
+          if (!resultsList) return;
+
+          const items = resultsList.querySelectorAll('.result-item');
+          const searchInput = document.getElementById('search-input');
+
+          // Auto-focus first result after search
+          if (items.length > 0) {
+            requestAnimationFrame(() => items[0].focus());
+          }
+
+          // Allow arrow down from search input to jump to results
+          if (searchInput) {
+            searchInput.addEventListener('keydown', function(e) {
+              if (e.key === 'ArrowDown' && items.length > 0) {
+                e.preventDefault();
+                items[0].focus();
+              }
+            });
+          }
+
+          // Handle arrow key navigation and Enter
+          resultsList.addEventListener('keydown', function(e) {
+            const focused = document.activeElement;
+            if (!focused.classList.contains('result-item')) return;
+
+            const itemsArray = Array.from(items);
+            const currentIndex = itemsArray.indexOf(focused);
+
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              const nextIndex = Math.min(currentIndex + 1, items.length - 1);
+              items[nextIndex].focus();
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              if (currentIndex === 0 && searchInput) {
+                searchInput.focus();
+              } else {
+                const prevIndex = Math.max(currentIndex - 1, 0);
+                items[prevIndex].focus();
+              }
+            } else if (e.key === 'Enter') {
+              const url = focused.dataset.url;
+              if (url) {
+                window.location.href = url;
+              }
+            }
+          });
+
+          // Allow clicking anywhere on the result item to navigate
+          items.forEach(function(item) {
+            item.addEventListener('click', function(e) {
+              if (e.target.tagName === 'A') return; // Let links handle themselves
+              const url = item.dataset.url;
+              if (url) {
+                window.location.href = url;
+              }
+            });
+          });
+        })();
+      </script>
     <% else %>
       <div class="text-center py-8 text-gray-500">
         <p>No results found. Try a different search query.</p>
@@ -118,5 +184,8 @@
     <div class="text-center py-12 text-gray-500">
       <p class="text-lg">Enter a search query above to find albums, artists, and releases on Discogs.</p>
     </div>
+    <script>
+      document.getElementById('search-input').focus();
+    </script>
   <% end %>
 </div>
