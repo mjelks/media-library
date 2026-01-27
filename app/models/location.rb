@@ -22,4 +22,6 @@
 class Location < ApplicationRecord
   has_many :media_items
   belongs_to :media_type, optional: true
+
+  scope :vinyl, -> { joins(:media_type).where(media_types: { name: "Vinyl" }) }
 end

@@ -1,0 +1,73 @@
+<div class="group flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-move border border-gray-100"
+     data-media-item-id="<%= media_item.id %>">
+
+  <!-- Position Number -->
+  <div class="flex-shrink-0 w-8 text-center">
+    <span class="text-gray-400 font-mono text-sm"><%= index + 1 %>.</span>
+  </div>
+
+  <!-- Drag Handle -->
+  <div class="drag-handle flex-shrink-0 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+    </svg>
+  </div>
+
+  <!-- Cover Art -->
+  <div class="flex-shrink-0">
+    <% if media_item.release&.cover_image&.attached? %>
+      <%= image_tag media_item.release.cover_image,
+          class: "w-16 h-16 object-cover rounded shadow-sm" %>
+    <% else %>
+      <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center shadow-sm">
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+        </svg>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Artist -->
+  <div class="flex-shrink-0 w-48">
+    <p class="font-medium text-gray-900 truncate" title="<%= media_item.media_owner&.name %>">
+      <%= media_item.media_owner&.name || "Unknown Artist" %>
+    </p>
+  </div>
+
+  <!-- Album Title -->
+  <div class="flex-1 min-w-0">
+    <%= link_to media_item_path(media_item), class: "hover:text-blue-600" do %>
+      <p class="font-semibold truncate" title="<%= media_item.title %>">
+        <%= media_item.title || "Untitled" %>
+      </p>
+    <% end %>
+  </div>
+
+  <!-- Year -->
+  <div class="flex-shrink-0 w-16 text-right">
+    <span class="text-gray-500 text-sm">
+      <%= media_item.year || media_item.release&.year || "-" %>
+    </span>
+  </div>
+
+  <!-- Move to Top/Bottom -->
+  <div class="flex-shrink-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+    <%= link_to record_collection_move_to_top_path(location_id: location.id, id: media_item.id),
+        data: { turbo_method: :patch },
+        class: "text-gray-400 hover:text-blue-600 p-1",
+        title: "Move to top" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+      </svg>
+    <% end %>
+    <%= link_to record_collection_move_to_bottom_path(location_id: location.id, id: media_item.id),
+        data: { turbo_method: :patch },
+        class: "text-gray-400 hover:text-blue-600 p-1",
+        title: "Move to bottom" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    <% end %>
+  </div>
+</div>

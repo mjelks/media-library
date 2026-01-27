@@ -1,0 +1,107 @@
+<div class="relative mb-8">
+      <!-- Wooden shelf frame -->
+      <div class="bg-gradient-to-b from-amber-800 via-amber-900 to-amber-950 p-3 rounded-lg shadow-2xl">
+        <div class="bg-gradient-to-br from-amber-700 via-amber-800 to-amber-900 p-2 rounded shadow-inner">
+          <!-- Shelf interior with depth effect -->
+          <div class="relative bg-gradient-to-br from-stone-800 via-stone-900 to-black rounded-sm min-h-[200px]">
+            <!-- Top shadow (depth illusion) -->
+            <div class="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-none"></div>
+            <!-- Left shadow -->
+            <div class="absolute top-0 left-0 bottom-0 w-4 bg-gradient-to-r from-black/50 to-transparent z-10 pointer-events-none"></div>
+            <!-- Bottom highlight (shelf surface) -->
+            <div class="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-stone-600/40 to-transparent z-10 pointer-events-none"></div>
+            <!-- Right highlight -->
+            <div class="absolute top-0 right-0 bottom-0 w-2 bg-gradient-to-l from-stone-700/20 to-transparent z-10 pointer-events-none"></div>
+
+            <!-- Record Spines Container - fills width -->
+            <style>
+              .spine-container { min-height: <%= @spine_config[:container_height_mobile] %>px; }
+              .spine-item { height: <%= @spine_config[:spine_height_mobile] %>px; }
+              @media (min-width: 768px) {
+                .spine-container { min-height: <%= @spine_config[:container_height_desktop] %>px; }
+                .spine-item { height: <%= @spine_config[:spine_height_desktop] %>px; }
+              }
+            </style>
+            <div class="spine-container relative flex items-end p-4 pt-6 pb-4">
+              <% total_items = @media_items.count %>
+              <%# Calculate if right-align is needed: spines are max 24px wide on desktop %>
+              <% container_width = 1100 # approximate max-w-6xl minus padding %>
+              <% popup_width = 256 # w-64 = 256px %>
+              <% max_spine_width = 24 # desktop width (md:max-w-[24px]) %>
+              <% spines_total_width = [total_items * max_spine_width, container_width].min %>
+              <% remaining_space = container_width - spines_total_width %>
+              <%# Only need right-align if remaining space is less than popup width %>
+              <% spines_for_popup = remaining_space >= popup_width ? 0 : ((popup_width - remaining_space) / max_spine_width.to_f).ceil %>
+              <% @media_items.each_with_index do |media_item, index| %>
+                <% spine_color = spine_color_for_media_item(media_item, index) %>
+                <%# Only right-align if popup would overflow container %>
+                <% popup_align = spines_for_popup > 0 && index >= total_items - spines_for_popup ? :right : :left %>
+                <!-- Individual Record Spine -->
+                <div class="spine-item group relative flex-1 min-w-[4px] max-w-[12px] md:max-w-[24px] cursor-pointer transition-transform duration-200 hover:-translate-y-2 hover:z-[100]">
+                  <%= link_to media_item_path(media_item), class: "block w-full h-full" do %>
+                    <!-- Spine -->
+                    <div class="relative w-full h-full rounded-sm shadow-md transition-all duration-200 group-hover:shadow-xl overflow-hidden"
+                         style="background: linear-gradient(90deg, <%= darken_color(spine_color, 20) %> 0%, <%= spine_color %> 30%, <%= lighten_color(spine_color, 10) %> 70%, <%= darken_color(spine_color, 15) %> 100%);">
+                      <!-- Spine edge highlight -->
+                      <div class="absolute inset-y-0 left-0 w-[1px] bg-white/20"></div>
+                      <!-- Spine wear effect -->
+                      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-black/20 rounded-sm"></div>
+                      <!-- Artist name (vertical, desktop only) -->
+                      <div class="hidden md:flex absolute inset-0 items-center justify-center">
+                        <span class="text-[14px] text-white/70 font-medium truncate whitespace-nowrap px-0.5"
+                              style="writing-mode: vertical-rl; text-orientation: mixed; max-height: <%= @spine_config[:spine_text_max_height_desktop] %>px;">
+                          <%= media_item.media_owner&.name&.truncate(30) || "" %>
+                        </span>
+                      </div>
+                    </div>
+                  <% end %>
+
+                  <!-- Hover Popup - appears below with edge-aware positioning -->
+                  <div class="absolute top-full mt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none <%= popup_align == :left ? 'left-0' : popup_align == :right ? 'right-0' : 'left-1/2 -translate-x-1/2' %>"
+                       style="z-index: 9999;">
+                    <!-- Popup arrow (pointing up) -->
+                    <div class="absolute bottom-full -mb-[1px] <%= popup_align == :left ? 'left-3' : popup_align == :right ? 'right-3' : 'left-1/2 -translate-x-1/2' %>">
+                      <div class="border-8 border-transparent border-b-stone-900"></div>
+                    </div>
+                    <div class="bg-stone-900 text-white rounded-lg shadow-2xl overflow-hidden w-64 border border-stone-700">
+                      <!-- Cover Art -->
+                      <div class="relative aspect-square bg-stone-800">
+                        <% if media_item.release&.cover_image&.attached? %>
+                          <%= image_tag media_item.release.cover_image,
+                              class: "w-full h-full object-cover" %>
+                        <% else %>
+                          <div class="w-full h-full flex items-center justify-center">
+                            <svg class="w-16 h-16 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                            </svg>
+                          </div>
+                        <% end %>
+                      </div>
+                      <!-- Album Info -->
+                      <div class="p-3">
+                        <p class="font-semibold text-sm truncate" title="<%= media_item.title %>">
+                          <%= media_item.title || "Untitled" %>
+                        </p>
+                        <p class="text-stone-400 text-xs truncate mt-1" title="<%= media_item.media_owner&.name %>">
+                          <%= media_item.media_owner&.name || "Unknown Artist" %>
+                        </p>
+                        <p class="text-stone-500 text-xs mt-1">
+                          <%= media_item.year || media_item.release&.year || "Unknown Year" %>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wooden shelf bottom/feet -->
+      <div class="flex justify-between px-8 -mt-1">
+        <div class="w-12 h-2 bg-gradient-to-b from-amber-900 to-amber-950 rounded-b-lg shadow-lg"></div>
+        <div class="w-12 h-2 bg-gradient-to-b from-amber-900 to-amber-950 rounded-b-lg shadow-lg"></div>
+      </div>
+    </div>

@@ -68,7 +68,7 @@ class DiscogsController < ApplicationController
       end
 
       ActiveRecord::Base.transaction do
-        artist_name = discogs_release["artists"]&.map { |a| a["name"] }&.join(", ") || "Unknown Artist"
+        artist_name = discogs_release["artists"]&.map { |a| a["name"].gsub(/\s*\(\d+\)\s*$/, "") }&.join(", ") || "Unknown Artist"
         media_owner = MediaOwner.find_or_create_by!(name: artist_name)
 
         label_name = discogs_release["labels"]&.first&.dig("name")
@@ -89,20 +89,26 @@ class DiscogsController < ApplicationController
           flash[:notice] = "'#{release.title}' (#{format_name}) already exists in your catalog."
         else
           location = Location.find_by(id: params[:location_id])
+          next_position = location ? (MediaItem.where(location_id: location.id).maximum(:position) || 0) + 1 : nil
           MediaItem.create!(
             play_count: 0,
             year: discogs_release["year"],
             release: release,
             media_type: media_type,
-            location: location
+            location: location,
+            position: next_position
           )
 
           if release.previously_new_record?
+            last_position = nil
             discogs_release["tracklist"]&.each do |track|
               next if track["type_"] == "heading"
 
+              position = track["position"].presence || infer_track_position(last_position)
+              last_position = position
+
               release.release_tracks.create!(
-                position: track["position"],
+                position: position,
                 name: track["title"],
                 duration: track["duration"]
               )
@@ -125,7 +131,7 @@ class DiscogsController < ApplicationController
 
           flash[:notice] = "Successfully added '#{release.title}' (#{format_name}) to your catalog!"
         end
-        redirect_to release_path(release)
+        redirect_to discogs_path(q: params[:q], type: params[:type], format: params[:format])
       end
     rescue ActiveRecord::RecordInvalid => e
       flash[:alert] = "Failed to save release: #{e.message}"
@@ -133,6 +139,22 @@ class DiscogsController < ApplicationController
     rescue StandardError => e
       flash[:alert] = "An error occurred: #{e.message}"
       redirect_to discogs_path
+    end
+  end
+
+  private
+
+  def infer_track_position(last_position)
+    return "1" if last_position.blank?
+
+    # Match patterns like "A1", "B2", "1", "12", etc.
+    if last_position =~ /\A([A-Za-z]*)(\d+)\z/
+      prefix = $1
+      number = $2.to_i + 1
+      "#{prefix}#{number}"
+    else
+      # Can't parse, just return the last position
+      last_position
     end
   end
 end
