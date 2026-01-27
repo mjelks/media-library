@@ -3,14 +3,14 @@ class NowPlayingController < ApplicationController
     # Currently playing (stays until Done or new selection)
     @now_playing = MediaItem.vinyl
                             .where(currently_playing: true)
-                            .includes(release: [ :media_owner, :cover_image_attachment ])
+                            .includes(:location, release: [ :media_owner, :cover_image_attachment ])
                             .first
 
     # Recently played (not currently playing, has been played before)
     @recently_played = MediaItem.vinyl
                                 .where(currently_playing: false)
                                 .where.not(last_played: nil)
-                                .includes(release: [ :media_owner, :cover_image_attachment ])
+                                .includes(:location, release: [ :media_owner, :cover_image_attachment ])
                                 .order(last_played: :desc)
                                 .limit(10)
   end
@@ -80,6 +80,33 @@ class NowPlayingController < ApplicationController
     @media_item.update!(currently_playing: false)
 
     redirect_to now_playing_path, notice: "Finished playing: #{@media_item.title}"
+  end
+
+  def rate
+    @media_item = MediaItem.find(params[:id])
+    release = @media_item.release
+    decrement = params[:decrement] == "true"
+
+    case params[:rating]
+    when "meh"
+      decrement ? release.unrate_meh! : release.rate_meh!
+      emoji = "🫤"
+    when "thumbs_up"
+      decrement ? release.unrate_thumbs_up! : release.rate_thumbs_up!
+      emoji = "👍"
+    end
+
+    respond_to do |format|
+      format.html { redirect_to now_playing_path, notice: "Rated #{release.title} #{emoji}" }
+      format.json { render json: { success: true, meh_count: release.meh_count, thumbs_up_count: release.thumbs_up_count } }
+    end
+  end
+
+  def update_notes
+    @media_item = MediaItem.find(params[:id])
+    @media_item.update!(notes: params[:notes])
+
+    render json: { success: true, notes: @media_item.notes }
   end
 
   private

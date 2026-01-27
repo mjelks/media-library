@@ -5,8 +5,10 @@
 #  id                 :integer          not null, primary key
 #  additional_info    :text
 #  description        :text
+#  meh_count          :integer          default(0), not null
 #  original_year      :integer
 #  record_label       :string
+#  thumbs_up_count    :integer          default(0), not null
 #  title              :string           not null
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
@@ -32,4 +34,20 @@ class Release < ApplicationRecord
   has_one_attached :cover_image
 
   validates :title, presence: true
+
+  def rate_meh!
+    increment!(:meh_count)
+  end
+
+  def unrate_meh!
+    decrement!(:meh_count) if meh_count > 0
+  end
+
+  def rate_thumbs_up!
+    increment!(:thumbs_up_count)
+  end
+
+  def unrate_thumbs_up!
+    decrement!(:thumbs_up_count) if thumbs_up_count > 0
+  end
 end
