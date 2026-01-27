@@ -1,0 +1,35 @@
+<% content_for :title, "Cube #{@cube_letter}" %>
+
+<div class="p-4 w-full max-w-6xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="font-bold text-4xl">Cube <%= @cube_letter %></h1>
+      <p class="text-gray-500 mt-1">
+        <%= pluralize(@media_items.count, "record") %> across <%= pluralize(@locations.count, "location") %>
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to "Back to Collection", record_collection_path,
+          class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-200 font-medium" %>
+    </div>
+  </div>
+
+  <!-- Locations in this cube -->
+  <div class="mb-6">
+    <h2 class="font-bold text-xl mb-3 text-stone-700">Locations</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      <% @locations.each do |location| %>
+        <%= render partial: 'record_divider', locals: { location: location, cube_letter: @cube_letter } %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Skeuomorphic Record Spine Shelf -->
+  <% if @media_items.any? %>
+    <%= render partial: "record_collection/record_spines", locals: { media_items: @media_items } %>
+  <% else %>
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+      <p class="text-gray-500">No records in this cube yet.</p>
+    </div>
+  <% end %>
+</div>

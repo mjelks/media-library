@@ -60,4 +60,32 @@ class RecordCollectionController < ApplicationController
     session[:last_selected_location_id] = @location.id
     redirect_to discogs_path
   end
+
+  def cube
+    @cube_letter = params[:id].upcase
+    unless CUBES.include?(@cube_letter)
+      redirect_to record_collection_path, alert: "Invalid cube"
+      return
+    end
+
+    @locations = Location.includes(:media_type, :media_items)
+                         .joins(:media_type)
+                         .where(media_types: { name: "Vinyl" })
+                         .where(cube_location: @cube_letter)
+                         .order(:position, :name)
+
+    @media_items = MediaItem.vinyl
+                            .joins(:location)
+                            .where(locations: { id: @locations.pluck(:id) })
+                            .includes(release: [ :media_owner, :cover_image_attachment ])
+                            .ordered_by_location
+
+    @spine_config = {
+      container_height_mobile: 180,
+      container_height_desktop: 280,
+      spine_height_mobile: 140,
+      spine_height_desktop: 240,
+      spine_text_max_height_desktop: 220
+    }
+  end
 end
