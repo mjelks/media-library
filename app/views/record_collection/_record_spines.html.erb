@@ -25,6 +25,8 @@
             <div class="spine-container relative flex items-end p-4 pt-6 pb-4">
               <% items = local_assigns[:media_items] || @media_items %>
               <% total_items = items.count %>
+              <%# Calculate total weight for proportional widths %>
+              <% total_weight = items.sum { |i| spine_width_multiplier(i) } %>
               <%# Calculate font size based on number of items %>
               <% spine_font_size = if total_items > 100
                                      8
@@ -35,20 +37,19 @@
                                    else
                                      14
                                    end %>
-              <%# Calculate if right-align is needed: spines are max 24px wide on desktop %>
-              <% container_width = 1100 # approximate max-w-6xl minus padding %>
+              <%# Calculate if right-align is needed for popup %>
               <% popup_width = 256 # w-64 = 256px %>
-              <% max_spine_width = 24 # desktop width (md:max-w-[24px]) %>
-              <% spines_total_width = [total_items * max_spine_width, container_width].min %>
-              <% remaining_space = container_width - spines_total_width %>
-              <%# Only need right-align if remaining space is less than popup width %>
-              <% spines_for_popup = remaining_space >= popup_width ? 0 : ((popup_width - remaining_space) / max_spine_width.to_f).ceil %>
+              <%# Right-align last few spines if they're near the edge %>
+              <% spines_for_popup = [total_items / 4, 10].min %>
               <% items.each_with_index do |media_item, index| %>
                 <% spine_color = spine_color_for_media_item(media_item, index) %>
-                <%# Only right-align if popup would overflow container %>
-                <% popup_align = spines_for_popup > 0 && index >= total_items - spines_for_popup ? :right : :left %>
+                <%# Only right-align if near the end %>
+                <% popup_align = index >= total_items - spines_for_popup ? :right : :left %>
                 <!-- Individual Record Spine -->
-                <div class="spine-item group relative flex-1 min-w-[4px] max-w-[12px] md:max-w-[24px] cursor-pointer transition-transform duration-200 hover:-translate-y-2 hover:z-[100]">
+                <% width_mult = spine_width_multiplier(media_item) %>
+                <div class="spine-item group relative min-w-[4px] cursor-pointer transition-transform duration-200 hover:-translate-y-2 hover:z-[100]"
+                     style="flex: <%= width_mult %>;"
+                     data-item-count="<%= media_item.item_count %>">
                   <%= link_to media_item_path(media_item), class: "block w-full h-full" do %>
                     <!-- Spine -->
                     <div class="relative w-full h-full rounded-sm shadow-md transition-all duration-200 group-hover:shadow-xl overflow-hidden"
@@ -61,7 +62,7 @@
                       <div class="hidden md:flex absolute inset-0 items-center justify-center">
                         <span class="text-white/70 font-medium truncate whitespace-nowrap px-0.5"
                               style="font-size: <%= spine_font_size %>px; writing-mode: vertical-rl; text-orientation: mixed; max-height: <%= @spine_config[:spine_text_max_height_desktop] %>px;">
-                          <%= media_item.media_owner&.name&.truncate(30) || "" %>
+                          <%= media_item.media_owner&.name&.truncate(30) || "" %><%= item_count_display(media_item) %>
                         </span>
                       </div>
                     </div>
@@ -98,7 +99,7 @@
                           <%= media_item.media_owner&.name || "Unknown Artist" %>
                         </p>
                         <p class="text-stone-500 text-xs mt-1">
-                          <%= media_item.year || media_item.release&.year || "Unknown Year" %>
+                          <%= display_year(media_item) %>
                         </p>
                       </div>
                     </div>

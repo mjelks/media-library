@@ -5,6 +5,7 @@
 # Table name: media_items
 #
 #  id            :integer          not null, primary key
+#  item_count    :integer          default(1), not null
 #  notes         :text
 #  play_count    :integer
 #  position      :integer
