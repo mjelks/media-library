@@ -23,7 +23,18 @@
               }
             </style>
             <div class="spine-container relative flex items-end p-4 pt-6 pb-4">
-              <% total_items = @media_items.count %>
+              <% items = local_assigns[:media_items] || @media_items %>
+              <% total_items = items.count %>
+              <%# Calculate font size based on number of items %>
+              <% spine_font_size = if total_items > 100
+                                     8
+                                   elsif total_items > 80
+                                     10
+                                   elsif total_items > 60
+                                     12
+                                   else
+                                     14
+                                   end %>
               <%# Calculate if right-align is needed: spines are max 24px wide on desktop %>
               <% container_width = 1100 # approximate max-w-6xl minus padding %>
               <% popup_width = 256 # w-64 = 256px %>
@@ -32,7 +43,7 @@
               <% remaining_space = container_width - spines_total_width %>
               <%# Only need right-align if remaining space is less than popup width %>
               <% spines_for_popup = remaining_space >= popup_width ? 0 : ((popup_width - remaining_space) / max_spine_width.to_f).ceil %>
-              <% @media_items.each_with_index do |media_item, index| %>
+              <% items.each_with_index do |media_item, index| %>
                 <% spine_color = spine_color_for_media_item(media_item, index) %>
                 <%# Only right-align if popup would overflow container %>
                 <% popup_align = spines_for_popup > 0 && index >= total_items - spines_for_popup ? :right : :left %>
@@ -48,8 +59,8 @@
                       <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-black/20 rounded-sm"></div>
                       <!-- Artist name (vertical, desktop only) -->
                       <div class="hidden md:flex absolute inset-0 items-center justify-center">
-                        <span class="text-[14px] text-white/70 font-medium truncate whitespace-nowrap px-0.5"
-                              style="writing-mode: vertical-rl; text-orientation: mixed; max-height: <%= @spine_config[:spine_text_max_height_desktop] %>px;">
+                        <span class="text-white/70 font-medium truncate whitespace-nowrap px-0.5"
+                              style="font-size: <%= spine_font_size %>px; writing-mode: vertical-rl; text-orientation: mixed; max-height: <%= @spine_config[:spine_text_max_height_desktop] %>px;">
                           <%= media_item.media_owner&.name&.truncate(30) || "" %>
                         </span>
                       </div>

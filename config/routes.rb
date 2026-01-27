@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   patch "record_collection/location/:location_id/move_to_top/:id", to: "record_collection#move_to_top", as: :record_collection_move_to_top
   patch "record_collection/location/:location_id/move_to_bottom/:id", to: "record_collection#move_to_bottom", as: :record_collection_move_to_bottom
   get "record_collection/location/:id/add", to: "record_collection#add_to_collection", as: :record_collection_add
+  get "record_collection/cube/:id", to: "record_collection#cube", as: :record_collection_cube
   resources :media_types
   resources :media_items
   resources :releases

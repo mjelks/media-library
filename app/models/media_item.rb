@@ -37,6 +37,7 @@ class MediaItem < ApplicationRecord
   delegate :location_name, to: :location, allow_nil: true
 
   scope :ordered, -> { order(position: :asc, created_at: :desc) }
+  scope :ordered_by_location, -> { order("locations.position ASC, locations.name ASC, media_items.position ASC, media_items.created_at DESC") }
   scope :vinyl, -> { joins(:media_type).where(media_types: { name: "Vinyl" }) }
 
   def self.update_positions(location_id, ordered_ids)

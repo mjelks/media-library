@@ -19,7 +19,7 @@
             <% col = index % 2 %>
 
             <!-- Individual Cube -->
-            <div class="relative aspect-[2/3] sm:aspect-square"
+            <div class="group/cube relative aspect-[2/3] sm:aspect-square"
                  id="cube-<%= cube_letter %>"
                  data-cube="<%= cube_letter %>"
                  data-row="<%= row %>"
@@ -27,27 +27,64 @@
 
               <!-- Cube interior with depth effect -->
               <div class="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-black rounded-sm overflow-hidden">
+                <!-- Hover overlay link (covers whole cube, behind location links) -->
+                <%= link_to record_collection_cube_path(cube_letter),
+                    class: "absolute inset-0 z-[1] transition-all duration-200" do %>
+                  <!-- Hover highlight effect -->
+                  <div class="absolute inset-0 bg-white/0 group-hover/cube:bg-white/5 transition-colors duration-200"></div>
+                  <!-- Hover border glow -->
+                  <div class="absolute inset-0 ring-0 ring-white/0 group-hover/cube:ring-2 group-hover/cube:ring-white/20 rounded-sm transition-all duration-200"></div>
+                <% end %>
+
                 <!-- Top shadow (depth illusion) -->
-                <div class="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-black/60 to-transparent"></div>
+                <div class="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-black/60 to-transparent pointer-events-none"></div>
                 <!-- Left shadow -->
-                <div class="absolute top-0 left-0 bottom-0 w-4 bg-gradient-to-r from-black/50 to-transparent"></div>
+                <div class="absolute top-0 left-0 bottom-0 w-4 bg-gradient-to-r from-black/50 to-transparent pointer-events-none"></div>
                 <!-- Bottom highlight -->
-                <div class="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-stone-700/30 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-stone-700/30 to-transparent pointer-events-none"></div>
                 <!-- Right highlight -->
-                <div class="absolute top-0 right-0 bottom-0 w-2 bg-gradient-to-l from-stone-700/20 to-transparent"></div>
+                <div class="absolute top-0 right-0 bottom-0 w-2 bg-gradient-to-l from-stone-700/20 to-transparent pointer-events-none"></div>
 
                 <!-- Cube label -->
-                <div class="absolute top-1 right-2 text-stone-600 text-xs font-mono opacity-50">
+                <div class="absolute top-1 right-2 text-stone-400 text-xs font-mono group-hover/cube:text-white transition-colors z-10 pointer-events-none">
                   <%= cube_letter %>
                 </div>
 
-                <!-- Records/Locations container -->
-                <div class="absolute inset-4 flex flex-col gap-1 overflow-hidden">
+                <!-- Records/Locations container - vertical bars -->
+                <div class="absolute inset-4 flex flex-row gap-1 overflow-hidden z-[2]">
                   <% locations_in_cube = @locations_by_cube[cube_letter] || [] %>
+                  <% total_records = locations_in_cube.sum { |l| l.media_items.vinyl.count } %>
 
-                  <% if locations_in_cube.any? %>
+                  <% if locations_in_cube.any? && total_records > 0 %>
                     <% locations_in_cube.each do |location| %>
-                      <%= render partial: 'record_divider', locals: { location: location, cube_letter: cube_letter } %>
+                      <% record_count = location.media_items.vinyl.count %>
+                      <% width_percent = (record_count.to_f / total_records * 100).round(1) %>
+                      <%= link_to record_collection_location_path(location),
+                          class: "group/loc relative h-full rounded-sm overflow-hidden transition-all duration-200 hover:brightness-110",
+                          style: "width: #{width_percent}%; min-width: 20px;" do %>
+                        <!-- Vertical bar with gradient -->
+                        <div class="absolute inset-0 rounded-sm shadow-md"
+                             style="background: linear-gradient(180deg, <%= location_color(location) %> 0%, <%= location_color_dark(location) %> 100%);">
+                          <!-- Edge highlights -->
+                          <div class="absolute top-0 left-0 right-0 h-px bg-white/20"></div>
+                          <div class="absolute inset-y-0 left-0 w-px bg-white/10"></div>
+                          <div class="absolute inset-y-0 right-0 w-px bg-black/20"></div>
+                          <div class="absolute bottom-0 left-0 right-0 h-px bg-black/30"></div>
+                        </div>
+                        <!-- Label (vertical text, rotated CCW for readability) -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                          <span class="text-white text-xs font-bold drop-shadow truncate px-1"
+                                style="writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(270deg);">
+                            <%= location.name %>
+                          </span>
+                        </div>
+                        <!-- Record count at bottom -->
+                        <div class="absolute bottom-1 left-0 right-0 flex justify-center">
+                          <span class="text-white/70 text-[9px] bg-black/30 px-1 rounded">
+                            <%= record_count %>
+                          </span>
+                        </div>
+                      <% end %>
                     <% end %>
                   <% else %>
                     <!-- Empty cube placeholder -->
