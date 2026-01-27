@@ -91,7 +91,7 @@ class DiscogsController < ApplicationController
           location = Location.find_by(id: params[:location_id])
           next_position = location ? (MediaItem.where(location_id: location.id).maximum(:position) || 0) + 1 : nil
           MediaItem.create!(
-            play_count: 0,
+            play_count: 1,
             year: discogs_release["year"],
             release: release,
             media_type: media_type,
