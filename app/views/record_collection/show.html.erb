@@ -5,11 +5,11 @@
     <div>
       <h1 class="font-bold text-4xl"><%= @location.name %></h1>
       <p class="text-gray-500 mt-1">
-        <%= pluralize(@media_items.count, "record") %> in this location
+        <%= pluralize(@media_items.count, "release") %> (<%= pluralize(total_lp_count(@media_items), "LP") %>) in this location
       </p>
     </div>
     <div class="flex gap-2">
-      <%= link_to "Back to Collection", record_collection_path,
+      <%= link_to "Back to Cube #{@location.cube_location}", record_collection_cube_path(@location.cube_location),
           class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-200 font-medium" %>
       <%= link_to "Add to Collection", record_collection_add_path(@location),
           class: "rounded-md px-3.5 py-2.5 bg-green-600 hover:bg-green-500 text-white font-medium" %>

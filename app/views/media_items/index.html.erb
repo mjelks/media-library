@@ -17,7 +17,7 @@
         <div>
           <p class="font-semibold"><%= media_item.title %></p>
           <p class="text-gray-600 text-sm"><%= media_item.media_owner&.name %></p>
-          <p class="text-gray-400 text-xs"><%= media_item.media_type.name %> <%= media_item.year if media_item.year %></p>
+          <p class="text-gray-400 text-xs"><%= media_item.media_type.name %> <%= display_year(media_item) %></p>
         </div>
       </div>
     <% end %>

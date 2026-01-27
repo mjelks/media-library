@@ -45,9 +45,9 @@
   </div>
 
   <!-- Year -->
-  <div class="flex-shrink-0 w-16 text-right">
+  <div class="flex-shrink-0 w-32 text-right">
     <span class="text-gray-500 text-sm">
-      <%= media_item.year || media_item.release&.year || "-" %>
+      <%= display_year(media_item) %>
     </span>
   </div>
 

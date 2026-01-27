@@ -53,12 +53,12 @@
                 <!-- Records/Locations container - vertical bars -->
                 <div class="absolute inset-4 flex flex-row gap-1 overflow-hidden z-[2]">
                   <% locations_in_cube = @locations_by_cube[cube_letter] || [] %>
-                  <% total_records = locations_in_cube.sum { |l| l.media_items.vinyl.count } %>
+                  <% total_lps = locations_in_cube.sum { |l| l.media_items.vinyl.sum(:item_count) } %>
 
-                  <% if locations_in_cube.any? && total_records > 0 %>
+                  <% if locations_in_cube.any? && total_lps > 0 %>
                     <% locations_in_cube.each do |location| %>
-                      <% record_count = location.media_items.vinyl.count %>
-                      <% width_percent = (record_count.to_f / total_records * 100).round(1) %>
+                      <% lp_count = location.media_items.vinyl.sum(:item_count) %>
+                      <% width_percent = (lp_count.to_f / total_lps * 100).round(1) %>
                       <%= link_to record_collection_location_path(location),
                           class: "group/loc relative h-full rounded-sm overflow-hidden transition-all duration-200 hover:brightness-110",
                           style: "width: #{width_percent}%; min-width: 20px;" do %>
@@ -78,10 +78,10 @@
                             <%= location.name %>
                           </span>
                         </div>
-                        <!-- Record count at bottom -->
+                        <!-- LP count at bottom -->
                         <div class="absolute bottom-1 left-0 right-0 flex justify-center">
                           <span class="text-white/70 text-[9px] bg-black/30 px-1 rounded">
-                            <%= record_count %>
+                            <%= lp_count %>
                           </span>
                         </div>
                       <% end %>
