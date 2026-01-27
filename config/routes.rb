@@ -9,6 +9,12 @@ Rails.application.routes.draw do
   patch "record_collection/location/:location_id/move_to_bottom/:id", to: "record_collection#move_to_bottom", as: :record_collection_move_to_bottom
   get "record_collection/location/:id/add", to: "record_collection#add_to_collection", as: :record_collection_add
   get "record_collection/cube/:id", to: "record_collection#cube", as: :record_collection_cube
+
+  # Now Playing
+  get "now_playing", to: "now_playing#index"
+  get "now_playing/search", to: "now_playing#search"
+  post "now_playing/:id/play", to: "now_playing#play", as: :now_playing_play
+  post "now_playing/:id/done", to: "now_playing#done", as: :now_playing_done
   resources :media_types
   resources :media_items
   resources :releases

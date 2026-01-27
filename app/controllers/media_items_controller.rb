@@ -54,6 +54,6 @@ class MediaItemsController < ApplicationController
   private
 
   def media_item_params
-    params.require(:media_item).permit(:release_id, :media_type_id, :year, :notes, :play_count, :item_count, :artwork, :location_id)
+    params.require(:media_item).permit(:release_id, :media_type_id, :year, :notes, :play_count, :last_played, :item_count, :artwork, :location_id)
   end
 end
