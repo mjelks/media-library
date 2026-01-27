@@ -18,7 +18,7 @@
 
   <!-- Skeuomorphic Record Spine Shelf -->
   <% if @media_items.any? %>
-    <%= render partial: "record_collection/record_spines", locals: { media_items: @media_items } %>
+    <%= render partial: "record_collection/record_spines", locals: { media_items: @media_items, location: @location } %>
   <% end %>
 
   <div id="media-item-sorter">

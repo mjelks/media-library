@@ -15,6 +15,8 @@ Rails.application.routes.draw do
   get "now_playing/search", to: "now_playing#search"
   post "now_playing/:id/play", to: "now_playing#play", as: :now_playing_play
   post "now_playing/:id/done", to: "now_playing#done", as: :now_playing_done
+  post "now_playing/:id/rate", to: "now_playing#rate", as: :now_playing_rate
+  patch "now_playing/:id/notes", to: "now_playing#update_notes", as: :now_playing_update_notes
   resources :media_types
   resources :media_items
   resources :releases

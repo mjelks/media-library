@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_27_074243) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_27_102031) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -118,8 +118,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_27_074243) do
     t.text "description"
     t.integer "discogs_release_id"
     t.integer "media_owner_id", null: false
+    t.integer "meh_count", default: 0, null: false
     t.integer "original_year"
     t.string "record_label"
+    t.integer "thumbs_up_count", default: 0, null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.index ["media_owner_id"], name: "index_releases_on_media_owner_id"
