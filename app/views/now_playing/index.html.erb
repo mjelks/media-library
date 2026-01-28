@@ -67,6 +67,7 @@
               <%= link_to record_collection_location_path(@now_playing.location), class: "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block" do %>
                 <% if @now_playing.location.cube_location.present? %>Cube <%= @now_playing.location.cube_location %>, <% end %>Section <%= @now_playing.location.name %>
               <% end %>
+              <%= render partial: "now_playing/position_helper", locals: { now_playing: @now_playing } %>
             <% end %>
           </div>
           <div class="flex flex-col gap-2">

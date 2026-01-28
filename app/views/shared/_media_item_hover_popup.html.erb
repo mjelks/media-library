@@ -1,0 +1,51 @@
+<%# Hover popup for media items - used on spines and position helper %>
+<%# Required locals: media_item, popup_align (optional: :left, :right, or :center), position (:above or :below) %>
+<%# Optional: group_name (for named groups like "prev" or "next") %>
+<% popup_align ||= :left %>
+<%# Tailwind needs literal class strings - can't use interpolation %>
+<% group_hover_class = case local_assigns[:group_name]
+   when "prev" then "group-hover/prev:opacity-100 group-hover/prev:visible"
+   when "next" then "group-hover/next:opacity-100 group-hover/next:visible"
+   else "group-hover:opacity-100 group-hover:visible"
+   end %>
+<div class="absolute <%= position == :above ? 'bottom-full mb-2' : 'top-full mt-3' %> opacity-0 invisible <%= group_hover_class %> transition-all duration-200 pointer-events-none <%= popup_align == :left ? 'left-0' : popup_align == :right ? 'right-0' : 'left-1/2 -translate-x-1/2' %> text-base not-italic font-normal"
+     style="z-index: 9999;">
+  <% if position == :below %>
+    <!-- Popup arrow (pointing up) -->
+    <div class="absolute bottom-full -mb-[1px] <%= popup_align == :left ? 'left-3' : popup_align == :right ? 'right-3' : 'left-1/2 -translate-x-1/2' %>">
+      <div class="border-8 border-transparent border-b-stone-900"></div>
+    </div>
+  <% end %>
+  <div class="bg-stone-900 text-white rounded-lg shadow-2xl overflow-hidden w-64 border border-stone-700">
+    <!-- Cover Art -->
+    <div class="relative aspect-square bg-stone-800">
+      <% if media_item.release&.cover_image&.attached? %>
+        <%= image_tag media_item.release.cover_image, class: "w-full h-full object-cover" %>
+      <% else %>
+        <div class="w-full h-full flex items-center justify-center">
+          <svg class="w-16 h-16 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+          </svg>
+        </div>
+      <% end %>
+    </div>
+    <!-- Album Info -->
+    <div class="p-3">
+      <p class="font-semibold text-sm truncate" title="<%= media_item.title %>">
+        <%= media_item.title || "Untitled" %>
+      </p>
+      <p class="text-stone-400 text-xs truncate mt-1" title="<%= media_item.media_owner&.name %>">
+        <%= media_item.media_owner&.name || "Unknown Artist" %>
+      </p>
+      <p class="text-stone-500 text-xs mt-1">
+        <%= display_year(media_item) %>
+      </p>
+    </div>
+  </div>
+  <% if position == :above %>
+    <!-- Popup arrow (pointing down) -->
+    <div class="absolute top-full -mt-[1px] <%= popup_align == :left ? 'left-3' : popup_align == :right ? 'right-3' : 'left-1/2 -translate-x-1/2' %>">
+      <div class="border-8 border-transparent border-t-stone-900"></div>
+    </div>
+  <% end %>
+</div>

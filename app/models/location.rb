@@ -24,4 +24,8 @@ class Location < ApplicationRecord
   belongs_to :media_type, optional: true
 
   scope :vinyl, -> { joins(:media_type).where(media_types: { name: "Vinyl" }) }
+
+  def total_items
+    media_items.count
+  end
 end

@@ -66,4 +66,14 @@ class MediaItem < ApplicationRecord
       where(id: media_item_id, location_id: location_id).update_all(position: max_position + 1)
     end
   end
+
+  def previous
+    return nil unless location_id && position
+    self.class.find_by(location_id: location_id, position: position - 1)
+  end
+
+  def next
+    return nil unless location_id && position
+    self.class.find_by(location_id: location_id, position: position + 1)
+  end
 end
