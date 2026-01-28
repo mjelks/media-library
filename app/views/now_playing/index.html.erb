@@ -13,27 +13,79 @@
   </div>
 
   <!-- Search with Autocomplete -->
-  <div class="mb-8" data-controller="now-playing-search" data-now-playing-search-url-value="<%= now_playing_search_path %>">
-    <div class="relative">
+  <div class="mb-8" data-controller="now-playing-search" data-now-playing-search-url-value="<%= now_playing_search_path %>" data-now-playing-search-random-url-value="<%= now_playing_random_path %>">
+    <div class="relative flex gap-2">
       <input type="text"
              data-now-playing-search-target="input"
              data-action="input->now-playing-search#search keydown->now-playing-search#handleKeydown"
              placeholder="Search by artist or album title..."
              autocomplete="off"
-             class="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+             class="flex-1 px-4 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      <button type="button"
+              data-action="click->now-playing-search#fetchRandom"
+              class="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg whitespace-nowrap">
+        Pick Random
+      </button>
 
       <!-- Results dropdown -->
       <div data-now-playing-search-target="results"
-           class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+           class="absolute z-10 left-0 right-16 mt-14 bg-white border border-gray-300 rounded-lg shadow-lg hidden">
       </div>
     </div>
   </div>
 
   <!-- Now Playing Section (within last 60 minutes) -->
   <% if @now_playing %>
-    <div class="mb-8">
+    <div class="mb-8" id="now-playing-section" data-controller="now-playing-card" data-now-playing-card-confirm-url-value="<%= now_playing_confirm_path(@now_playing) %>">
       <h2 class="font-bold text-2xl mb-4 text-stone-700">Now Playing</h2>
-      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 shadow-lg border border-blue-100">
+      <div class="relative bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 shadow-lg border border-blue-100 transition-opacity duration-300" data-now-playing-card-target="card">
+        <!-- Close/Confirm buttons in upper right -->
+        <div class="absolute -top-2 -right-2 z-10 group/buttons <%= 'hidden' if @now_playing.listening_confirmed? %>" data-now-playing-card-target="buttonGroup">
+          <!-- Red X button (delete) - stays in place -->
+          <button type="button"
+                  data-action="click->now-playing-card#showConfirm mouseenter->tooltip#show mouseleave->tooltip#hide"
+                  data-now-playing-card-target="deleteBtn"
+                  data-controller="tooltip"
+                  data-tooltip-text-value="Undo - Remove and revert play count"
+                  class="w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-all shadow-md">
+            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+          <!-- Green check button (confirm listening) - appears to the right on hover -->
+          <button type="button"
+                  data-action="click->now-playing-card#confirmListening mouseenter->tooltip#show mouseleave->tooltip#hide"
+                  data-now-playing-card-target="confirmBtn"
+                  data-controller="tooltip"
+                  data-tooltip-text-value="Confirm - I'm listening"
+                  class="absolute left-full ml-1 top-0 w-6 h-6 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-all shadow-md scale-0 group-hover/buttons:scale-100 origin-left">
+            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div data-now-playing-card-target="modal" class="hidden absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center z-20">
+          <div class="bg-white rounded-lg p-6 shadow-xl max-w-sm mx-4">
+            <p class="text-gray-800 font-medium text-center mb-4">Are you sure?</p>
+            <p class="text-gray-500 text-sm text-center mb-6">This will remove the album and undo the play count.</p>
+            <div class="flex gap-3 justify-center">
+              <button type="button"
+                      data-action="click->now-playing-card#hideConfirm"
+                      class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                No
+              </button>
+              <button type="button"
+                      data-action="click->now-playing-card#confirmDelete"
+                      data-now-playing-card-url-param="<%= now_playing_delete_path(@now_playing) %>"
+                      class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors">
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div class="flex items-center gap-6">
           <div class="flex-shrink-0 relative group/cover">
             <%= link_to media_item_path(@now_playing) do %>
@@ -56,7 +108,11 @@
           <div class="flex-1">
             <%= link_to edit_media_item_path(@now_playing), class: "block hover:opacity-80" do %>
               <h3 class="font-bold text-2xl text-gray-900"><%= @now_playing.release&.title || "Unknown Album" %></h3>
-              <p class="text-lg text-gray-600 mt-1"><%= @now_playing.release&.media_owner&.name || "Unknown Artist" %></p>
+              <p class="text-lg text-gray-600 mt-1"><%= @now_playing.release&.media_owner&.name || "Unknown Artist" %> 
+                <span class="text-xs text-gray-600 mt-1">
+                  (<%= duration_formatter(@now_playing.release&.duration) || "Unknown" %>)
+                </span>
+              </p>
             <% end %>
             <p class="text-sm text-gray-500 mt-2">
               Started <%= time_ago_in_words(@now_playing.last_played) %> ago
@@ -140,6 +196,7 @@
   <% if @recently_played.any? %>
     <div class="mt-8">
       <h2 class="font-bold text-2xl mb-4 text-stone-700">Recently Played</h2>
+      You've listened to <strong><%= @recently_played.count %></strong> albums over the past <strong><%= @day_play_counter %></strong> days for a total of <strong><%= duration_formatter(@recently_played_in_seconds) %></strong>.
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <% @recently_played.each do |item| %>
           <div class="p-4 bg-white rounded-lg shadow border border-gray-100 hover:shadow-md transition-shadow">

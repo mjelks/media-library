@@ -50,4 +50,12 @@ class Release < ApplicationRecord
   def unrate_thumbs_up!
     decrement!(:thumbs_up_count) if thumbs_up_count > 0
   end
+
+  def duration
+    return nil unless release_tracks.any?
+    release_tracks.sum do |track|
+      mins, secs = track.duration.split(":").map(&:to_i)
+      (mins * 60) + secs
+    end
+  end
 end

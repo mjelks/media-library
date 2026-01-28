@@ -64,4 +64,17 @@ module ApplicationHelper
     b = [ (hex[4..5].to_i(16) + ((255 - hex[4..5].to_i(16)) * amount)).to_i, 255 ].min
     "#%02x%02x%02x" % [ r, g, b ]
   end
+
+  def duration_formatter(total_seconds)
+    return "-" if total_seconds.nil?
+
+    hours, remainder = total_seconds.divmod(3600)
+    minutes, seconds = remainder.divmod(60)
+
+    if hours > 0
+      format("%d:%02d:%02d", hours, minutes, seconds)
+    else
+      format("%d:%02d", minutes, seconds)
+    end
+  end
 end

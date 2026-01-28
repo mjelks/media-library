@@ -1,9 +1,9 @@
 <% if @now_playing.location.present? %>
   <% if @now_playing.position.present? %>
     <div class="text-xs italic text-gray-600 mt-1">
-      <% if @now_playing.position == 1 %>
+      <% if @now_playing.previous.nil? %>
         First Record in the section!
-      <% elsif @now_playing.position == @now_playing.location.total_items %>
+      <% elsif @now_playing.next.nil? %>
         Last Record in the section!
       <% else %>
         Record can be found between

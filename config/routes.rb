@@ -13,10 +13,13 @@ Rails.application.routes.draw do
   # Now Playing
   get "now_playing", to: "now_playing#index"
   get "now_playing/search", to: "now_playing#search"
+  get "now_playing/random", to: "now_playing#random", as: :now_playing_random
   post "now_playing/:id/play", to: "now_playing#play", as: :now_playing_play
   post "now_playing/:id/done", to: "now_playing#done", as: :now_playing_done
+  delete "now_playing/:id", to: "now_playing#delete", as: :now_playing_delete
   post "now_playing/:id/rate", to: "now_playing#rate", as: :now_playing_rate
   patch "now_playing/:id/notes", to: "now_playing#update_notes", as: :now_playing_update_notes
+  post "now_playing/:id/confirm", to: "now_playing#confirm_listening", as: :now_playing_confirm
   resources :media_types
   resources :media_items
   resources :releases
