@@ -46,3 +46,28 @@ two:
   year: 1995
   play_count: 3
   notes: Vinyl pressing
+
+vinyl_one:
+  release: one
+  media_type: vinyl
+  year: 1985
+  play_count: 0
+  notes: First vinyl pressing
+  currently_playing: false
+
+vinyl_two:
+  release: two
+  media_type: vinyl
+  year: 1995
+  play_count: 5
+  notes: Original vinyl
+  currently_playing: false
+
+vinyl_now_playing:
+  release: one
+  media_type: vinyl
+  year: 2020
+  play_count: 2
+  notes: Reissue vinyl
+  currently_playing: true
+  listening_confirmed: false

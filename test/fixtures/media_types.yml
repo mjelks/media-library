@@ -17,4 +17,8 @@ one:
 two:
   name: CD
   description: Something recorded on something plastic, like, I don't know ... A DISC???!!
+
+vinyl:
+  name: Vinyl
+  description: Vinyl records
   
