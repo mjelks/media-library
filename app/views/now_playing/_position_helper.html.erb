@@ -1,0 +1,22 @@
+<% if @now_playing.location.present? %>
+  <% if @now_playing.position.present? %>
+    <div class="text-xs italic text-gray-600 mt-1">
+      <% if @now_playing.position == 1 %>
+        First Record in the section!
+      <% elsif @now_playing.position == @now_playing.location.total_items %>
+        Last Record in the section!
+      <% else %>
+        Record can be found between
+        <span class="group/prev relative inline-block cursor-pointer underline decoration-dotted hover:text-gray-800">
+          <%= @now_playing.previous.media_owner.name %>: <%= @now_playing.previous.release.title %>
+          <%= render "shared/media_item_hover_popup", media_item: @now_playing.previous, popup_align: :left, position: :above, group_name: "prev" %>
+        </span>
+        and
+        <span class="group/next relative inline-block cursor-pointer underline decoration-dotted hover:text-gray-800">
+          <%= @now_playing.next.media_owner.name %>: <%= @now_playing.next.release.title %>
+          <%= render "shared/media_item_hover_popup", media_item: @now_playing.next, popup_align: :right, position: :above, group_name: "next" %>
+        </span>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
