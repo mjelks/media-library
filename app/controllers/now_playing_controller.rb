@@ -5,14 +5,19 @@ class NowPlayingController < ApplicationController
                             .where(currently_playing: true)
                             .includes(:location, release: [ :media_owner, :cover_image_attachment ])
                             .first
+    @day_play_counter = 7
 
     # Recently played (not currently playing, has been played before)
     @recently_played = MediaItem.vinyl
                                 .where(currently_playing: false)
                                 .where.not(last_played: nil)
+                                .where("last_played >= ?", @day_play_counter.days.ago)
                                 .includes(:location, release: [ :media_owner, :cover_image_attachment ])
                                 .order(last_played: :desc)
-                                .limit(10)
+    # .limit(10)
+    @recently_played_in_seconds = @recently_played.sum do |item|
+      item.release&.duration || 0
+    end
   end
 
   def search
@@ -65,7 +70,8 @@ class NowPlayingController < ApplicationController
       @media_item.update!(
         play_count: (@media_item.play_count || 0) + 1,
         last_played: Time.current,
-        currently_playing: true
+        currently_playing: true,
+        listening_confirmed: false
       )
     end
 
@@ -76,6 +82,7 @@ class NowPlayingController < ApplicationController
   end
 
   def done
+    # binding.break
     @media_item = MediaItem.find(params[:id])
     @media_item.update!(currently_playing: false)
 
@@ -107,6 +114,61 @@ class NowPlayingController < ApplicationController
     @media_item.update!(notes: params[:notes])
 
     render json: { success: true, notes: @media_item.notes }
+  end
+
+  def confirm_listening
+    @media_item = MediaItem.find(params[:id])
+    @media_item.update!(listening_confirmed: true)
+
+    respond_to do |format|
+      format.json { render json: { success: true } }
+    end
+  end
+
+  def random
+    @media_item = MediaItem.random_album_candidates
+                           .includes(release: [ :media_owner, :cover_image_attachment ])
+                           .order("RANDOM()")
+                           .first
+
+    if @media_item.nil?
+      render json: []
+      return
+    end
+
+    render json: [ {
+      id: @media_item.id,
+      title: @media_item.release&.title,
+      artist: @media_item.release&.media_owner&.name,
+      year: @media_item.year || @media_item.release&.original_year,
+      play_count: @media_item.play_count || 0,
+      cover_url: @media_item.release&.cover_image&.attached? ? url_for(@media_item.release.cover_image.variant(resize_to_limit: [ 100, 100 ])) : nil
+    } ]
+  end
+
+  def delete
+    @media_item = MediaItem.find(params[:id])
+
+    # Only allow delete if currently playing
+    unless @media_item.currently_playing?
+      respond_to do |format|
+        format.html { redirect_to now_playing_path, alert: "Can only delete currently playing items" }
+        format.turbo_stream { head :unprocessable_entity }
+      end
+      return
+    end
+
+    # Rollback: decrement play count and clear currently playing
+    @media_item.update!(
+      play_count: [ (@media_item.play_count || 1) - 1, 0 ].max,
+      last_played: nil,
+      currently_playing: false
+    )
+
+    respond_to do |format|
+      format.html { redirect_to now_playing_path, notice: "Removed: #{@media_item.release&.title || 'Unknown Album'}" }
+      format.turbo_stream { head :ok }
+    end
   end
 
   private

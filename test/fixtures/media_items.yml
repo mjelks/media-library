@@ -4,19 +4,20 @@
 #
 # Table name: media_items
 #
-#  id                :integer          not null, primary key
-#  currently_playing :boolean          default(FALSE), not null
-#  item_count        :integer          default(1), not null
-#  last_played       :datetime
-#  notes             :text
-#  play_count        :integer
-#  position          :integer
-#  year              :integer
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  location_id       :integer
-#  media_type_id     :integer          not null
-#  release_id        :integer
+#  id                  :integer          not null, primary key
+#  currently_playing   :boolean          default(FALSE), not null
+#  item_count          :integer          default(1), not null
+#  last_played         :datetime
+#  listening_confirmed :boolean          default(FALSE)
+#  notes               :text
+#  play_count          :integer
+#  position            :integer
+#  year                :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  location_id         :integer
+#  media_type_id       :integer          not null
+#  release_id          :integer
 #
 # Indexes
 #

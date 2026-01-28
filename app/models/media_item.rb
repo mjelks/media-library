@@ -2,19 +2,20 @@
 #
 # Table name: media_items
 #
-#  id                :integer          not null, primary key
-#  currently_playing :boolean          default(FALSE), not null
-#  item_count        :integer          default(1), not null
-#  last_played       :datetime
-#  notes             :text
-#  play_count        :integer
-#  position          :integer
-#  year              :integer
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  location_id       :integer
-#  media_type_id     :integer          not null
-#  release_id        :integer
+#  id                  :integer          not null, primary key
+#  currently_playing   :boolean          default(FALSE), not null
+#  item_count          :integer          default(1), not null
+#  last_played         :datetime
+#  listening_confirmed :boolean          default(FALSE)
+#  notes               :text
+#  play_count          :integer
+#  position            :integer
+#  year                :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  location_id         :integer
+#  media_type_id       :integer          not null
+#  release_id          :integer
 #
 # Indexes
 #
@@ -42,6 +43,9 @@ class MediaItem < ApplicationRecord
   scope :ordered, -> { order(position: :asc, created_at: :desc) }
   scope :ordered_by_location, -> { order("locations.position ASC, locations.name ASC, media_items.position ASC, media_items.created_at DESC") }
   scope :vinyl, -> { joins(:media_type).where(media_types: { name: "Vinyl" }) }
+  scope :random_album_candidates, -> {
+    vinyl.where("last_played IS NULL OR last_played < ?", 60.days.ago)
+  }
 
   def self.update_positions(location_id, ordered_ids)
     transaction do

@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["input", "results"]
-  static values = { url: String }
+  static values = { url: String, randomUrl: String }
 
   connect() {
     this.selectedIndex = -1
@@ -63,6 +63,37 @@ export default class extends Controller {
       this.renderResults()
     } catch (error) {
       console.error("Search error:", error)
+    }
+  }
+
+  async fetchRandom() {
+    try {
+      const response = await fetch(this.randomUrlValue, {
+        headers: {
+          "Accept": "application/json"
+        }
+      })
+
+      if (!response.ok) {
+        console.error("Random fetch failed")
+        return
+      }
+
+      this.results = await response.json()
+      this.selectedIndex = -1
+
+      if (this.results.length === 0) {
+        this.resultsTarget.innerHTML = `
+          <div class="px-4 py-3 text-gray-500 text-center">
+            No albums available (all played within the last 60 days)
+          </div>
+        `
+        this.showResults()
+      } else {
+        this.renderResults()
+      }
+    } catch (error) {
+      console.error("Random error:", error)
     }
   }
 
