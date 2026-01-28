@@ -15,6 +15,13 @@ Rails.application.configure do
   # Enable server timing.
   config.server_timing = true
 
+  config.hosts << "live.lvh.me"
+
+  # Also allow your local IP and .local hostname to prevent future blocks
+  config.hosts << ".local"
+  config.hosts << /192\.168\.\d+\.\d+/ # Regex for local network IPs
+  config.hosts << "127.0.0.1"
+
   # Enable/disable Action Controller caching. By default Action Controller caching is disabled.
   # Run rails dev:cache to toggle Action Controller caching.
   if Rails.root.join("tmp/caching-dev.txt").exist?

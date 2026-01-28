@@ -5,6 +5,7 @@
 # Table name: users
 #
 #  id              :integer          not null, primary key
+#  api_token       :string
 #  email_address   :string           not null
 #  password_digest :string           not null
 #  created_at      :datetime         not null
@@ -12,11 +13,13 @@
 #
 # Indexes
 #
+#  index_users_on_api_token      (api_token) UNIQUE
 #  index_users_on_email_address  (email_address) UNIQUE
 #
 default_user:
   email_address: "default@example.com"
   password_digest: <%= password_digest %>
+  api_token: "test_api_token_12345"
 
 one:
   email_address: "one@example.com"

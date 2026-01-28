@@ -3,6 +3,7 @@
 # Table name: users
 #
 #  id              :integer          not null, primary key
+#  api_token       :string
 #  email_address   :string           not null
 #  password_digest :string           not null
 #  created_at      :datetime         not null
@@ -10,6 +11,7 @@
 #
 # Indexes
 #
+#  index_users_on_api_token      (api_token) UNIQUE
 #  index_users_on_email_address  (email_address) UNIQUE
 #
 require "test_helper"
