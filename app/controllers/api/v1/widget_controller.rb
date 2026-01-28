@@ -88,11 +88,13 @@ module Api
           id: item.id,
           title: item.release&.title,
           artist: item.release&.media_owner&.name,
-          year: item.year || item.release&.original_year,
+          year: (item.year || item.release&.original_year)&.to_s,
           duration: item.release&.duration,
           duration_formatted: format_duration(item.release&.duration),
           cover_url: cover_url_for(item),
-          play_count: item.play_count || 0
+          # cover_url: "https://substackcdn.com/image/fetch/$s_!axJM!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fcffe5708-e788-43f4-9cc4-ccd02700de90_600x636.jpeg",
+          play_count: item.play_count || 0,
+          last_played: item.last_played
         }
       end
 
