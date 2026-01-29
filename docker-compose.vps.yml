@@ -2,6 +2,11 @@
 # docker compose -f docker-compose.vps.yml --env-file .env build --no-cache web
 # docker compose up :
 # docker compose -f docker-compose.vps.yml --env-file .env up -d
+
+# to copy local files to the vps:
+# docker cp ./storage/. discogs-media-web-1:/rails/storage/
+# docker exec -u root discogs-media-web-1 chown -R 1000:1000 /rails/storage
+# docker exec -it discogs-media-web-1 bin/rails db:prepare # if needed (after copying dev -> prod db)
 services:
   web:
     build: .
