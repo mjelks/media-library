@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Install git hooks for local development
+echo "Installing git hooks..."
+
+cat > .git/hooks/pre-push << 'EOF'
+#!/bin/bash
+
+echo "🔍 Running pre-push checks..."
+
+# Run Rubocop
+echo "📝 Running Rubocop..."
+bin/rubocop --fail-level=error
+if [ $? -ne 0 ]; then
+  echo "❌ Rubocop failed. Fix issues before pushing."
+  exit 1
+fi
+echo "✅ Rubocop passed"
+
+# Run tests
+echo "🧪 Running tests..."
+bin/rails test
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed. Fix issues before pushing."
+  exit 1
+fi
+echo "✅ Tests passed"
+
+echo "🚀 All checks passed! Pushing..."
+EOF
+
+chmod +x .git/hooks/pre-push
+echo "✅ Git hooks installed!"
