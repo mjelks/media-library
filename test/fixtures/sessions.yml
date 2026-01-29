@@ -1,0 +1,20 @@
+# == Schema Information
+#
+# Table name: sessions
+#
+#  id         :integer          not null, primary key
+#  ip_address :string
+#  user_agent :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  user_id    :integer          not null
+#
+one:
+  user: default_user
+  ip_address: "127.0.0.1"
+  user_agent: "Mozilla/5.0 (Test Browser)"
+
+two:
+  user: one
+  ip_address: "192.168.1.1"
+  user_agent: "Mozilla/5.0 (Another Browser)"
