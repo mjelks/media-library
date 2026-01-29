@@ -83,7 +83,7 @@ docker compose -f docker-compose.vps.yml --env-file .env build --no-cache web
 docker compose -f docker-compose.vps.yml --env-file .env up -d
 
 # rebuild after rails updates
-docker compose -f docker-compose.vps.yml --env-file .env build up -d
+docker compose -f docker-compose.vps.yml --env-file .env up --build -d
 
 # to copy local files to the vps:
 docker cp ./storage/. discogs-media-web:/rails/storage/

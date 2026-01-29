@@ -1,4 +1,11 @@
+require_relative "../lib/authenticated_constraint"
+
 Rails.application.routes.draw do
+  # API documentation (requires session authentication)
+  constraints(AuthenticatedConstraint.new) do
+    mount Rswag::Ui::Engine => '/api-docs'
+    mount Rswag::Api::Engine => '/api-docs'
+  end
   # API routes for macOS Widget
   namespace :api do
     namespace :v1 do

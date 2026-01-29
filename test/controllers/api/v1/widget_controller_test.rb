@@ -84,6 +84,9 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert result.key?("duration_formatted")
     assert result.key?("cover_url")
     assert result.key?("play_count")
+    assert result.key?("last_played")
+    assert result.key?("tracks")
+    assert_kind_of Array, result["tracks"]
   end
 
   test "search should only return vinyl items" do
@@ -98,6 +101,27 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     # CD item should not be in results
     cd_item = media_items(:one)
     assert_not_includes result_ids, cd_item.id
+  end
+
+  test "search should return tracks with proper structure" do
+    get api_v1_widget_search_url,
+        params: { q: "Analogue" },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    return if results.empty?
+
+    result = results.first
+    tracks = result["tracks"]
+    return if tracks.empty?
+
+    track = tracks.first
+    assert track.key?("side")
+    assert track.key?("number")
+    assert track.key?("position")
+    assert track.key?("name")
+    assert track.key?("duration")
   end
 
   # Random tests
@@ -126,6 +150,9 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert result.key?("duration_formatted")
     assert result.key?("cover_url")
     assert result.key?("play_count")
+    assert result.key?("last_played")
+    assert result.key?("tracks")
+    assert_kind_of Array, result["tracks"]
   end
 
   # Now Playing tests

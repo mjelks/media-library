@@ -52,6 +52,9 @@ gem "dotenv"
 # required for API call to Discogs
 gem "httparty"
 
+# Swagger/OpenAPI documentation for Rails APIs
+gem "rswag-api"
+gem "rswag-ui"
 
 group :development, :test do
   gem "minitest"
@@ -68,6 +71,9 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 
   gem "overmind"
+
+  # rswag-specs for generating OpenAPI specs from tests
+  gem "rswag-specs"
 end
 
 group :development do
