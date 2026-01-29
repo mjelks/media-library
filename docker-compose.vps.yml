@@ -12,6 +12,12 @@ services:
     build: .
     container_name: discogs-media-web
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
     expose:
       - "80"
     environment:

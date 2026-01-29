@@ -1,0 +1,243 @@
+openapi: 3.0.1
+info:
+  title: Discogs Media API
+  version: v1
+  description: API for managing and playing vinyl records from your Discogs collection
+
+servers:
+  - url: '{protocol}://{host}'
+    variables:
+      protocol:
+        default: http
+        enum:
+          - http
+          - https
+      host:
+        default: localhost:3000
+
+components:
+  securitySchemes:
+    ApiToken:
+      type: apiKey
+      name: X-Api-Token
+      in: header
+      description: API token from user settings
+    BearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer token authentication
+
+  schemas:
+    Track:
+      type: object
+      properties:
+        side:
+          type: string
+          example: "A"
+          description: Side of the vinyl (A, B, etc.)
+        number:
+          type: string
+          example: "1"
+          description: Track number on the side
+        position:
+          type: string
+          example: "A1"
+          description: Full position identifier
+        name:
+          type: string
+          example: "Analogue (All I Want)"
+          description: Track name
+        duration:
+          type: string
+          nullable: true
+          example: "4:32"
+          description: Track duration in mm:ss format
+
+    MediaItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Analogue"
+          description: Album title
+        artist:
+          type: string
+          example: "A-Ha"
+          description: Artist name
+        year:
+          type: string
+          nullable: true
+          example: "2005"
+          description: Release year
+        duration:
+          type: integer
+          nullable: true
+          example: 2520
+          description: Total duration in seconds
+        duration_formatted:
+          type: string
+          nullable: true
+          example: "42:00"
+          description: Total duration formatted as mm:ss or hh:mm:ss
+        cover_url:
+          type: string
+          nullable: true
+          example: "http://localhost:3000/rails/active_storage/blobs/..."
+          description: URL to the album cover image
+        play_count:
+          type: integer
+          example: 5
+          description: Number of times this album has been played
+        last_played:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2024-01-15T14:30:00Z"
+          description: Timestamp of last play
+        tracks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Track'
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Unauthorized"
+
+    PlayResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        now_playing:
+          $ref: '#/components/schemas/MediaItem'
+
+    NowPlayingResponse:
+      type: object
+      properties:
+        now_playing:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/MediaItem'
+
+security:
+  - ApiToken: []
+  - BearerToken: []
+
+paths:
+  /api/v1/widget/search:
+    get:
+      summary: Search vinyl albums
+      description: Search for vinyl albums by artist name or album title. Returns up to 10 results.
+      tags:
+        - Widget
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query (minimum 2 characters)
+          schema:
+            type: string
+            minLength: 2
+            example: "A-Ha"
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaItem'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/widget/random:
+    get:
+      summary: Get a random vinyl album
+      description: Returns a random vinyl album that hasn't been played recently and isn't currently playing
+      tags:
+        - Widget
+      responses:
+        '200':
+          description: A random album
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItem'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No albums available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/widget/now_playing:
+    get:
+      summary: Get currently playing album
+      description: Returns the vinyl album that is currently playing, or null if nothing is playing
+      tags:
+        - Widget
+      responses:
+        '200':
+          description: Currently playing album
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NowPlayingResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/widget/play/{id}:
+    post:
+      summary: Play an album
+      description: Start playing a vinyl album. This will stop any currently playing album, increment the play count, and record the play timestamp.
+      tags:
+        - Widget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the media item to play
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Album now playing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Album not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
