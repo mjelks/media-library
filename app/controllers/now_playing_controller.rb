@@ -2,17 +2,15 @@ class NowPlayingController < ApplicationController
   def index
     # Currently playing (stays until Done or new selection)
     @now_playing = MediaItem.vinyl
-                            .where(currently_playing: true)
-                            .includes(:location, release: [ :media_owner, :cover_image_attachment ])
+                            .now_playing
                             .first
-    @day_play_counter = 7
+    @days_ago_play_history = ENV["DAYS_AGO_PLAY_HISTORY"] || 7 # Default to 7 days,
 
     # Recently played (not currently playing, has been played before)
     @recently_played = MediaItem.vinyl
-                                .where(currently_playing: false)
+                                .now_playing(false)
                                 .where.not(last_played: nil)
-                                .where("last_played >= ?", @day_play_counter.days.ago)
-                                .includes(:location, release: [ :media_owner, :cover_image_attachment ])
+                                .in_the_last(@days_ago_play_history.to_i.days)
                                 .order(last_played: :desc)
     # .limit(10)
     @recently_played_in_seconds = @recently_played.sum do |item|
@@ -58,6 +56,15 @@ class NowPlayingController < ApplicationController
       }
     }
   end
+
+  # def tweak
+  #   @days_ago_play_history = ENV["DAYS_AGO_PLAY_HISTORY"] || 7 # Default to 7 days,
+  #   @recently_played = MediaItem.vinyl
+  #                         .now_playing(false)
+  #                         .where.not(last_played: nil)
+  #                         .in_the_last(@days_ago_play_history.to_i.days)
+  #                         .order(last_played: :desc)
+  # end
 
   def play
     @media_item = MediaItem.find(params[:id])
@@ -149,16 +156,7 @@ class NowPlayingController < ApplicationController
   def delete
     @media_item = MediaItem.find(params[:id])
 
-    # Only allow delete if currently playing
-    unless @media_item.currently_playing?
-      respond_to do |format|
-        format.html { redirect_to now_playing_path, alert: "Can only delete currently playing items" }
-        format.turbo_stream { head :unprocessable_entity }
-      end
-      return
-    end
-
-    # Rollback: decrement play count and clear currently playing
+    # Rollback: decrement play count and clear currently playing / last_played
     @media_item.update!(
       play_count: [ (@media_item.play_count || 1) - 1, 0 ].max,
       last_played: nil,
