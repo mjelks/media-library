@@ -1,18 +1,30 @@
 ENV["RAILS_ENV"] ||= "test"
-require_relative "../config/environment"
-require "rails/test_help"
+
 require "simplecov"
 SimpleCov.start "rails" do
   add_filter "/test/"
   add_filter "/lib/itunes_import/"
 
   track_files "{app,lib}/**/*.rb"
+  enable_coverage :branch
 end
+
+require_relative "../config/environment"
+require "rails/test_help"
 
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers
     parallelize(workers: :number_of_processors)
+
+    # Configure SimpleCov for parallel tests
+    parallelize_setup do |worker|
+      SimpleCov.command_name "#{SimpleCov.command_name}-#{worker}"
+    end
+
+    parallelize_teardown do |worker|
+      SimpleCov.result
+    end
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
