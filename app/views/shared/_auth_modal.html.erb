@@ -12,18 +12,22 @@
               class="modal-tab tab-header selected">
         Login
       </button>
-      <button data-action="modal#switchTab"
-              data-tab="signup"
-              data-modal-target="tab"
-              class="modal-tab tab-header">
-        Sign Up
-      </button>
+      <%#-- Disabled sign up button -- %>
+      <% if false %>
+        <button data-action="modal#switchTab"
+                data-tab="signup"
+                data-modal-target="tab"
+                class="modal-tab tab-header">
+          Sign Up
+        </button>
+     
       <button data-action="modal#switchTab"
               data-tab="password"
               data-modal-target="tab"
               class="modal-tab tab-header">
         Forgot?
       </button>
+       <%end%>
     </div>
 
     <!-- Content -->
