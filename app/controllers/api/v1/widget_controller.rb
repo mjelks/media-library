@@ -94,8 +94,25 @@ module Api
           cover_url: cover_url_for(item),
           # cover_url: "https://substackcdn.com/image/fetch/$s_!axJM!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fcffe5708-e788-43f4-9cc4-ccd02700de90_600x636.jpeg",
           play_count: item.play_count || 0,
-          last_played: item.last_played
+          last_played: item.last_played,
+          tracks: serialize_tracks(item.release&.release_tracks)
         }
+      end
+
+      def serialize_tracks(tracks)
+        return [] if tracks.blank?
+
+        tracks.order(:position).map do |track|
+          side = track.position[/^[A-Za-z]+/] || ""
+          number = track.position[/\d+$/] || track.position
+          {
+            side: side,
+            number: number,
+            position: track.position,
+            name: track.name,
+            duration: track.duration
+          }
+        end
       end
 
       def cover_url_for(item)
