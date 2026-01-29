@@ -1,0 +1,24 @@
+<div class="absolute -top-2 -right-2 z-10 group/buttons <%= 'hidden' if !params[:tweak] && media_item.listening_confirmed? %>" data-now-playing-card-target="buttonGroup">
+    <!-- Red X button (delete) - stays in place -->
+    <button type="button"
+            data-action="click->now-playing-card#showConfirm mouseenter->tooltip#show mouseleave->tooltip#hide"
+            data-now-playing-card-target="deleteBtn"
+            data-controller="tooltip"
+            data-tooltip-text-value="Undo - Remove and revert play count"
+            class="w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-all shadow-md">
+    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+    </button>
+    <!-- Green check button (confirm listening) - appears to the right on hover -->
+    <button type="button"
+            data-action="click->now-playing-card#confirmListening mouseenter->tooltip#show mouseleave->tooltip#hide"
+            data-now-playing-card-target="confirmBtn"
+            data-controller="tooltip"
+            data-tooltip-text-value="Confirm - I'm listening"
+            class="absolute left-full ml-1 top-0 w-6 h-6 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-all shadow-md scale-0 group-hover/buttons:scale-100 origin-left">
+    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+    </svg>
+    </button>
+</div>
