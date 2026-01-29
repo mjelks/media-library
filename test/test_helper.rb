@@ -2,7 +2,12 @@ ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
 require "simplecov"
-SimpleCov.start
+SimpleCov.start "rails" do
+  add_filter "/test/"
+  add_filter "/lib/itunes_import/"
+
+  track_files "{app,lib}/**/*.rb"
+end
 
 module ActiveSupport
   class TestCase
