@@ -54,6 +54,7 @@
   <div class="max-w-xl mx-auto"
        data-controller="cd-binder"
        data-cd-binder-total-pages-value="<%= @pages_per_binder %>"
+       data-location-id="<%= @location.id %>"
        data-action="keydown->cd-binder#keydown"
        tabindex="0">
 
@@ -169,53 +170,9 @@
     <p class="text-center text-xs text-gray-400 mt-2">Arrow keys to change page, Space or F to flip</p>
   </div>
 
-  <!-- List View -->
-  <% if @media_items.any? %>
-    <div class="mt-12 max-w-4xl mx-auto">
-      <h3 class="font-bold text-xl mb-4">All CDs in this Binder</h3>
-      <div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Slot</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Cover</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Artist</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <% @media_items.sort_by { |mi| mi.position || 999 }.each do |media_item| %>
-              <%
-                pos = media_item.position || 0
-                page = ((pos - 1) / 8) + 1
-                side = ((pos - 1) / 4) % 2 == 0 ? 'A' : 'B'
-                slot_idx = (pos - 1) % 4
-                slot_letter = side == 'A' ? %w[A B C D][slot_idx] : %w[E F G H][slot_idx]
-                slot_label = "#{page}#{slot_letter}"
-              %>
-              <tr class="hover:bg-gray-50">
-                <td class="px-4 py-2 text-sm text-gray-600"><%= pos > 0 ? slot_label : "—" %></td>
-                <td class="px-4 py-2">
-                  <% if media_item.release&.cover_image&.attached? %>
-                    <%= image_tag media_item.release.cover_image, class: "w-10 h-10 object-cover rounded" %>
-                  <% else %>
-                    <div class="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
-                      <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1" fill="none"/>
-                        <circle cx="10" cy="10" r="2" fill="currentColor"/>
-                      </svg>
-                    </div>
-                  <% end %>
-                </td>
-                <td class="px-4 py-2">
-                  <%= link_to media_item.title || "Unknown", media_item_path(media_item), class: "text-blue-600 hover:text-blue-800" %>
-                </td>
-                <td class="px-4 py-2 text-sm text-gray-600"><%= media_item.release&.media_owner&.name || "—" %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  <% end %>
+  <!-- Reorder List -->
+  <div class="mt-12 max-w-4xl mx-auto">
+    <h3 class="font-bold text-xl mb-4">All CDs in this Binder</h3>
+    <%= render partial: "cd_collection/cd_sorter" %>
+  </div>
 </div>

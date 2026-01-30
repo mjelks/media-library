@@ -9,6 +9,20 @@ export default class extends Controller {
   }
 
   connect() {
+    // Restore state from sessionStorage if available (for Turbo navigations)
+    const savedState = sessionStorage.getItem("cdBinderState")
+    if (savedState) {
+      try {
+        const { page, side, locationId } = JSON.parse(savedState)
+        // Only restore if we're on the same location
+        if (locationId === this.element.dataset.locationId) {
+          this.currentPageValue = Math.min(page, this.totalPagesValue)
+          this.currentSideValue = side
+        }
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
     this.updateDisplay()
   }
 
@@ -131,6 +145,18 @@ export default class extends Controller {
       btn.classList.toggle("bg-blue-600", isActive)
       btn.classList.toggle("bg-gray-300", !isActive)
     })
+
+    // Save state for Turbo navigations
+    this.saveState()
+  }
+
+  saveState() {
+    const state = {
+      page: this.currentPageValue,
+      side: this.currentSideValue,
+      locationId: this.element.dataset.locationId
+    }
+    sessionStorage.setItem("cdBinderState", JSON.stringify(state))
   }
 
   keydown(event) {

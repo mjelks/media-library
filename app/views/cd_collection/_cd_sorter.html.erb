@@ -1,0 +1,24 @@
+<% if @media_items.any? %>
+    <p class="text-sm text-gray-500 mb-4">
+    <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+    </svg>
+    Drag CDs to reorder them
+    </p>
+
+    <div data-controller="sortable"
+        data-sortable-url-value="<%= cd_collection_reorder_path(@location) %>"
+        data-sortable-refresh-binder-value="true"
+        class="space-y-2">
+
+    <% @media_items.each_with_index do |media_item, index| %>
+        <%= render partial: "cd_collection/cd_media_item_card", locals: { media_item: media_item, index: index, location: @location } %>
+    <% end %>
+    </div>
+<% else %>
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+    <p class="text-gray-500">No CDs in this binder yet.</p>
+    <%= link_to "Add CDs", cd_collection_add_path(@location),
+        class: "mt-4 inline-block rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
+    </div>
+<% end %>
