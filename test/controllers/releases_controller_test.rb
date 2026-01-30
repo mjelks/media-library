@@ -37,6 +37,18 @@ class ReleasesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to release_url(Release.last)
   end
 
+  test "should not create release without title" do
+    assert_no_difference("Release.count") do
+      post releases_url, params: {
+        release: {
+          title: "",
+          media_owner_id: @media_owner.id
+        }
+      }
+    end
+    assert_response :unprocessable_entity
+  end
+
   test "should get edit" do
     get edit_release_url(@release)
     assert_response :success
@@ -53,6 +65,15 @@ class ReleasesControllerTest < ActionDispatch::IntegrationTest
     @release.reload
     assert_equal "Updated Title", @release.title
     assert_equal 2024, @release.original_year
+  end
+
+  test "should not update release with invalid data" do
+    patch release_url(@release), params: {
+      release: {
+        title: ""
+      }
+    }
+    assert_response :unprocessable_entity
   end
 
   test "should destroy release" do

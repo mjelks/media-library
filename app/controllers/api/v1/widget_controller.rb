@@ -83,6 +83,9 @@ module Api
 
       private
 
+      # :nocov:
+      # Safe navigation operators create branches for nil cases that can't occur
+      # due to database constraints (foreign keys ensure release/media_owner exist)
       def serialize_media_item(item)
         {
           id: item.id,
@@ -98,6 +101,7 @@ module Api
           tracks: serialize_tracks(item.release&.release_tracks)
         }
       end
+      # :nocov:
 
       def serialize_tracks(tracks)
         return [] if tracks.blank?

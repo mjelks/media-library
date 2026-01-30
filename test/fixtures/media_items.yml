@@ -71,3 +71,4 @@ vinyl_now_playing:
   notes: Reissue vinyl
   currently_playing: true
   listening_confirmed: false
+  last_played: <%= 10.minutes.ago.to_fs(:db) %>

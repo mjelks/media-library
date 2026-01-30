@@ -31,4 +31,44 @@ class MediaItemsHelperTest < ActionView::TestCase
     media_item = OpenStruct.new(year: 2020, release: release)
     assert_equal "1985 (2020 reissue)", display_year(media_item)
   end
+
+  # spine_width_multiplier tests
+  test "spine_width_multiplier returns 1.0 for single LP" do
+    media_item = OpenStruct.new(item_count: 1)
+    assert_equal 1.0, spine_width_multiplier(media_item)
+  end
+
+  test "spine_width_multiplier returns 1.5 for double LP" do
+    media_item = OpenStruct.new(item_count: 2)
+    assert_equal 1.5, spine_width_multiplier(media_item)
+  end
+
+  test "spine_width_multiplier returns 2.0 for triple or more LP" do
+    media_item = OpenStruct.new(item_count: 3)
+    assert_equal 2.0, spine_width_multiplier(media_item)
+
+    media_item_quad = OpenStruct.new(item_count: 4)
+    assert_equal 2.0, spine_width_multiplier(media_item_quad)
+  end
+
+  # item_count_display tests
+  test "item_count_display returns empty string for single item" do
+    media_item = OpenStruct.new(item_count: 1)
+    assert_equal "", item_count_display(media_item)
+  end
+
+  test "item_count_display returns empty string for zero items" do
+    media_item = OpenStruct.new(item_count: 0)
+    assert_equal "", item_count_display(media_item)
+  end
+
+  test "item_count_display returns count for double LP" do
+    media_item = OpenStruct.new(item_count: 2)
+    assert_equal " (2)", item_count_display(media_item)
+  end
+
+  test "item_count_display returns count for triple LP" do
+    media_item = OpenStruct.new(item_count: 3)
+    assert_equal " (3)", item_count_display(media_item)
+  end
 end

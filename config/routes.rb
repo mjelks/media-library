@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   # API routes for macOS Widget
   namespace :api do
     namespace :v1 do
+      get "me", to: "profile#me"
       get "widget/search", to: "widget#search"
       get "widget/random", to: "widget#random"
       get "widget/now_playing", to: "widget#now_playing"

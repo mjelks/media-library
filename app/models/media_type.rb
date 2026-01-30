@@ -10,4 +10,6 @@
 #
 class MediaType < ApplicationRecord
   has_many :media_items
+
+  validates :name, presence: true
 end

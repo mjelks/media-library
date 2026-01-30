@@ -27,9 +27,10 @@ class MediaTypeTest < ActiveSupport::TestCase
     assert media_type.media_items.count >= 0
   end
 
-  test "allows nil name" do
+  test "requires name" do
     media_type = MediaType.new(description: "Test description")
-    assert media_type.valid?
+    assert_not media_type.valid?
+    assert_includes media_type.errors[:name], "can't be blank"
   end
 
   test "allows nil description" do
