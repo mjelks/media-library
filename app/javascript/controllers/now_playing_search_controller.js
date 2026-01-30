@@ -8,16 +8,25 @@ export default class extends Controller {
     this.selectedIndex = -1
     this.results = []
     this.debounceTimeout = null
+    this.mediaType = "Vinyl" // Default
 
     // Close results when clicking outside
     document.addEventListener("click", this.handleClickOutside.bind(this))
+
+    // Listen for media type changes from the toggle controller
+    this.element.addEventListener("media-type-toggle:changed", this.handleMediaTypeChange.bind(this))
   }
 
   disconnect() {
     document.removeEventListener("click", this.handleClickOutside.bind(this))
+    this.element.removeEventListener("media-type-toggle:changed", this.handleMediaTypeChange.bind(this))
     if (this.debounceTimeout) {
       clearTimeout(this.debounceTimeout)
     }
+  }
+
+  handleMediaTypeChange(event) {
+    this.mediaType = event.detail.mediaType
   }
 
   handleClickOutside(event) {
@@ -47,7 +56,7 @@ export default class extends Controller {
 
   async performSearch(query) {
     try {
-      const response = await fetch(`${this.urlValue}?q=${encodeURIComponent(query)}`, {
+      const response = await fetch(`${this.urlValue}?q=${encodeURIComponent(query)}&media_type=${encodeURIComponent(this.mediaType)}`, {
         headers: {
           "Accept": "application/json"
         }
@@ -68,7 +77,7 @@ export default class extends Controller {
 
   async fetchRandom() {
     try {
-      const response = await fetch(this.randomUrlValue, {
+      const response = await fetch(`${this.randomUrlValue}?media_type=${encodeURIComponent(this.mediaType)}`, {
         headers: {
           "Accept": "application/json"
         }

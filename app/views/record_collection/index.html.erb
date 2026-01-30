@@ -58,11 +58,11 @@
                 <!-- Records/Locations container - vertical bars -->
                 <div class="absolute inset-4 flex flex-row gap-1 overflow-hidden z-[2]">
                   <% locations_in_cube = @locations_by_cube[cube_letter] || [] %>
-                  <% total_lps = locations_in_cube.sum { |l| l.media_items.vinyl.sum(:item_count) } %>
+                  <% total_lps = locations_in_cube.sum { |l| l.media_items.media_type_option("Vinyl").sum(:item_count) } %>
 
                   <% if locations_in_cube.any? && total_lps > 0 %>
                     <% locations_in_cube.each do |location| %>
-                      <% lp_count = location.media_items.vinyl.sum(:item_count) %>
+                      <% lp_count = location.media_items.media_type_option("Vinyl").sum(:item_count) %>
                       <% width_percent = (lp_count.to_f / total_lps * 100).round(1) %>
                       <%= link_to record_collection_location_path(location),
                           class: "group/loc relative h-full rounded-sm overflow-hidden transition-all duration-200 hover:brightness-110",

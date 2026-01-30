@@ -28,6 +28,14 @@ Rails.application.routes.draw do
   get "record_collection/location/:id/add", to: "record_collection#add_to_collection", as: :record_collection_add
   get "record_collection/cube/:id", to: "record_collection#cube", as: :record_collection_cube
 
+  # CD Collection
+  get "cd_collection", to: "cd_collection#index"
+  get "cd_collection/location/:id", to: "cd_collection#show", as: :cd_collection_location
+  patch "cd_collection/location/:id/reorder", to: "cd_collection#reorder", as: :cd_collection_reorder
+  patch "cd_collection/location/:location_id/move_to_top/:id", to: "cd_collection#move_to_top", as: :cd_collection_move_to_top
+  patch "cd_collection/location/:location_id/move_to_bottom/:id", to: "cd_collection#move_to_bottom", as: :cd_collection_move_to_bottom
+  get "cd_collection/location/:id/add", to: "cd_collection#add_to_collection", as: :cd_collection_add
+
   # Now Playing
   get "now_playing", to: "now_playing#index"
   get "now_playing/search", to: "now_playing#search"
