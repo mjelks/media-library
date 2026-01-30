@@ -6,14 +6,17 @@
       <h1 class="font-bold text-4xl">Now Playing</h1>
       <p class="text-gray-500 mt-1">Search your collection and track what you're listening to</p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex items-center gap-4">
       <%= link_to "Back to Collection", record_collection_path,
           class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-200 font-medium" %>
     </div>
   </div>
 
   <!-- Search with Autocomplete -->
-  <div class="mb-8" data-controller="now-playing-search" data-now-playing-search-url-value="<%= now_playing_search_path %>" data-now-playing-search-random-url-value="<%= now_playing_random_path %>">
+  <div class="mb-8" data-controller="now-playing-search media-type-toggle"
+       data-now-playing-search-url-value="<%= now_playing_search_path %>"
+       data-now-playing-search-random-url-value="<%= now_playing_random_path %>"
+       data-media-type-toggle-current-value="<%= @media_type %>">
     <div class="relative flex gap-2">
       <input type="text"
              data-now-playing-search-target="input"
@@ -21,6 +24,25 @@
              placeholder="Search by artist or album title..."
              autocomplete="off"
              class="flex-1 px-4 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      <!-- Media Type Selector -->
+      <div class="flex rounded-lg overflow-hidden border border-gray-300">
+        <button type="button"
+                data-media-type-toggle-target="button"
+                data-now-playing-search-target="mediaTypeButton"
+                data-media-type="Vinyl"
+                data-action="click->media-type-toggle#select"
+                class="px-4 py-3 font-medium text-sm transition-colors">
+          Vinyl
+        </button>
+        <button type="button"
+                data-media-type-toggle-target="button"
+                data-now-playing-search-target="mediaTypeButton"
+                data-media-type="CD"
+                data-action="click->media-type-toggle#select"
+                class="px-4 py-3 font-medium text-sm transition-colors">
+          CD
+        </button>
+      </div>
       <button type="button"
               data-action="click->now-playing-search#fetchRandom"
               class="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg whitespace-nowrap">
@@ -95,12 +117,24 @@
               Started <%= time_ago_in_words(@now_playing.last_played) %> ago
               <span class="mx-2">&middot;</span>
               <%= pluralize(@now_playing.play_count || 0, "play") %> total
+              <span class="mx-2">&middot;</span>
+              <% if @now_playing.media_type&.name == "CD" %>
+                <span title="CD">💿</span>
+              <% else %>
+                <span title="Vinyl" class="inline-flex items-center justify-center w-6 h-6 bg-gray-800 text-white text-xs font-bold rounded-full">LP</span>
+              <% end %>
             </p>
             <% if @now_playing.location %>
-              <%= link_to record_collection_location_path(@now_playing.location), class: "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block" do %>
-                <% if @now_playing.location.cube_location.present? %>Cube <%= @now_playing.location.cube_location %>, <% end %>Section <%= @now_playing.location.name %>
-              <% end %>
-              <%= render partial: "now_playing/position_helper", locals: { now_playing: @now_playing } %>
+              <%if @now_playing.media_type&.name == "Vinyl"  %>
+                <%= link_to record_collection_location_path(@now_playing.location), class: "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block" do %>
+                  <% if @now_playing.location.cube_location.present? %>Cube <%= @now_playing.location.cube_location %>, <% end %>Section <%= @now_playing.location.name %>
+                <% end %>
+                <%= render partial: "now_playing/position_helper", locals: { now_playing: @now_playing } %>
+                <% else %>
+                 <%= link_to cd_collection_location_path(@now_playing.location), class: "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block" do %>
+                  <%= @now_playing.location.name %>
+                 <%end%>
+                <%end%>
             <% end %>
           </div>
           <div class="flex flex-col gap-2">
@@ -230,6 +264,12 @@
                   Played <%= time_ago_in_words(item.last_played) %> ago
                   <span class="mx-1">&middot;</span>
                   <%= pluralize(item.play_count || 0, "play") %>
+                  <span class="mx-1">&middot;</span>
+                  <% if item.media_type&.name == "CD" %>
+                    <span title="CD">💿</span>
+                  <% else %>
+                    <span title="Vinyl" class="inline-flex items-center justify-center w-5 h-5 bg-gray-600 text-white text-[10px] font-bold rounded-full align-middle">LP</span>
+                  <% end %>
                 </p>
                 <% if item.location %>
                   <%= link_to record_collection_location_path(item.location), class: "italic text-xs text-gray-400 hover:text-gray-600 hover:underline" do %>

@@ -42,12 +42,15 @@ class MediaItem < ApplicationRecord
 
   scope :ordered, -> { order(position: :asc, created_at: :desc) }
   scope :ordered_by_location, -> { order("locations.position ASC, locations.name ASC, media_items.position ASC, media_items.created_at DESC") }
+  scope :media_type_option, ->(media_type = "Vinyl") { joins(:media_type).where(media_types: { name: media_type }) }
   scope :vinyl, -> { joins(:media_type).where(media_types: { name: "Vinyl" }) }
+  scope :cd, -> { joins(:media_type).where(media_types: { name: "CD" }) }
   scope :now_playing, ->(currently_playing = true) { where(currently_playing: currently_playing).includes(:location, release: [ :media_owner, :cover_image_attachment ]) }
   scope :in_the_last, ->(days = 7) { where("last_played >= ?", days.ago).includes(:location, release: [ :media_owner, :cover_image_attachment ]) }
-  scope :random_album_candidates, -> {
-    vinyl.where("last_played IS NULL OR last_played < ?", 60.days.ago)
+  scope :random_candidates, ->(media_type = "Vinyl") {
+    media_type_option(media_type).where("last_played IS NULL OR last_played < ?", 60.days.ago)
   }
+  scope :random_album_candidates, ->(media_type = "Vinyl") { random_candidates(media_type) }
 
   def self.update_positions(location_id, ordered_ids)
     transaction do

@@ -8,8 +8,8 @@ class RecordCollectionController < ApplicationController
                          .order(:position, :name)
     @cubes = CUBES
     @locations_by_cube = @locations.group_by(&:cube_location)
-    @total_releases = MediaItem.vinyl.count
-    @total_lps = MediaItem.vinyl.sum(:item_count)
+    @total_releases = MediaItem.media_type_option("Vinyl").count
+    @total_lps = MediaItem.media_type_option("Vinyl").sum(:item_count)
   end
 
   def show

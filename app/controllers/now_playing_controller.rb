@@ -1,14 +1,16 @@
 class NowPlayingController < ApplicationController
   def index
-    # Currently playing (stays until Done or new selection)
-    @now_playing = MediaItem.vinyl
-                            .now_playing
+    @media_type = params[:media_type] || "Vinyl"
+
+    # Currently playing (stays until Done or new selection) - show all media types
+    @now_playing = MediaItem.now_playing
+                            .includes(:media_type)
                             .first
     @days_ago_play_history = ENV["DAYS_AGO_PLAY_HISTORY"] || 7 # Default to 7 days,
 
-    # Recently played (not currently playing, has been played before)
-    @recently_played = MediaItem.vinyl
-                                .now_playing(false)
+    # Recently played (not currently playing, has been played before) - show all media types
+    @recently_played = MediaItem.now_playing(false)
+                                .includes(:media_type)
                                 .where.not(last_played: nil)
                                 .in_the_last(@days_ago_play_history.to_i.days)
                                 .order(last_played: :desc)
@@ -26,8 +28,9 @@ class NowPlayingController < ApplicationController
       return
     end
 
+    media_type = params[:media_type] || "Vinyl"
     sanitized_query = sanitize_like(query)
-    @media_items = MediaItem.vinyl
+    @media_items = MediaItem.media_type_option(media_type)
                             .joins(release: :media_owner)
                             .includes(release: [ :media_owner, :cover_image_attachment ])
                             .where(
@@ -133,7 +136,8 @@ class NowPlayingController < ApplicationController
   end
 
   def random
-    @media_item = MediaItem.random_album_candidates
+    media_type = params[:media_type] || "Vinyl"
+    @media_item = MediaItem.random_candidates(media_type)
                            .includes(release: [ :media_owner, :cover_image_attachment ])
                            .order("RANDOM()")
                            .first

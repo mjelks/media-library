@@ -1,0 +1,75 @@
+<% content_for :title, "CD Collection" %>
+
+<div class="p-4 w-full">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="font-bold text-4xl">CD Collection</h1>
+      <p class="text-gray-500 mt-1">
+        <%= pluralize(@total_releases, "release") %> (<%= pluralize(@total_cds, "CD") %>) in the Collection
+      </p>
+    </div>
+  </div>
+
+  <!-- Binder Selection -->
+  <div class="flex flex-wrap gap-8 justify-center">
+    <% @binders.each do |binder_name| %>
+      <% location = @locations_by_binder[binder_name] %>
+      <% cd_count = location&.media_items&.media_type_option("CD")&.sum(:item_count) || 0 %>
+
+      <%= link_to (location ? cd_collection_location_path(location) : "#"),
+          class: "group block #{location ? '' : 'pointer-events-none opacity-50'}" do %>
+        <!-- Binder Visual -->
+        <div class="relative w-64 h-80">
+          <!-- Binder spine -->
+          <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 rounded-l-lg shadow-lg z-10">
+            <!-- Spine rings -->
+            <div class="absolute inset-x-1 top-8 bottom-8 flex flex-col justify-around">
+              <% 5.times do %>
+                <div class="h-3 bg-gradient-to-b from-gray-400 via-gray-300 to-gray-400 rounded-full shadow-inner"></div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Binder cover -->
+          <div class="absolute left-6 top-0 right-0 bottom-0 bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800 rounded-r-lg shadow-xl group-hover:from-slate-500 group-hover:via-slate-600 group-hover:to-slate-700 transition-all duration-300">
+            <!-- Cover texture -->
+            <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M0%200h20v20H0z%22%20fill%3D%22%23000%22%20fill-opacity%3D%22.03%22%2F%3E%3C%2Fsvg%3E')] rounded-r-lg"></div>
+
+            <!-- Binder label -->
+            <div class="absolute inset-4 flex flex-col items-center justify-center">
+              <div class="bg-white/90 px-4 py-2 rounded shadow-md mb-4">
+                <span class="text-slate-800 font-bold text-lg"><%= binder_name %></span>
+              </div>
+
+              <!-- CD count -->
+              <div class="bg-slate-900/50 px-3 py-1 rounded">
+                <span class="text-white/80 text-sm"><%= pluralize(cd_count, "CD") %></span>
+              </div>
+
+              <!-- Page indicator -->
+              <div class="mt-4 text-white/60 text-xs">
+                25 pages &bull; 200 slots
+              </div>
+            </div>
+
+            <!-- Edge highlight -->
+            <div class="absolute top-0 right-0 bottom-0 w-1 bg-gradient-to-r from-transparent to-white/10 rounded-r-lg"></div>
+          </div>
+
+          <!-- Shadow under binder -->
+          <div class="absolute -bottom-2 left-4 right-2 h-4 bg-black/20 blur-md rounded-full"></div>
+        </div>
+
+        <p class="text-center mt-4 text-slate-600 group-hover:text-slate-800 font-medium transition-colors">
+          <%= location ? "View Binder" : "Not configured" %>
+        </p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- Instructions -->
+  <div class="mt-12 max-w-2xl mx-auto text-center text-gray-500">
+    <p>Each binder contains 25 pages with 4 CDs per side (8 CDs per page).</p>
+    <p class="mt-2">Click a binder to view and manage your CD collection.</p>
+  </div>
+</div>
