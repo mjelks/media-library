@@ -1,12 +1,6 @@
 <% content_for :title, "#{@location.name} - CD Collection" %>
 
 <%
-  def position_for(page, side, slot)
-    base = (page - 1) * 8
-    side_offset = side == 'A' ? 0 : 4
-    base + side_offset + slot + 1
-  end
-
   slot_labels_a = %w[A B C D]
   slot_labels_b = %w[E F G H]
 %>
@@ -113,9 +107,9 @@
             <!-- 2x2 CD Grid -->
             <div class="grid grid-cols-2 gap-3">
               <% (0..3).each do |slot| %>
-                <% pos = position_for(page_num, side, slot) %>
-                <% media_item = @items_by_position[pos] %>
-                <% slot_label = "#{page_num}#{slot_labels[slot]}" %>
+                <% pos = slot_position_for(page_num, side, slot) %>
+                <% media_item = @items_by_slot[pos] %>
+                <% slot_label = slot_label_for(pos) %>
 
                 <div class="aspect-square relative group">
                   <% if media_item %>

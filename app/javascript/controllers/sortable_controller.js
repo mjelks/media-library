@@ -15,6 +15,8 @@ export default class extends Controller {
       ghostClass: "sortable-ghost",
       chosenClass: "sortable-chosen",
       dragClass: "sortable-drag",
+      // Allow dragging over empty slots too
+      draggable: "[data-media-item-id], [data-empty-slot]",
       onEnd: this.onEnd.bind(this)
     })
 
@@ -35,10 +37,27 @@ export default class extends Controller {
   }
 
   onEnd(event) {
-    const items = this.element.querySelectorAll("[data-media-item-id]")
-    const orderedIds = Array.from(items).map(item => item.dataset.mediaItemId)
+    // Get all elements (items and empty slots) in DOM order after drag
+    const allElements = this.element.querySelectorAll("[data-media-item-id], [data-empty-slot]")
 
-    this.updatePositions(orderedIds)
+    // Build slot assignments: each position gets a slot number
+    // Items take the slot of their position, empty slots mark gaps
+    let currentSlot = 1
+    const itemSlots = []
+
+    Array.from(allElements).forEach(el => {
+      if (el.dataset.emptySlot) {
+        // Empty slot - use its original slot position and skip past it
+        currentSlot = parseInt(el.dataset.emptySlot) + 1
+      } else if (el.dataset.mediaItemId) {
+        // Item - assign current slot and increment
+        itemSlots.push({ id: el.dataset.mediaItemId, slot: currentSlot })
+        currentSlot++
+      }
+    })
+
+    // Send slot assignments to server
+    this.updatePositionsWithSlots(itemSlots)
   }
 
   async updatePositions(orderedIds) {
@@ -57,6 +76,32 @@ export default class extends Controller {
 
       if (response.ok) {
         this.updateDisplayNumbers()
+        if (this.refreshBinderValue) {
+          this.refreshBinderView()
+        }
+      } else {
+        console.error("Failed to update positions")
+      }
+    } catch (error) {
+      console.error("Error updating positions:", error)
+    }
+  }
+
+  async updatePositionsWithSlots(itemSlots) {
+    const csrfToken = document.querySelector("meta[name='csrf-token']")?.content
+
+    try {
+      const response = await fetch(this.urlValue, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ item_slots: itemSlots })
+      })
+
+      if (response.ok) {
         if (this.refreshBinderValue) {
           this.refreshBinderView()
         }

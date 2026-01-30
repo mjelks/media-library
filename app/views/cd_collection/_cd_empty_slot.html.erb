@@ -1,0 +1,46 @@
+<div class="group flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-dashed border-gray-300"
+     data-empty-slot="<%= slot_position %>">
+  <!-- Position Number -->
+  <div class="flex-shrink-0 w-8 text-center">
+    <span class="text-gray-300 font-mono text-sm"><%= slot_position %>.</span>
+  </div>
+
+  <!-- Empty drag handle space -->
+  <div class="flex-shrink-0 w-5"></div>
+
+  <!-- Empty cover art space -->
+  <div class="flex-shrink-0">
+    <div class="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
+      <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Slot Label -->
+  <div class="flex-shrink-0 w-12">
+    <span class="inline-block px-2 py-1 bg-gray-200 text-gray-400 text-xs font-mono rounded">
+      <%= slot_label_for(slot_position) %>
+    </span>
+  </div>
+
+  <!-- Empty slot indicator -->
+  <div class="flex-1 min-w-0">
+    <p class="text-gray-400 italic"><%= is_real_gap ? "Empty slot (gap)" : "Empty slot" %></p>
+  </div>
+
+  <!-- Remove gap button (only for real gaps between items, not trailing empty slots) -->
+  <% if is_real_gap %>
+    <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+      <%= button_to cd_collection_remove_gap_path(id: location.id, slot: slot_position),
+          method: :delete,
+          form: { data: { turbo_confirm: "Remove this empty slot and shift items up?" } },
+          class: "text-gray-400 hover:text-red-600 p-1 cursor-pointer",
+          title: "Remove gap" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      <% end %>
+    </div>
+  <% end %>
+</div>

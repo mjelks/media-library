@@ -10,6 +10,7 @@
 #  notes               :text
 #  play_count          :integer
 #  position            :integer
+#  slot_position       :integer
 #  year                :integer
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
@@ -19,11 +20,12 @@
 #
 # Indexes
 #
-#  index_media_items_on_location_id               (location_id)
-#  index_media_items_on_location_id_and_position  (location_id,position)
-#  index_media_items_on_media_type_id             (media_type_id)
-#  index_media_items_on_release_id                (release_id)
-#  index_media_items_on_year                      (year)
+#  index_media_items_on_location_id                    (location_id)
+#  index_media_items_on_location_id_and_position       (location_id,position)
+#  index_media_items_on_location_id_and_slot_position  (location_id,slot_position)
+#  index_media_items_on_media_type_id                  (media_type_id)
+#  index_media_items_on_release_id                     (release_id)
+#  index_media_items_on_year                           (year)
 #
 # Foreign Keys
 #
@@ -65,6 +67,33 @@ class MediaItem < ApplicationRecord
     end
   end
 
+  def self.update_slot_positions(location_id, ordered_ids)
+    transaction do
+      # Get the existing slot_positions for these items (preserves gaps)
+      existing_slots = where(location_id: location_id, id: ordered_ids)
+                        .pluck(:id, :slot_position)
+                        .to_h
+      # Sort the slot_positions to get them in order
+      sorted_slots = existing_slots.values.compact.sort
+
+      # Assign sorted slot_positions to items in their new order
+      ordered_ids.each_with_index do |id, index|
+        new_slot = sorted_slots[index] || (sorted_slots.last.to_i + index - sorted_slots.size + 1)
+        where(id: id, location_id: location_id).update_all(slot_position: new_slot)
+      end
+    end
+  end
+
+  def self.assign_slot_positions(location_id, item_slots)
+    transaction do
+      item_slots.each do |assignment|
+        id = assignment["id"] || assignment[:id]
+        slot = assignment["slot"] || assignment[:slot]
+        where(id: id, location_id: location_id).update_all(slot_position: slot.to_i)
+      end
+    end
+  end
+
   def self.move_to_top(location_id, media_item_id)
     transaction do
       # Set target item to position 0 (will become 1 after reorder)
@@ -78,6 +107,38 @@ class MediaItem < ApplicationRecord
     transaction do
       max_position = where(location_id: location_id).maximum(:position) || 0
       where(id: media_item_id, location_id: location_id).update_all(position: max_position + 1)
+    end
+  end
+
+  def self.move_slot_to_top(location_id, media_item_id)
+    transaction do
+      where(id: media_item_id, location_id: location_id).update_all(slot_position: 0)
+      where(location_id: location_id).where.not(id: media_item_id).update_all("slot_position = COALESCE(slot_position, 0) + 1")
+    end
+  end
+
+  def self.move_slot_to_bottom(location_id, media_item_id)
+    transaction do
+      max_slot = where(location_id: location_id).maximum(:slot_position) || 0
+      where(id: media_item_id, location_id: location_id).update_all(slot_position: max_slot + 1)
+    end
+  end
+
+  # Insert a gap at the given slot_position by shifting all items at or after that position down by one
+  def self.insert_gap_at_slot(location_id, slot_position)
+    transaction do
+      where(location_id: location_id)
+        .where("slot_position >= ?", slot_position)
+        .update_all("slot_position = slot_position + 1")
+    end
+  end
+
+  # Remove a gap by shifting all items after the given slot_position up by one
+  def self.remove_gap_at_slot(location_id, slot_position)
+    transaction do
+      where(location_id: location_id)
+        .where("slot_position > ?", slot_position)
+        .update_all("slot_position = slot_position - 1")
     end
   end
 

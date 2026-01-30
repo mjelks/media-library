@@ -113,4 +113,58 @@ class CdCollectionControllerTest < ActionDispatch::IntegrationTest
     get cd_collection_url
     assert_response :success
   end
+
+  test "should reorder with item_slots format" do
+    release1 = releases(:one)
+    release2 = releases(:two)
+    item1 = MediaItem.create!(release: release1, media_type: @cd_type, location: @location, year: 2020, slot_position: 1)
+    item2 = MediaItem.create!(release: release2, media_type: @cd_type, location: @location, year: 2021, slot_position: 2)
+
+    patch cd_collection_reorder_url(@location), params: {
+      item_slots: [
+        { id: item1.id, slot: 5 },
+        { id: item2.id, slot: 10 }
+      ]
+    }
+    assert_response :ok
+    assert_equal 5, item1.reload.slot_position
+    assert_equal 10, item2.reload.slot_position
+  end
+
+  test "should insert gap" do
+    release1 = releases(:one)
+    release2 = releases(:two)
+    item1 = MediaItem.create!(release: release1, media_type: @cd_type, location: @location, year: 2020, slot_position: 1)
+    item2 = MediaItem.create!(release: release2, media_type: @cd_type, location: @location, year: 2021, slot_position: 2)
+
+    post cd_collection_insert_gap_url(id: @location.id, slot: 2)
+    assert_redirected_to cd_collection_location_path(@location)
+    assert_equal "Inserted gap at slot 2", flash[:notice]
+
+    assert_equal 1, item1.reload.slot_position
+    assert_equal 3, item2.reload.slot_position
+  end
+
+  test "should remove gap" do
+    release1 = releases(:one)
+    release2 = releases(:two)
+    item1 = MediaItem.create!(release: release1, media_type: @cd_type, location: @location, year: 2020, slot_position: 1)
+    # slot 2 is a gap
+    item2 = MediaItem.create!(release: release2, media_type: @cd_type, location: @location, year: 2021, slot_position: 3)
+
+    delete cd_collection_remove_gap_url(id: @location.id, slot: 2)
+    assert_redirected_to cd_collection_location_path(@location)
+    assert_equal "Removed gap at slot 2", flash[:notice]
+
+    assert_equal 1, item1.reload.slot_position
+    assert_equal 2, item2.reload.slot_position
+  end
+
+  test "show builds items_by_slot hash" do
+    release = releases(:one)
+    MediaItem.create!(release: release, media_type: @cd_type, location: @location, year: 2020, position: 1, slot_position: 5)
+
+    get cd_collection_location_url(@location)
+    assert_response :success
+  end
 end

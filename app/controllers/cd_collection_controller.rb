@@ -22,20 +22,25 @@ class CdCollectionController < ApplicationController
                             .includes(release: [ :media_owner, :cover_image_attachment ])
                             .ordered
 
-    # Build a hash mapping position to media_item for easy lookup
-    @items_by_position = @media_items.index_by(&:position)
+    # Build a hash mapping slot_position to media_item for easy lookup
+    @items_by_slot = @media_items.index_by(&:slot_position)
 
     @pages_per_binder = PAGES_PER_BINDER
     @slots_per_side = SLOTS_PER_SIDE
     @slots_per_page = SLOTS_PER_PAGE
+    @total_slots = PAGES_PER_BINDER * SLOTS_PER_PAGE
   end
 
   def reorder
     @location = Location.find(params[:id])
-    ordered_ids = params[:media_item_ids]
 
-    if ordered_ids.present?
-      MediaItem.update_positions(@location.id, ordered_ids)
+    if params[:item_slots].present?
+      # New format: explicit slot assignments
+      MediaItem.assign_slot_positions(@location.id, params[:item_slots])
+      head :ok
+    elsif params[:media_item_ids].present?
+      # Legacy format: ordered IDs
+      MediaItem.update_slot_positions(@location.id, params[:media_item_ids])
       head :ok
     else
       head :unprocessable_entity
@@ -46,7 +51,7 @@ class CdCollectionController < ApplicationController
     @location = Location.find(params[:location_id])
     @media_item = @location.media_items.find(params[:id])
 
-    MediaItem.move_to_top(@location.id, @media_item.id)
+    MediaItem.move_slot_to_top(@location.id, @media_item.id)
     redirect_to cd_collection_location_path(@location), notice: "Moved to top"
   end
 
@@ -54,7 +59,7 @@ class CdCollectionController < ApplicationController
     @location = Location.find(params[:location_id])
     @media_item = @location.media_items.find(params[:id])
 
-    MediaItem.move_to_bottom(@location.id, @media_item.id)
+    MediaItem.move_slot_to_bottom(@location.id, @media_item.id)
     redirect_to cd_collection_location_path(@location), notice: "Moved to bottom"
   end
 
@@ -62,5 +67,21 @@ class CdCollectionController < ApplicationController
     @location = Location.find(params[:id])
     session[:last_selected_location_id] = @location.id
     redirect_to discogs_path(format: "cd")
+  end
+
+  def insert_gap
+    @location = Location.find(params[:id])
+    slot_position = params[:slot].to_i
+
+    MediaItem.insert_gap_at_slot(@location.id, slot_position)
+    redirect_to cd_collection_location_path(@location), notice: "Inserted gap at slot #{slot_position}"
+  end
+
+  def remove_gap
+    @location = Location.find(params[:id])
+    slot_position = params[:slot].to_i
+
+    MediaItem.remove_gap_at_slot(@location.id, slot_position)
+    redirect_to cd_collection_location_path(@location), notice: "Removed gap at slot #{slot_position}"
   end
 end
