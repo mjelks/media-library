@@ -13,7 +13,7 @@ module Api
         sanitized_query = sanitize_like(query)
         media_items = MediaItem.media_type_option(media_type)
                                .joins(release: :media_owner)
-                               .includes(release: [ :media_owner, :cover_image_attachment, :release_tracks ])
+                               .includes(:location, :media_type, release: [ :media_owner, :cover_image_attachment, :release_tracks ])
                                .where(
                                  "releases.title LIKE :query OR media_owners.name LIKE :query",
                                  query: "%#{query}%"
@@ -68,7 +68,7 @@ module Api
 
       def now_playing
         media_item = MediaItem.where(currently_playing: true)
-                              .includes(:media_type, release: [ :media_owner, :cover_image_attachment, :release_tracks ])
+                              .includes(:location, :media_type, release: [ :media_owner, :cover_image_attachment, :release_tracks ])
                               .first
 
         if media_item.nil?
@@ -93,10 +93,10 @@ module Api
           duration: item.release&.duration,
           duration_formatted: format_duration(item.release&.duration),
           cover_url: cover_url_for(item),
-          # cover_url: "https://substackcdn.com/image/fetch/$s_!axJM!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fcffe5708-e788-43f4-9cc4-ccd02700de90_600x636.jpeg",
           play_count: item.play_count || 0,
           last_played: item.last_played,
-          tracks: serialize_tracks(item.release&.release_tracks)
+          tracks: serialize_tracks(item.release&.release_tracks),
+          location: format_location(item)
         }
       end
       # :nocov:
@@ -135,6 +135,23 @@ module Api
           format("%d:%02d:%02d", hours, minutes, secs)
         else
           format("%d:%02d", minutes, secs)
+        end
+      end
+
+      def format_location(item)
+        return nil unless item.location
+
+        if item.media_type&.name == "CD"
+          # CD format: "Binder X, Page Y" (8 CDs per page)
+          page = item.position ? ((item.position - 1) / 8) + 1 : nil
+          page ? "#{item.location.name}, Page #{page}" : "#{item.location.name}"
+        else
+          # Vinyl format: "Cube X, Section Y" or "Section Y"
+          if item.location.cube_location.present?
+            "Cube #{item.location.cube_location}, Section #{item.location.name}"
+          else
+            "Section #{item.location.name}"
+          end
         end
       end
 

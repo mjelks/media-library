@@ -86,6 +86,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert result.key?("play_count")
     assert result.key?("last_played")
     assert result.key?("tracks")
+    assert result.key?("location")
     assert_kind_of Array, result["tracks"]
   end
 
@@ -493,5 +494,96 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     matching = results.find { |r| r["id"] == @vinyl_item.id }
     assert_not_nil matching
     assert_equal 0, matching["play_count"]
+  end
+
+  # Location formatting tests
+  test "search should return vinyl location with cube and section" do
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item.id }
+    assert_not_nil matching
+    assert_equal "Cube C, Section OP", matching["location"]
+  end
+
+  test "search should return CD location with binder and page" do
+    cd_item = media_items(:one)
+    get api_v1_widget_search_url,
+        params: { q: cd_item.release.title, media_type: "CD" },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == cd_item.id }
+    assert_not_nil matching
+    # Position 10 -> Page 2 (positions 1-8 = page 1, 9-16 = page 2)
+    assert_equal "Binder 1, Page 2", matching["location"]
+  end
+
+  test "search should return nil location when no location set" do
+    @vinyl_item_two.update!(location: nil)
+
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item_two.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item_two.id }
+    assert_not_nil matching
+    assert_nil matching["location"]
+  end
+
+  test "now_playing should return location" do
+    get api_v1_widget_now_playing_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert_not_nil result["now_playing"]
+    assert result["now_playing"].key?("location")
+    assert_equal "Cube C, Section OP", result["now_playing"]["location"]
+  end
+
+  test "random should return location" do
+    get api_v1_widget_random_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result.key?("location")
+  end
+
+  test "search should return vinyl section only when no cube location" do
+    # Update location to remove cube_location
+    @vinyl_item.location.update!(cube_location: nil)
+
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item.id }
+    assert_not_nil matching
+    assert_equal "Section OP", matching["location"]
+  end
+
+  test "search should return CD binder only when no position" do
+    cd_item = media_items(:one)
+    cd_item.update!(position: nil)
+
+    get api_v1_widget_search_url,
+        params: { q: cd_item.release.title, media_type: "CD" },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == cd_item.id }
+    assert_not_nil matching
+    assert_equal "Binder 1", matching["location"]
   end
 end
