@@ -89,7 +89,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert_kind_of Array, result["tracks"]
   end
 
-  test "search should only return vinyl items" do
+  test "search should only return vinyl items by default" do
     get api_v1_widget_search_url,
         params: { q: "Analogue" },
         headers: { "X-Api-Token" => @api_token }
@@ -101,6 +101,32 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     # CD item should not be in results
     cd_item = media_items(:one)
     assert_not_includes result_ids, cd_item.id
+  end
+
+  test "search should return CD items when media_type is CD" do
+    cd_item = media_items(:one)
+    get api_v1_widget_search_url,
+        params: { q: cd_item.release.title, media_type: "CD" },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    result_ids = results.map { |r| r["id"] }
+
+    assert_includes result_ids, cd_item.id
+  end
+
+  test "search should not return vinyl items when media_type is CD" do
+    get api_v1_widget_search_url,
+        params: { q: "Analogue", media_type: "CD" },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    result_ids = results.map { |r| r["id"] }
+
+    # Vinyl items should not be in results
+    assert_not_includes result_ids, @vinyl_item.id
   end
 
   test "search should return tracks with proper structure" do
@@ -153,6 +179,33 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert result.key?("last_played")
     assert result.key?("tracks")
     assert_kind_of Array, result["tracks"]
+  end
+
+  test "random should return CD album when media_type is CD" do
+    cd_item = media_items(:one)
+    cd_item.update!(last_played: 90.days.ago)
+
+    get api_v1_widget_random_url,
+        params: { media_type: "CD" },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result.key?("id")
+
+    # Verify the returned item is a CD
+    returned_item = MediaItem.find(result["id"])
+    assert_equal "CD", returned_item.media_type.name
+  end
+
+  test "random should return vinyl by default" do
+    get api_v1_widget_random_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    returned_item = MediaItem.find(result["id"])
+    assert_equal "Vinyl", returned_item.media_type.name
   end
 
   # Now Playing tests

@@ -9,8 +9,9 @@ module Api
           return
         end
 
+        media_type = params[:media_type] || "Vinyl"
         sanitized_query = sanitize_like(query)
-        media_items = MediaItem.vinyl
+        media_items = MediaItem.media_type_option(media_type)
                                .joins(release: :media_owner)
                                .includes(release: [ :media_owner, :cover_image_attachment, :release_tracks ])
                                .where(
@@ -32,10 +33,8 @@ module Api
       end
 
       def random
-        media_item = MediaItem.random_album_candidates
-                              .includes(release: [ :media_owner, :cover_image_attachment, :release_tracks ])
-                              .order("RANDOM()")
-                              .first
+        media_type = params[:media_type] || "Vinyl"
+        media_item = MediaItem.random_candidate(media_type)
 
         if media_item.nil?
           render json: { error: "No albums available" }, status: :not_found
