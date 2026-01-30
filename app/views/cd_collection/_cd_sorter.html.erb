@@ -1,4 +1,11 @@
-<% if @media_items.any? %>
+<%
+  # Find the highest slot position in use, or default to showing first page
+  max_used_slot = @items_by_slot.keys.compact.max || 0
+  # Show at least up to the highest used slot, rounded up to complete page
+  slots_to_show = [(((max_used_slot - 1) / 8) + 1) * 8, 8].max
+%>
+
+<% if @media_items.any? || true %>
     <p class="text-sm text-gray-500 mb-4">
     <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
@@ -11,14 +18,14 @@
         data-sortable-refresh-binder-value="true"
         class="space-y-2">
 
-    <% @media_items.each_with_index do |media_item, index| %>
-        <%= render partial: "cd_collection/cd_media_item_card", locals: { media_item: media_item, index: index, location: @location } %>
+    <% (1..slots_to_show).each do |slot_pos| %>
+        <% media_item = @items_by_slot[slot_pos] %>
+        <% if media_item %>
+          <%= render partial: "cd_collection/cd_media_item_card", locals: { media_item: media_item, slot_position: slot_pos, location: @location } %>
+        <% else %>
+          <% is_real_gap = slot_pos < max_used_slot %>
+          <%= render partial: "cd_collection/cd_empty_slot", locals: { slot_position: slot_pos, location: @location, is_real_gap: is_real_gap } %>
+        <% end %>
     <% end %>
-    </div>
-<% else %>
-    <div class="text-center py-12 bg-gray-50 rounded-lg">
-    <p class="text-gray-500">No CDs in this binder yet.</p>
-    <%= link_to "Add CDs", cd_collection_add_path(@location),
-        class: "mt-4 inline-block rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
     </div>
 <% end %>

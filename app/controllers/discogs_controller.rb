@@ -6,7 +6,8 @@ class DiscogsController < ApplicationController
   def index
     @query = params[:q]
     @type_filter = params[:type] || "release"
-    @format_filter = params[:format] || "vinyl"
+    @format_filter = params[:format] || session[:last_format_filter] || "vinyl"
+    session[:last_format_filter] = @format_filter
     @results = []
 
     if @query.present?
@@ -90,13 +91,16 @@ class DiscogsController < ApplicationController
         else
           location = Location.find_by(id: params[:location_id])
           next_position = location ? (MediaItem.where(location_id: location.id).maximum(:position) || 0) + 1 : nil
+          # Only set slot_position for CDs
+          next_slot = (location && media_type&.name == "CD") ? (MediaItem.where(location_id: location.id).maximum(:slot_position) || 0) + 1 : nil
           MediaItem.create!(
             play_count: 1,
             year: discogs_release["year"],
             release: release,
             media_type: media_type,
             location: location,
-            position: next_position
+            position: next_position,
+            slot_position: next_slot
           )
 
           if release.previously_new_record?

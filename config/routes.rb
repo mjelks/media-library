@@ -35,6 +35,8 @@ Rails.application.routes.draw do
   patch "cd_collection/location/:location_id/move_to_top/:id", to: "cd_collection#move_to_top", as: :cd_collection_move_to_top
   patch "cd_collection/location/:location_id/move_to_bottom/:id", to: "cd_collection#move_to_bottom", as: :cd_collection_move_to_bottom
   get "cd_collection/location/:id/add", to: "cd_collection#add_to_collection", as: :cd_collection_add
+  post "cd_collection/location/:id/insert_gap/:slot", to: "cd_collection#insert_gap", as: :cd_collection_insert_gap
+  delete "cd_collection/location/:id/remove_gap/:slot", to: "cd_collection#remove_gap", as: :cd_collection_remove_gap
 
   # Now Playing
   get "now_playing", to: "now_playing#index"

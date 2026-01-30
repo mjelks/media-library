@@ -10,6 +10,7 @@
 #  notes               :text
 #  play_count          :integer
 #  position            :integer
+#  slot_position       :integer
 #  year                :integer
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
@@ -19,11 +20,12 @@
 #
 # Indexes
 #
-#  index_media_items_on_location_id               (location_id)
-#  index_media_items_on_location_id_and_position  (location_id,position)
-#  index_media_items_on_media_type_id             (media_type_id)
-#  index_media_items_on_release_id                (release_id)
-#  index_media_items_on_year                      (year)
+#  index_media_items_on_location_id                    (location_id)
+#  index_media_items_on_location_id_and_position       (location_id,position)
+#  index_media_items_on_location_id_and_slot_position  (location_id,slot_position)
+#  index_media_items_on_media_type_id                  (media_type_id)
+#  index_media_items_on_release_id                     (release_id)
+#  index_media_items_on_year                           (year)
 #
 # Foreign Keys
 #
@@ -259,5 +261,103 @@ class MediaItemTest < ActiveSupport::TestCase
   test "defaults listening_confirmed to false" do
     media_item = MediaItem.create!(media_type: media_types(:one))
     assert_equal false, media_item.listening_confirmed
+  end
+
+  # Slot position methods
+  test "update_slot_positions reassigns slot positions preserving gaps" do
+    location = locations(:one)
+    item1 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 1)
+    item2 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 3)
+
+    MediaItem.update_slot_positions(location.id, [ item2.id, item1.id ])
+
+    # Slot positions should be swapped based on existing slots
+    assert_equal 1, item2.reload.slot_position
+    assert_equal 3, item1.reload.slot_position
+  end
+
+  test "assign_slot_positions sets explicit slot values" do
+    location = locations(:one)
+    item1 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 1)
+    item2 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 2)
+
+    MediaItem.assign_slot_positions(location.id, [
+      { "id" => item1.id, "slot" => 5 },
+      { "id" => item2.id, "slot" => 10 }
+    ])
+
+    assert_equal 5, item1.reload.slot_position
+    assert_equal 10, item2.reload.slot_position
+  end
+
+  test "assign_slot_positions works with symbol keys" do
+    location = locations(:one)
+    item1 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 1)
+
+    MediaItem.assign_slot_positions(location.id, [
+      { id: item1.id, slot: 7 }
+    ])
+
+    assert_equal 7, item1.reload.slot_position
+  end
+
+  test "move_slot_to_top moves item to slot 0 and increments others" do
+    location = locations(:one)
+    item1 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 1)
+    item2 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 2)
+    item3 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 3)
+
+    MediaItem.move_slot_to_top(location.id, item3.id)
+
+    assert_equal 0, item3.reload.slot_position
+    assert_equal 2, item1.reload.slot_position
+    assert_equal 3, item2.reload.slot_position
+  end
+
+  test "move_slot_to_bottom moves item to max slot + 1" do
+    location = locations(:one)
+    item1 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 1)
+    item2 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 2)
+
+    MediaItem.move_slot_to_bottom(location.id, item1.id)
+
+    assert_equal 3, item1.reload.slot_position
+  end
+
+  test "insert_gap_at_slot shifts items at and after slot down by one" do
+    location = locations(:one)
+    item1 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 1)
+    item2 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 2)
+    item3 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 3)
+
+    MediaItem.insert_gap_at_slot(location.id, 2)
+
+    assert_equal 1, item1.reload.slot_position
+    assert_equal 3, item2.reload.slot_position
+    assert_equal 4, item3.reload.slot_position
+  end
+
+  test "remove_gap_at_slot shifts items after slot up by one" do
+    location = locations(:one)
+    item1 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 1)
+    # slot 2 is a gap
+    item2 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 3)
+    item3 = MediaItem.create!(media_type: media_types(:one), location: location, slot_position: 4)
+
+    MediaItem.remove_gap_at_slot(location.id, 2)
+
+    assert_equal 1, item1.reload.slot_position
+    assert_equal 2, item2.reload.slot_position
+    assert_equal 3, item3.reload.slot_position
+  end
+
+  test "cd scope returns only CD media items" do
+    cd_items = MediaItem.cd
+    assert cd_items.all? { |item| item.media_type.name == "CD" }
+  end
+
+  test "media_type_option scope filters by media type name" do
+    cd_items = MediaItem.media_type_option("CD")
+    assert cd_items.all? { |item| item.media_type.name == "CD" }
   end
 end
