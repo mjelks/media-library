@@ -36,7 +36,7 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
   test "should search and display results" do
     mock_response = mock_success_response({
       "results" => [
-        { "id" => 1, "title" => "Test Album", "country" => "US", "format" => ["Vinyl"] }
+        { "id" => 1, "title" => "Test Album", "country" => "US", "format" => [ "Vinyl" ] }
       ],
       "pagination" => { "pages" => 1, "items" => 1 }
     })
@@ -50,8 +50,8 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
   test "should filter results by format parameter" do
     mock_response = mock_success_response({
       "results" => [
-        { "id" => 1, "title" => "Vinyl Album", "country" => "US", "format" => ["Vinyl", "LP"] },
-        { "id" => 2, "title" => "CD Album", "country" => "US", "format" => ["CD"] }
+        { "id" => 1, "title" => "Vinyl Album", "country" => "US", "format" => [ "Vinyl", "LP" ] },
+        { "id" => 2, "title" => "CD Album", "country" => "US", "format" => [ "CD" ] }
       ],
       "pagination" => { "pages" => 1, "items" => 2 }
     })
@@ -65,8 +65,8 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
   test "should sort US releases first in results" do
     mock_response = mock_success_response({
       "results" => [
-        { "id" => 1, "title" => "UK Album", "country" => "UK", "format" => ["Vinyl"] },
-        { "id" => 2, "title" => "US Album", "country" => "US", "format" => ["Vinyl"] }
+        { "id" => 1, "title" => "UK Album", "country" => "UK", "format" => [ "Vinyl" ] },
+        { "id" => 2, "title" => "US Album", "country" => "US", "format" => [ "Vinyl" ] }
       ],
       "pagination" => { "pages" => 1, "items" => 2 }
     })
@@ -98,7 +98,7 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
     mock_response = mock_success_response({
       "id" => 12345,
       "title" => "Test Album",
-      "artists" => [{ "name" => "Test Artist" }],
+      "artists" => [ { "name" => "Test Artist" } ],
       "year" => 2020
     })
 
@@ -131,20 +131,20 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
     mock_response = mock_success_response({
       "id" => 67890,
       "title" => "New Test Album",
-      "artists" => [{ "name" => "New Artist (2)" }],
-      "labels" => [{ "name" => "Test Label" }],
-      "formats" => [{ "name" => "Vinyl" }],
+      "artists" => [ { "name" => "New Artist (2)" } ],
+      "labels" => [ { "name" => "Test Label" } ],
+      "formats" => [ { "name" => "Vinyl" } ],
       "year" => 2021,
       "notes" => "Test notes",
       "tracklist" => [
         { "position" => "A1", "title" => "Track 1", "duration" => "3:45", "type_" => "track" }
       ],
-      "genres" => ["Rock"],
+      "genres" => [ "Rock" ],
       "images" => []
     })
 
     Discogs.stub :get, mock_response do
-      assert_difference(["Release.count", "MediaItem.count"]) do
+      assert_difference([ "Release.count", "MediaItem.count" ]) do
         post discogs_path, params: {
           release_id: 67890,
           location_id: @location.id
@@ -167,9 +167,9 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
     mock_response = mock_success_response({
       "id" => 11111,
       "title" => "Existing Album",
-      "artists" => [{ "name" => "Existing Artist" }],
-      "labels" => [{ "name" => "Test Label" }],
-      "formats" => [{ "name" => "Vinyl" }],
+      "artists" => [ { "name" => "Existing Artist" } ],
+      "labels" => [ { "name" => "Test Label" } ],
+      "formats" => [ { "name" => "Vinyl" } ],
       "year" => 2020
     })
 
@@ -203,9 +203,9 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
     mock_response = mock_success_response({
       "id" => 22222,
       "title" => "Session Test Album",
-      "artists" => [{ "name" => "Session Artist" }],
-      "labels" => [{ "name" => "Test Label" }],
-      "formats" => [{ "name" => "Vinyl" }],
+      "artists" => [ { "name" => "Session Artist" } ],
+      "labels" => [ { "name" => "Test Label" } ],
+      "formats" => [ { "name" => "Vinyl" } ],
       "year" => 2022,
       "tracklist" => [],
       "genres" => [],
@@ -227,9 +227,9 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
     mock_response = mock_success_response({
       "id" => 33333,
       "title" => "Track Position Test",
-      "artists" => [{ "name" => "Track Artist" }],
-      "labels" => [{ "name" => "Test Label" }],
-      "formats" => [{ "name" => "Vinyl" }],
+      "artists" => [ { "name" => "Track Artist" } ],
+      "labels" => [ { "name" => "Test Label" } ],
+      "formats" => [ { "name" => "Vinyl" } ],
       "year" => 2022,
       "notes" => "",
       "tracklist" => [
@@ -253,9 +253,9 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
     mock_response = mock_success_response({
       "id" => 44444,
       "title" => "Heading Test",
-      "artists" => [{ "name" => "Heading Artist" }],
-      "labels" => [{ "name" => "Test Label" }],
-      "formats" => [{ "name" => "Vinyl" }],
+      "artists" => [ { "name" => "Heading Artist" } ],
+      "labels" => [ { "name" => "Test Label" } ],
+      "formats" => [ { "name" => "Vinyl" } ],
       "year" => 2022,
       "notes" => "",
       "tracklist" => [
@@ -278,13 +278,13 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
     mock_response = mock_success_response({
       "id" => 55555,
       "title" => "Genre Test Album",
-      "artists" => [{ "name" => "Genre Artist" }],
-      "labels" => [{ "name" => "Test Label" }],
-      "formats" => [{ "name" => "Vinyl" }],
+      "artists" => [ { "name" => "Genre Artist" } ],
+      "labels" => [ { "name" => "Test Label" } ],
+      "formats" => [ { "name" => "Vinyl" } ],
       "year" => 2022,
       "notes" => "",
       "tracklist" => [],
-      "genres" => ["Jazz", "Classical"],
+      "genres" => [ "Jazz", "Classical" ],
       "images" => []
     })
 
