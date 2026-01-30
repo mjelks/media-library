@@ -30,3 +30,14 @@ two:
   name: CD Rack
   description: CD storage rack
   media_type: two
+
+vinyl_with_cube:
+  name: OP
+  cube_location: C
+  description: Vinyl section with cube location
+  media_type: vinyl
+
+cd_binder:
+  name: Binder 1
+  description: First CD binder
+  media_type: two

@@ -39,6 +39,8 @@ one:
   year: 2005
   play_count: 1
   notes: Original CD release
+  location: cd_binder
+  position: 10
 
 two:
   release: two
@@ -54,6 +56,8 @@ vinyl_one:
   play_count: 0
   notes: First vinyl pressing
   currently_playing: false
+  location: vinyl_with_cube
+  position: 1
 
 vinyl_two:
   release: two
@@ -72,3 +76,5 @@ vinyl_now_playing:
   currently_playing: true
   listening_confirmed: false
   last_played: <%= 10.minutes.ago.to_fs(:db) %>
+  location: vinyl_with_cube
+  position: 2
