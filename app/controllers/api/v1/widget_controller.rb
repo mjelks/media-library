@@ -67,9 +67,8 @@ module Api
       end
 
       def now_playing
-        media_item = MediaItem.vinyl
-                              .where(currently_playing: true)
-                              .includes(release: [ :media_owner, :cover_image_attachment, :release_tracks ])
+        media_item = MediaItem.where(currently_playing: true)
+                              .includes(:media_type, release: [ :media_owner, :cover_image_attachment, :release_tracks ])
                               .first
 
         if media_item.nil?
