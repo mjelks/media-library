@@ -134,18 +134,39 @@ class MediaItemTest < ActiveSupport::TestCase
     assert_not_includes recent, media_item
   end
 
-  test "random_album_candidates scope returns vinyl items not played recently" do
+  test "random_candidates scope returns vinyl items not played recently" do
     vinyl_item = media_items(:vinyl_one)
     vinyl_item.update!(last_played: 90.days.ago)
-    candidates = MediaItem.random_album_candidates
+    candidates = MediaItem.random_candidates
     assert_includes candidates, vinyl_item
   end
 
-  test "random_album_candidates excludes recently played items" do
+  test "random_candidates excludes recently played items" do
     vinyl_item = media_items(:vinyl_one)
     vinyl_item.update!(last_played: 30.days.ago)
-    candidates = MediaItem.random_album_candidates
+    candidates = MediaItem.random_candidates
     assert_not_includes candidates, vinyl_item
+  end
+
+  test "random_candidates scope supports CD media type" do
+    cd_item = media_items(:one)
+    cd_item.update!(last_played: 90.days.ago)
+    candidates = MediaItem.random_candidates("CD")
+    assert_includes candidates, cd_item
+  end
+
+  test "random_candidate returns a single item" do
+    vinyl_item = media_items(:vinyl_one)
+    vinyl_item.update!(last_played: 90.days.ago)
+    candidate = MediaItem.random_candidate
+    assert_kind_of MediaItem, candidate
+  end
+
+  test "random_candidate supports CD media type" do
+    cd_item = media_items(:one)
+    cd_item.update!(last_played: 90.days.ago)
+    candidate = MediaItem.random_candidate("CD")
+    assert_equal "CD", candidate.media_type.name
   end
 
   # Class methods

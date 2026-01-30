@@ -48,9 +48,14 @@ class MediaItem < ApplicationRecord
   scope :now_playing, ->(currently_playing = true) { where(currently_playing: currently_playing).includes(:location, release: [ :media_owner, :cover_image_attachment ]) }
   scope :in_the_last, ->(days = 7) { where("last_played >= ?", days.ago).includes(:location, release: [ :media_owner, :cover_image_attachment ]) }
   scope :random_candidates, ->(media_type = "Vinyl") {
-    media_type_option(media_type).where("last_played IS NULL OR last_played < ?", 60.days.ago)
+    media_type_option(media_type)
+      .where("last_played IS NULL OR last_played < ?", 60.days.ago)
+      .includes(release: [ :media_owner, :cover_image_attachment, :release_tracks ])
   }
-  scope :random_album_candidates, ->(media_type = "Vinyl") { random_candidates(media_type) }
+
+  def self.random_candidate(media_type = "Vinyl")
+    random_candidates(media_type).order("RANDOM()").first
+  end
 
   def self.update_positions(location_id, ordered_ids)
     transaction do
