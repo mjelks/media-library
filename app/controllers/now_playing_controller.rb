@@ -14,7 +14,7 @@ class NowPlayingController < ApplicationController
                                 .order(last_played: :desc)
     # .limit(10)
     @recently_played_in_seconds = @recently_played.sum do |item|
-      item.release&.duration || 0
+      item.release.duration || 0
     end
   end
 

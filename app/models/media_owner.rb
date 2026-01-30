@@ -11,4 +11,6 @@
 class MediaOwner < ApplicationRecord
   has_many :releases
   has_many :media_items, through: :releases
+
+  validates :name, presence: true
 end

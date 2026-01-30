@@ -39,9 +39,10 @@ class MediaOwnerTest < ActiveSupport::TestCase
     assert media_owner.media_items.count >= 0
   end
 
-  test "allows nil name" do
+  test "requires name" do
     media_owner = MediaOwner.new(description: "Test description")
-    assert media_owner.valid?
+    assert_not media_owner.valid?
+    assert_includes media_owner.errors[:name], "can't be blank"
   end
 
   test "allows nil description" do

@@ -38,6 +38,19 @@ class MediaItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to media_item_url(MediaItem.last)
   end
 
+  test "should not create media_item without media_type" do
+    assert_no_difference("MediaItem.count") do
+      post media_items_url, params: {
+        media_item: {
+          release_id: @release.id,
+          media_type_id: nil,
+          year: 2020
+        }
+      }
+    end
+    assert_response :unprocessable_entity
+  end
+
   test "should get edit" do
     get edit_media_item_url(@media_item)
     assert_response :success
@@ -54,6 +67,15 @@ class MediaItemsControllerTest < ActionDispatch::IntegrationTest
     @media_item.reload
     assert_equal 2021, @media_item.year
     assert_equal "Updated notes", @media_item.notes
+  end
+
+  test "should not update media_item with invalid data" do
+    patch media_item_url(@media_item), params: {
+      media_item: {
+        media_type_id: nil
+      }
+    }
+    assert_response :unprocessable_entity
   end
 
   test "should destroy media_item" do

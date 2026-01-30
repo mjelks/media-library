@@ -242,4 +242,203 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     @vinyl_item.reload
     assert_not @vinyl_item.listening_confirmed
   end
+
+  # Branch coverage tests
+  test "random should return 404 when no albums available" do
+    # Delete all vinyl media items to simulate no albums available
+    MediaItem.joins(:media_type).where(media_types: { name: "Vinyl" }).destroy_all
+
+    get api_v1_widget_random_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :not_found
+
+    result = JSON.parse(response.body)
+    assert_equal "No albums available", result["error"]
+  end
+
+  test "search should handle empty query string" do
+    get api_v1_widget_search_url,
+        params: { q: "" },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+    assert_equal [], JSON.parse(response.body)
+  end
+
+  test "search should handle query with only whitespace" do
+    get api_v1_widget_search_url,
+        params: { q: "   " },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+    assert_equal [], JSON.parse(response.body)
+  end
+
+  test "search should handle special characters in query" do
+    get api_v1_widget_search_url,
+        params: { q: "test%_'" },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+    # Should return empty array (no matches) but not error
+    assert_kind_of Array, JSON.parse(response.body)
+  end
+
+  test "search should return album with nil duration when no tracks" do
+    # Remove all tracks so duration method returns nil
+    @vinyl_item.release.release_tracks.destroy_all
+
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item.id }
+    if matching
+      assert_nil matching["duration"]
+      assert_nil matching["duration_formatted"]
+    end
+  end
+
+  test "search should return album with long duration (hours)" do
+    # Create tracks with long durations to exceed 1 hour total
+    @vinyl_item.release.release_tracks.destroy_all
+    @vinyl_item.release.release_tracks.create!(position: "A1", name: "Long Track 1", duration: "30:00")
+    @vinyl_item.release.release_tracks.create!(position: "A2", name: "Long Track 2", duration: "31:40")
+
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item.id }
+    if matching
+      assert_equal "1:01:40", matching["duration_formatted"]
+    end
+  end
+
+  test "search should return album without cover image" do
+    # Ensure no cover image is attached
+    @vinyl_item.release.cover_image.purge if @vinyl_item.release.cover_image.attached?
+
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item.id }
+    if matching
+      assert_nil matching["cover_url"]
+    end
+  end
+
+  test "search should return album without tracks" do
+    # Remove all tracks from the release
+    @vinyl_item.release.release_tracks.destroy_all
+
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item.id }
+    if matching
+      assert_equal [], matching["tracks"]
+    end
+  end
+
+  test "search should return album with nil year" do
+    # Set both years to nil
+    @vinyl_item.update!(year: nil)
+    @vinyl_item.release.update!(original_year: nil)
+
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item.id }
+    if matching
+      assert_nil matching["year"]
+    end
+  end
+
+  test "play should handle nil play_count" do
+    @vinyl_item.update_column(:play_count, nil)
+
+    post api_v1_widget_play_url(id: @vinyl_item.id),
+         headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    @vinyl_item.reload
+    assert_equal 1, @vinyl_item.play_count
+  end
+
+  test "search should return cover_url when cover image is attached" do
+    # Attach a cover image to the release
+    @vinyl_item.release.cover_image.attach(
+      io: StringIO.new("fake image data"),
+      filename: "cover.jpg",
+      content_type: "image/jpeg"
+    )
+
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item.id }
+    assert_not_nil matching
+    assert_not_nil matching["cover_url"]
+    assert matching["cover_url"].include?("rails/active_storage/blobs")
+  end
+
+  test "search should use item year over release original_year" do
+    # Set item.year and a different release.original_year
+    @vinyl_item.update!(year: 2020)
+    @vinyl_item.release.update!(original_year: 1985)
+
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item.id }
+    assert_not_nil matching
+    assert_equal "2020", matching["year"]
+  end
+
+  test "search should fall back to release original_year when item year is nil" do
+    # Set item.year to nil but release.original_year is set
+    @vinyl_item.update!(year: nil)
+    @vinyl_item.release.update!(original_year: 1985)
+
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item.id }
+    assert_not_nil matching
+    assert_equal "1985", matching["year"]
+  end
+
+  test "search should return zero for nil play_count" do
+    @vinyl_item.update_column(:play_count, nil)
+
+    get api_v1_widget_search_url,
+        params: { q: @vinyl_item.release.title },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == @vinyl_item.id }
+    assert_not_nil matching
+    assert_equal 0, matching["play_count"]
+  end
 end
