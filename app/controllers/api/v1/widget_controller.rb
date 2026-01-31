@@ -54,7 +54,7 @@ module Api
             play_count: (media_item.play_count || 0) + 1,
             last_played: Time.current,
             currently_playing: true,
-            listening_confirmed: false
+            listening_confirmed: true
           )
         end
 
