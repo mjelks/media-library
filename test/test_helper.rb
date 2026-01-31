@@ -10,7 +10,7 @@ SimpleCov.start "rails" do
 
   # Coverage thresholds - CI will fail if not met
   minimum_coverage line: 90, branch: 80
-  # minimum_coverage_by_file line: 0  # Allow some files to have low coverage for now
+  minimum_coverage_by_file line: 0  # Allow some files to have low coverage for now
 
   # Prevent coverage from dropping on subsequent runs
   refuse_coverage_drop :line, :branch
