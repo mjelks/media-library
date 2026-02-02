@@ -12,9 +12,7 @@ class NowPlayingController < ApplicationController
     @recently_played = MediaItem.recently_played(@days_ago_play_history.to_i)
                                 .includes(:media_type)
     # .limit(10)
-    @recently_played_in_seconds = @recently_played.sum do |item|
-      item.release.duration || 0
-    end
+    @recently_played_in_seconds = MediaItem.total_duration(@recently_played)
   end
 
   def search

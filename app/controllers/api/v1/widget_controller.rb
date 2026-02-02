@@ -96,7 +96,11 @@ module Api
         media_items = MediaItem.recently_played(days)
                                .includes(:location, :media_type, release: [ :media_owner, :cover_image_attachment, :release_tracks ])
 
-        render json: media_items.map { |item| serialize_media_item(item) }
+        render json: {
+          items: media_items.map { |item| serialize_media_item(item) },
+          total_duration: MediaItem.total_duration(media_items),
+          total_duration_formatted: format_duration(MediaItem.total_duration(media_items))
+        }
       end
 
       private

@@ -552,13 +552,17 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
   end
 
   # Recently Played tests
-  test "recently_played should return array of serialized media items" do
+  test "recently_played should return object with items array and duration" do
     get api_v1_widget_recently_played_url,
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
-    results = JSON.parse(response.body)
-    assert_kind_of Array, results
+    result = JSON.parse(response.body)
+    assert result.key?("items")
+    assert result.key?("total_duration")
+    assert result.key?("total_duration_formatted")
+    assert_kind_of Array, result["items"]
+    assert_kind_of Integer, result["total_duration"]
   end
 
   test "recently_played should include items played within default 7 days" do
@@ -566,8 +570,8 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
-    results = JSON.parse(response.body)
-    result_ids = results.map { |r| r["id"] }
+    result = JSON.parse(response.body)
+    result_ids = result["items"].map { |r| r["id"] }
 
     assert_includes result_ids, @recently_played_item.id
   end
@@ -577,8 +581,8 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
-    results = JSON.parse(response.body)
-    result_ids = results.map { |r| r["id"] }
+    result = JSON.parse(response.body)
+    result_ids = result["items"].map { |r| r["id"] }
 
     assert_not_includes result_ids, @now_playing_item.id
   end
@@ -588,8 +592,8 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
-    results = JSON.parse(response.body)
-    result_ids = results.map { |r| r["id"] }
+    result = JSON.parse(response.body)
+    result_ids = result["items"].map { |r| r["id"] }
 
     assert_not_includes result_ids, @played_long_ago_item.id
   end
@@ -600,33 +604,33 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
-    results = JSON.parse(response.body)
-    result_ids = results.map { |r| r["id"] }
+    result = JSON.parse(response.body)
+    result_ids = result["items"].map { |r| r["id"] }
 
     assert_includes result_ids, @played_long_ago_item.id
   end
 
-  test "recently_played should return proper response structure" do
+  test "recently_played should return proper item response structure" do
     get api_v1_widget_recently_played_url,
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
-    results = JSON.parse(response.body)
-    return if results.empty?
+    result = JSON.parse(response.body)
+    return if result["items"].empty?
 
-    result = results.first
-    assert result.key?("id")
-    assert result.key?("title")
-    assert result.key?("artist")
-    assert result.key?("year")
-    assert result.key?("duration")
-    assert result.key?("duration_formatted")
-    assert result.key?("cover_url")
-    assert result.key?("play_count")
-    assert result.key?("last_played")
-    assert result.key?("tracks")
-    assert_kind_of Array, result["tracks"]
-    assert result.key?("media_type")
+    item = result["items"].first
+    assert item.key?("id")
+    assert item.key?("title")
+    assert item.key?("artist")
+    assert item.key?("year")
+    assert item.key?("duration")
+    assert item.key?("duration_formatted")
+    assert item.key?("cover_url")
+    assert item.key?("play_count")
+    assert item.key?("last_played")
+    assert item.key?("tracks")
+    assert_kind_of Array, item["tracks"]
+    assert item.key?("media_type")
   end
 
   test "recently_played should be ordered by last_played descending" do
@@ -637,27 +641,56 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
-    results = JSON.parse(response.body)
-    return if results.length < 2
+    result = JSON.parse(response.body)
+    return if result["items"].length < 2
 
     # Verify ordering - most recently played first
-    last_played_times = results.map { |r| Time.parse(r["last_played"]) }
+    last_played_times = result["items"].map { |r| Time.parse(r["last_played"]) }
     assert_equal last_played_times.sort.reverse, last_played_times
   end
 
-  test "recently_played should return empty array when no items played recently" do
+  test "recently_played should return empty items array when no items played recently" do
     MediaItem.update_all(last_played: nil, currently_playing: false)
 
     get api_v1_widget_recently_played_url,
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
-    results = JSON.parse(response.body)
-    assert_equal [], results
+    result = JSON.parse(response.body)
+    assert_equal [], result["items"]
+    assert_equal 0, result["total_duration"]
   end
 
   test "recently_played should require authentication" do
     get api_v1_widget_recently_played_url
     assert_response :unauthorized
+  end
+
+  test "recently_played should return correct total_duration" do
+    get api_v1_widget_recently_played_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    items = result["items"]
+
+    # Calculate expected total duration from items
+    expected_duration = items.sum { |item| item["duration"] || 0 }
+    assert_equal expected_duration, result["total_duration"]
+  end
+
+  test "recently_played should return formatted total_duration" do
+    get api_v1_widget_recently_played_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+
+    # total_duration_formatted should be nil if 0, or a formatted string
+    if result["total_duration"] == 0
+      assert_nil result["total_duration_formatted"]
+    else
+      assert_match(/\d+:\d{2}/, result["total_duration_formatted"])
+    end
   end
 end
