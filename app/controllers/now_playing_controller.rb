@@ -9,11 +9,8 @@ class NowPlayingController < ApplicationController
     @days_ago_play_history = ENV["DAYS_AGO_PLAY_HISTORY"] || 7 # Default to 7 days,
 
     # Recently played (not currently playing, has been played before) - show all media types
-    @recently_played = MediaItem.now_playing(false)
+    @recently_played = MediaItem.recently_played(@days_ago_play_history.to_i)
                                 .includes(:media_type)
-                                .where.not(last_played: nil)
-                                .in_the_last(@days_ago_play_history.to_i.days)
-                                .order(last_played: :desc)
     # .limit(10)
     @recently_played_in_seconds = @recently_played.sum do |item|
       item.release.duration || 0

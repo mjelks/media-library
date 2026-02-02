@@ -80,3 +80,27 @@ vinyl_now_playing:
   last_played: <%= 10.minutes.ago.to_fs(:db) %>
   location: vinyl_with_cube
   position: 2
+
+vinyl_recently_played:
+  release: two
+  media_type: vinyl
+  year: 2019
+  play_count: 3
+  notes: Recently played vinyl
+  currently_playing: false
+  listening_confirmed: true
+  last_played: <%= 2.days.ago.to_fs(:db) %>
+  location: vinyl_with_cube
+  position: 3
+
+vinyl_played_long_ago:
+  release: one
+  media_type: vinyl
+  year: 2018
+  play_count: 1
+  notes: Played a while ago
+  currently_playing: false
+  listening_confirmed: true
+  last_played: <%= 30.days.ago.to_fs(:db) %>
+  location: vinyl_with_cube
+  position: 4
