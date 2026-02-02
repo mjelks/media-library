@@ -34,8 +34,6 @@ module Api
         render json: media_items.map { |item| serialize_media_item(item) }
       end
 
-
-
       def show
         media_item = MediaItem.includes(:location, :media_type, release: [ :media_owner, :cover_image_attachment, :release_tracks ])
                               .find(params[:id])
@@ -85,6 +83,15 @@ module Api
       def delete
         media_item = MediaItem.find(params[:id])
         media_item.rollback_play!
+
+        render json: { success: true }
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Album not found" }, status: :not_found
+      end
+
+      def done
+        media_item = MediaItem.find(params[:id])
+        media_item.update!(currently_playing: false)
 
         render json: { success: true }
       rescue ActiveRecord::RecordNotFound
