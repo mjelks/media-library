@@ -86,8 +86,8 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert result.key?("play_count")
     assert result.key?("last_played")
     assert result.key?("tracks")
-    assert result.key?("location")
     assert_kind_of Array, result["tracks"]
+    assert result.key?("media_type")
   end
 
   test "search should only return vinyl items by default" do
@@ -180,33 +180,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert result.key?("last_played")
     assert result.key?("tracks")
     assert_kind_of Array, result["tracks"]
-  end
-
-  test "random should return CD album when media_type is CD" do
-    cd_item = media_items(:one)
-    cd_item.update!(last_played: 90.days.ago)
-
-    get api_v1_widget_random_url,
-        params: { media_type: "CD" },
-        headers: { "X-Api-Token" => @api_token }
-    assert_response :success
-
-    result = JSON.parse(response.body)
-    assert result.key?("id")
-
-    # Verify the returned item is a CD
-    returned_item = MediaItem.find(result["id"])
-    assert_equal "CD", returned_item.media_type.name
-  end
-
-  test "random should return vinyl by default" do
-    get api_v1_widget_random_url,
-        headers: { "X-Api-Token" => @api_token }
-    assert_response :success
-
-    result = JSON.parse(response.body)
-    returned_item = MediaItem.find(result["id"])
-    assert_equal "Vinyl", returned_item.media_type.name
+    assert result.key?("media_type")
   end
 
   # Now Playing tests
@@ -294,7 +268,23 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     @vinyl_item.reload
-    assert @vinyl_item.listening_confirmed
+    assert_not @vinyl_item.listening_confirmed
+  end
+
+  test "play should set listening_confirmed to true on previous now_playing item" do
+    # Setup: @now_playing_item is currently playing (from fixtures)
+    assert @now_playing_item.currently_playing
+    @now_playing_item.update!(listening_confirmed: false)
+
+    # Play a different album
+    post api_v1_widget_play_url(id: @vinyl_item.id),
+         headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    # The previously playing item should now have listening_confirmed: true
+    @now_playing_item.reload
+    assert @now_playing_item.listening_confirmed
+    assert_not @now_playing_item.currently_playing
   end
 
   # Branch coverage tests

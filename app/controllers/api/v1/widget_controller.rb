@@ -45,16 +45,19 @@ module Api
       end
 
       def play
+        # if they're an existing currently playing item, mark listening_confirmed true
+        existing_now_playing = MediaItem.now_playing.first
         media_item = MediaItem.find(params[:id])
 
         MediaItem.transaction do
           MediaItem.where(currently_playing: true).update_all(currently_playing: false)
+          MediaItem.where(id: existing_now_playing&.id).update_all(listening_confirmed: true)
 
           media_item.update!(
             play_count: (media_item.play_count || 0) + 1,
             last_played: Time.current,
             currently_playing: true,
-            listening_confirmed: true
+            listening_confirmed: false
           )
         end
 
@@ -96,7 +99,8 @@ module Api
           play_count: item.play_count || 0,
           last_played: item.last_played,
           tracks: serialize_tracks(item.release&.release_tracks),
-          location: format_location(item)
+          location: format_location(item),
+          media_type: item.media_type&.name
         }
       end
       # :nocov:
