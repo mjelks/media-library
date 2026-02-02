@@ -185,6 +185,51 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert result.key?("media_type")
   end
 
+  # Show tests
+  test "show should return a media item by id" do
+    get api_v1_widget_show_url(id: @vinyl_item.id),
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert_equal @vinyl_item.id, result["id"]
+  end
+
+  test "show should return proper response structure" do
+    get api_v1_widget_show_url(id: @vinyl_item.id),
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result.key?("id")
+    assert result.key?("title")
+    assert result.key?("artist")
+    assert result.key?("year")
+    assert result.key?("duration")
+    assert result.key?("duration_formatted")
+    assert result.key?("cover_url")
+    assert result.key?("play_count")
+    assert result.key?("last_played")
+    assert result.key?("tracks")
+    assert_kind_of Array, result["tracks"]
+    assert result.key?("location")
+    assert result.key?("media_type")
+  end
+
+  test "show should return 404 for non-existent media item" do
+    get api_v1_widget_show_url(id: 999999),
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :not_found
+
+    result = JSON.parse(response.body)
+    assert_equal "Media item not found", result["error"]
+  end
+
+  test "show should require authentication" do
+    get api_v1_widget_show_url(id: @vinyl_item.id)
+    assert_response :unauthorized
+  end
+
   # Now Playing tests
   test "now_playing should return currently playing album" do
     get api_v1_widget_now_playing_url,
