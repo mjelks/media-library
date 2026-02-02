@@ -91,7 +91,7 @@ module Api
 
       def done
         media_item = MediaItem.find(params[:id])
-        media_item.update!(currently_playing: false)
+        media_item.update!(currently_playing: false, listening_confirmed: true)
 
         render json: { success: true }
       rescue ActiveRecord::RecordNotFound
