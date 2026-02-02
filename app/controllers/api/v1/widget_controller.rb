@@ -69,6 +69,15 @@ module Api
         render json: { error: "Album not found" }, status: :not_found
       end
 
+      def delete
+        media_item = MediaItem.find(params[:id])
+        media_item.rollback_play!
+
+        render json: { success: true }
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Album not found" }, status: :not_found
+      end
+
       def now_playing
         media_item = MediaItem.where(currently_playing: true)
                               .includes(:location, :media_type, release: [ :media_owner, :cover_image_attachment, :release_tracks ])

@@ -156,13 +156,7 @@ class NowPlayingController < ApplicationController
 
   def delete
     @media_item = MediaItem.find(params[:id])
-
-    # Rollback: decrement play count and clear currently playing / last_played
-    @media_item.update!(
-      play_count: [ (@media_item.play_count || 1) - 1, 0 ].max,
-      last_played: nil,
-      currently_playing: false
-    )
+    @media_item.rollback_play!
 
     respond_to do |format|
       format.html { redirect_to now_playing_path, notice: "Removed: #{@media_item.release&.title || 'Unknown Album'}" }

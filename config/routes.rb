@@ -15,6 +15,7 @@ Rails.application.routes.draw do
       get "widget/now_playing", to: "widget#now_playing"
       get "widget/recently_played", to: "widget#recently_played"
       post "widget/:id/play", to: "widget#play", as: :widget_play
+      delete "widget/:id", to: "widget#delete", as: :widget_delete
     end
   end
 

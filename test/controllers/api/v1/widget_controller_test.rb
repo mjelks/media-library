@@ -289,6 +289,69 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert_not @now_playing_item.currently_playing
   end
 
+  # Delete tests
+  test "delete should remove album from now playing" do
+    @now_playing_item.update!(currently_playing: true, play_count: 5, last_played: 1.hour.ago)
+
+    delete api_v1_widget_delete_url(id: @now_playing_item.id),
+           headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result["success"]
+
+    @now_playing_item.reload
+    assert_not @now_playing_item.currently_playing
+    assert_nil @now_playing_item.last_played
+  end
+
+  test "delete should decrement play count" do
+    @vinyl_item.update!(play_count: 5)
+
+    delete api_v1_widget_delete_url(id: @vinyl_item.id),
+           headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    @vinyl_item.reload
+    assert_equal 4, @vinyl_item.play_count
+  end
+
+  test "delete should not decrement play count below zero" do
+    @vinyl_item.update!(play_count: 0)
+
+    delete api_v1_widget_delete_url(id: @vinyl_item.id),
+           headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    @vinyl_item.reload
+    assert_equal 0, @vinyl_item.play_count
+  end
+
+  test "delete should handle nil play_count" do
+    @vinyl_item.update_column(:play_count, nil)
+
+    delete api_v1_widget_delete_url(id: @vinyl_item.id),
+           headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    @vinyl_item.reload
+    assert_equal 0, @vinyl_item.play_count
+  end
+
+  test "delete should return 404 for non-existent album" do
+    delete api_v1_widget_delete_url(id: 999999),
+           headers: { "X-Api-Token" => @api_token }
+    assert_response :not_found
+
+    result = JSON.parse(response.body)
+    assert_equal "Album not found", result["error"]
+  end
+
+  test "delete should require authentication" do
+    delete api_v1_widget_delete_url(id: @vinyl_item.id)
+    assert_response :unauthorized
+  end
+
   # Branch coverage tests
   test "random should return 404 when no albums available" do
     # Delete all vinyl media items to simulate no albums available
