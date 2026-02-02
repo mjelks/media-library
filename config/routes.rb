@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       get "widget/random", to: "widget#random"
       get "widget/now_playing", to: "widget#now_playing"
       get "widget/recently_played", to: "widget#recently_played"
+      get "widget/:id", to: "widget#show", as: :widget_show
       post "widget/:id/play", to: "widget#play", as: :widget_play
       delete "widget/:id", to: "widget#delete", as: :widget_delete
     end

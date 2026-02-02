@@ -34,6 +34,17 @@ module Api
         render json: media_items.map { |item| serialize_media_item(item) }
       end
 
+
+
+      def show
+        media_item = MediaItem.includes(:location, :media_type, release: [ :media_owner, :cover_image_attachment, :release_tracks ])
+                              .find(params[:id])
+
+        render json: serialize_media_item(media_item)
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Media item not found" }, status: :not_found
+      end
+
       def random
         media_type = params[:media_type] || "Vinyl"
         media_item = MediaItem.random_candidate(media_type)
