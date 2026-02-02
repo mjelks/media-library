@@ -157,4 +157,13 @@ class MediaItem < ApplicationRecord
     return nil unless location_id && position
     self.class.find_by(location_id: location_id, position: position + 1)
   end
+
+  # Rollback a play: decrement play count and clear currently playing / last_played
+  def rollback_play!
+    update!(
+      play_count: [ (play_count || 1) - 1, 0 ].max,
+      last_played: nil,
+      currently_playing: false
+    )
+  end
 end
