@@ -1,4 +1,6 @@
 class NowPlayingController < ApplicationController
+  include PlayHistoryDefaults
+
   def index
     @media_type = params[:media_type] || "Vinyl"
 
@@ -6,7 +8,7 @@ class NowPlayingController < ApplicationController
     @now_playing = MediaItem.now_playing
                             .includes(:media_type)
                             .first
-    @days_ago_play_history = ENV["DAYS_AGO_PLAY_HISTORY"] || 7 # Default to 7 days,
+    @days_ago_play_history = DEFAULT_PLAY_HISTORY_DAYS
 
     # Recently played (not currently playing, has been played before) - show all media types
     @recently_played = MediaItem.recently_played(@days_ago_play_history.to_i)

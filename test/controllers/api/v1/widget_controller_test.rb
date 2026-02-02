@@ -561,8 +561,10 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert result.key?("items")
     assert result.key?("total_duration")
     assert result.key?("total_duration_formatted")
+    assert result.key?("recently_played_window")
     assert_kind_of Array, result["items"]
     assert_kind_of Integer, result["total_duration"]
+    assert_kind_of Integer, result["recently_played_window"]
   end
 
   test "recently_played should include items played within default 7 days" do
