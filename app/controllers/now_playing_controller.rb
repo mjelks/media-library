@@ -89,7 +89,6 @@ class NowPlayingController < ApplicationController
   end
 
   def done
-    # binding.break
     @media_item = MediaItem.find(params[:id])
     @media_item.update!(currently_playing: false)
 

@@ -397,6 +397,49 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
+  # Done tests
+  test "done should mark album as no longer playing" do
+    @now_playing_item.update!(currently_playing: true)
+
+    patch api_v1_widget_done_url(id: @now_playing_item.id),
+          headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result["success"]
+
+    @now_playing_item.reload
+    assert_not @now_playing_item.currently_playing
+  end
+
+  test "done should return 404 for non-existent album" do
+    patch api_v1_widget_done_url(id: 999999),
+          headers: { "X-Api-Token" => @api_token }
+    assert_response :not_found
+
+    result = JSON.parse(response.body)
+    assert_equal "Album not found", result["error"]
+  end
+
+  test "done should require authentication" do
+    patch api_v1_widget_done_url(id: @vinyl_item.id)
+    assert_response :unauthorized
+  end
+
+  test "done should work on album that is not currently playing" do
+    @vinyl_item.update!(currently_playing: false)
+
+    patch api_v1_widget_done_url(id: @vinyl_item.id),
+          headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result["success"]
+
+    @vinyl_item.reload
+    assert_not @vinyl_item.currently_playing
+  end
+
   # Branch coverage tests
   test "random should return 404 when no albums available" do
     # Delete all vinyl media items to simulate no albums available
