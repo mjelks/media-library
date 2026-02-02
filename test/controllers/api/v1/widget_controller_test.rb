@@ -410,6 +410,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
 
     @now_playing_item.reload
     assert_not @now_playing_item.currently_playing
+    assert @now_playing_item.listening_confirmed
   end
 
   test "done should return 404 for non-existent album" do
