@@ -49,6 +49,12 @@ class MediaItem < ApplicationRecord
   scope :cd, -> { joins(:media_type).where(media_types: { name: "CD" }) }
   scope :now_playing, ->(currently_playing = true) { where(currently_playing: currently_playing).includes(:location, release: [ :media_owner, :cover_image_attachment ]) }
   scope :in_the_last, ->(days = 7) { where("last_played >= ?", days.ago).includes(:location, release: [ :media_owner, :cover_image_attachment ]) }
+  scope :recently_played, ->(days = 7) {
+    now_playing(false)
+      .where.not(last_played: nil)
+      .in_the_last(days.days)
+      .order(last_played: :desc)
+  }
   scope :random_candidates, ->(media_type = "Vinyl") {
     media_type_option(media_type)
       .where("last_played IS NULL OR last_played < ?", 60.days.ago)

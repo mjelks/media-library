@@ -7,6 +7,8 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     @vinyl_item = media_items(:vinyl_one)
     @vinyl_item_two = media_items(:vinyl_two)
     @now_playing_item = media_items(:vinyl_now_playing)
+    @recently_played_item = media_items(:vinyl_recently_played)
+    @played_long_ago_item = media_items(:vinyl_played_long_ago)
   end
 
   # Authentication tests
@@ -484,5 +486,115 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     matching = results.find { |r| r["id"] == @vinyl_item.id }
     assert_not_nil matching
     assert_equal 0, matching["play_count"]
+  end
+
+  # Recently Played tests
+  test "recently_played should return array of serialized media items" do
+    get api_v1_widget_recently_played_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    assert_kind_of Array, results
+  end
+
+  test "recently_played should include items played within default 7 days" do
+    get api_v1_widget_recently_played_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    result_ids = results.map { |r| r["id"] }
+
+    assert_includes result_ids, @recently_played_item.id
+  end
+
+  test "recently_played should not include currently playing items" do
+    get api_v1_widget_recently_played_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    result_ids = results.map { |r| r["id"] }
+
+    assert_not_includes result_ids, @now_playing_item.id
+  end
+
+  test "recently_played should not include items played more than 7 days ago by default" do
+    get api_v1_widget_recently_played_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    result_ids = results.map { |r| r["id"] }
+
+    assert_not_includes result_ids, @played_long_ago_item.id
+  end
+
+  test "recently_played should respect custom days parameter" do
+    get api_v1_widget_recently_played_url,
+        params: { days: 60 },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    result_ids = results.map { |r| r["id"] }
+
+    assert_includes result_ids, @played_long_ago_item.id
+  end
+
+  test "recently_played should return proper response structure" do
+    get api_v1_widget_recently_played_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    return if results.empty?
+
+    result = results.first
+    assert result.key?("id")
+    assert result.key?("title")
+    assert result.key?("artist")
+    assert result.key?("year")
+    assert result.key?("duration")
+    assert result.key?("duration_formatted")
+    assert result.key?("cover_url")
+    assert result.key?("play_count")
+    assert result.key?("last_played")
+    assert result.key?("tracks")
+    assert_kind_of Array, result["tracks"]
+    assert result.key?("media_type")
+  end
+
+  test "recently_played should be ordered by last_played descending" do
+    # Create another recently played item with a more recent last_played
+    @vinyl_item.update!(currently_playing: false, last_played: 1.hour.ago)
+
+    get api_v1_widget_recently_played_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    return if results.length < 2
+
+    # Verify ordering - most recently played first
+    last_played_times = results.map { |r| Time.parse(r["last_played"]) }
+    assert_equal last_played_times.sort.reverse, last_played_times
+  end
+
+  test "recently_played should return empty array when no items played recently" do
+    MediaItem.update_all(last_played: nil, currently_playing: false)
+
+    get api_v1_widget_recently_played_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    assert_equal [], results
+  end
+
+  test "recently_played should require authentication" do
+    get api_v1_widget_recently_played_url
+    assert_response :unauthorized
   end
 end

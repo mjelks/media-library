@@ -82,6 +82,14 @@ module Api
         render json: { now_playing: serialize_media_item(media_item) }
       end
 
+      def recently_played
+        days = (params[:days] || ENV["DAYS_AGO_PLAY_HISTORY"] || 7).to_i
+        media_items = MediaItem.recently_played(days)
+                               .includes(:location, :media_type, release: [ :media_owner, :cover_image_attachment, :release_tracks ])
+
+        render json: media_items.map { |item| serialize_media_item(item) }
+      end
+
       private
 
       # :nocov:
