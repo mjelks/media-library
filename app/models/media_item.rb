@@ -65,6 +65,10 @@ class MediaItem < ApplicationRecord
     random_candidates(media_type).order("RANDOM()").first
   end
 
+  def self.total_duration(items)
+    items.sum { |item| item.release&.duration || 0 }
+  end
+
   def self.update_positions(location_id, ordered_ids)
     transaction do
       ordered_ids.each_with_index do |id, index|

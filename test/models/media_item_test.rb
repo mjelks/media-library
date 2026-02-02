@@ -360,4 +360,31 @@ class MediaItemTest < ActiveSupport::TestCase
     cd_items = MediaItem.media_type_option("CD")
     assert cd_items.all? { |item| item.media_type.name == "CD" }
   end
+
+  # total_duration class method
+  test "total_duration returns sum of release durations" do
+    items = [ media_items(:vinyl_one), media_items(:vinyl_two) ]
+    expected = items.sum { |item| item.release&.duration || 0 }
+    assert_equal expected, MediaItem.total_duration(items)
+  end
+
+  test "total_duration returns 0 for empty collection" do
+    assert_equal 0, MediaItem.total_duration([])
+  end
+
+  test "total_duration handles items with nil release" do
+    item_with_release = media_items(:vinyl_one)
+    item_without_release = MediaItem.new(media_type: media_types(:one))
+    items = [ item_with_release, item_without_release ]
+
+    expected = item_with_release.release&.duration || 0
+    assert_equal expected, MediaItem.total_duration(items)
+  end
+
+  test "total_duration handles items with nil duration" do
+    item = media_items(:vinyl_one)
+    item.release.release_tracks.destroy_all
+
+    assert_equal 0, MediaItem.total_duration([ item ])
+  end
 end
