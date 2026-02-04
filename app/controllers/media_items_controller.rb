@@ -9,9 +9,7 @@ class MediaItemsController < ApplicationController
 
   def new
     @media_item = MediaItem.new
-    @releases = Release.includes(:media_owner).order(:title)
-    @media_types = MediaType.order(:name)
-    @locations = Location.order(:name)
+    load_form_collections
   end
 
   def create
@@ -19,18 +17,14 @@ class MediaItemsController < ApplicationController
     if @media_item.save
       redirect_to @media_item, notice: "Media item was successfully created."
     else
-      @releases = Release.includes(:media_owner).order(:title)
-      @media_types = MediaType.order(:name)
-      @locations = Location.order(:name)
+      load_form_collections
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
     @media_item = MediaItem.find(params[:id])
-    @releases = Release.includes(:media_owner).order(:title)
-    @media_types = MediaType.order(:name)
-    @locations = Location.order(:name)
+    load_form_collections
   end
 
   def update
@@ -38,9 +32,7 @@ class MediaItemsController < ApplicationController
     if @media_item.update(media_item_params)
       redirect_to @media_item, notice: "Media item was successfully updated."
     else
-      @releases = Release.includes(:media_owner).order(:title)
-      @media_types = MediaType.order(:name)
-      @locations = Location.order(:name)
+      load_form_collections
       render :edit, status: :unprocessable_entity
     end
   end
@@ -75,7 +67,15 @@ class MediaItemsController < ApplicationController
 
   private
 
+  def load_form_collections
+    @releases = Release.includes(:media_owner).order(:title)
+    @media_types = MediaType.order(:name)
+    @locations = Location.order(:name)
+    @cd_media_type_id = @media_types.find { |mt| mt.name == "CD" }&.id
+    @max_slot_positions = MediaItem.where(location_id: @locations.select(:id)).group(:location_id).maximum(:slot_position)
+  end
+
   def media_item_params
-    params.require(:media_item).permit(:release_id, :media_type_id, :year, :notes, :play_count, :last_played, :item_count, :additional_info, :disc_number, :artwork, :location_id)
+    params.require(:media_item).permit(:release_id, :media_type_id, :year, :notes, :play_count, :last_played, :item_count, :additional_info, :disc_number, :artwork, :location_id, :slot_position)
   end
 end

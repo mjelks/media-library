@@ -1,11 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["mediaType", "location"]
-  static values = { locations: Array }
+  static targets = ["mediaType", "location", "slotPositionWrapper", "slotPositionHint"]
+  static values = { locations: Array, cdMediaTypeId: Number }
 
   connect() {
     this.filterLocations()
+    this.toggleSlotPosition()
   }
 
   filterLocations() {
@@ -33,5 +34,41 @@ export default class extends Controller {
         locationSelect.appendChild(option)
       }
     })
+
+    this.toggleSlotPosition()
+    this.updateSlotPositionHint()
+  }
+
+  toggleSlotPosition() {
+    if (!this.hasSlotPositionWrapperTarget) return
+
+    const isCd = this.mediaTypeTarget.value === this.cdMediaTypeIdValue.toString()
+    this.slotPositionWrapperTarget.style.display = isCd ? "" : "none"
+
+    if (!isCd) {
+      const input = this.slotPositionWrapperTarget.querySelector("input")
+      if (input) input.value = ""
+    }
+  }
+
+  updateSlotPositionHint() {
+    if (!this.hasSlotPositionHintTarget) return
+
+    const locationId = this.locationTarget.value
+    if (!locationId) {
+      this.slotPositionHintTarget.textContent = ""
+      return
+    }
+
+    const location = this.locationsValue.find(l => l.id.toString() === locationId)
+    if (location && location.max_slot_position) {
+      this.slotPositionHintTarget.textContent = `Last slot position for this location is ${location.max_slot_position}`
+    } else {
+      this.slotPositionHintTarget.textContent = "No existing slot positions for this location"
+    }
+  }
+
+  onLocationChange() {
+    this.updateSlotPositionHint()
   }
 }

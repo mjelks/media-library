@@ -1,4 +1,4 @@
-<%= form_with model: @media_item, class: "space-y-6", data: { controller: "location-filter", "location-filter-locations-value": @locations.map { |l| { id: l.id, name: l.name, media_type_id: l.media_type_id } }.to_json } do |form| %>
+<%= form_with model: @media_item, class: "space-y-6", data: { controller: "location-filter", "location-filter-locations-value": @locations.map { |l| { id: l.id, name: l.name, media_type_id: l.media_type_id, max_slot_position: @max_slot_positions&.dig(l.id) } }.to_json, "location-filter-cd-media-type-id-value": @cd_media_type_id } do |form| %>
   <% if @media_item.errors.any? %>
     <div class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md">
       <h2><%= pluralize(@media_item.errors.count, "error") %> prohibited this media item from being saved:</h2>
@@ -60,7 +60,13 @@
     <%= form.collection_select :location_id, @locations, :id, :name,
         { prompt: "Select a location", include_blank: true },
         { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
-          data: { "location-filter-target": "location" } } %>
+          data: { "location-filter-target": "location", action: "change->location-filter#onLocationChange" } } %>
+  </div>
+
+  <div data-location-filter-target="slotPositionWrapper" style="<%= 'display: none' unless @media_item.media_type&.name == 'CD' %>">
+    <%= form.label :slot_position, "Slot Position", class: "block text-sm font-medium text-gray-700" %>
+    <%= form.number_field :slot_position, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", min: 1, placeholder: "Leave blank to keep unassigned" %>
+    <p class="mt-1 text-sm text-gray-500" data-location-filter-target="slotPositionHint"></p>
   </div>
 
   <div>
