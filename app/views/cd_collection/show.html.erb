@@ -48,6 +48,8 @@
   <div class="max-w-xl mx-auto"
        data-controller="cd-binder"
        data-cd-binder-total-pages-value="<%= @pages_per_binder %>"
+       data-cd-binder-current-page-value="<%= @initial_page %>"
+       data-cd-binder-current-side-value="<%= @initial_side %>"
        data-location-id="<%= @location.id %>"
        data-action="keydown->cd-binder#keydown"
        tabindex="0">
