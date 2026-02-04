@@ -132,6 +132,57 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes result_ids, @vinyl_item.id
   end
 
+  test "search should return multi-disc CD items with disc-specific tracks" do
+    cd_disc_1 = media_items(:cd_multi_disc_1)
+    cd_disc_2 = media_items(:cd_multi_disc_2)
+
+    get api_v1_widget_search_url,
+        params: { q: "Greatest Hits", media_type: "CD" },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    result_ids = results.map { |r| r["id"] }
+
+    # Both disc items should appear as separate results
+    assert_includes result_ids, cd_disc_1.id
+    assert_includes result_ids, cd_disc_2.id
+
+    disc_1_result = results.find { |r| r["id"] == cd_disc_1.id }
+    disc_2_result = results.find { |r| r["id"] == cd_disc_2.id }
+
+    # Title should include additional_info (disc label)
+    assert_equal "Greatest Hits (Disc 1)", disc_1_result["title"]
+    assert_equal "Greatest Hits (Disc 2)", disc_2_result["title"]
+
+    # Each disc should only have its own tracks, not all release tracks
+    disc_1_tracks = disc_1_result["tracks"]
+    disc_2_tracks = disc_2_result["tracks"]
+
+    assert_equal 2, disc_1_tracks.length
+    assert_equal 2, disc_2_tracks.length
+
+    # Disc 1 tracks should have positions starting with "1."
+    assert disc_1_tracks.all? { |t| t["position"].start_with?("1.") }
+    assert_equal [ "Take On Me", "The Sun Always Shines on TV" ], disc_1_tracks.map { |t| t["name"] }
+
+    # Disc 2 tracks should have positions starting with "2."
+    assert disc_2_tracks.all? { |t| t["position"].start_with?("2.") }
+    assert_equal [ "Crying in the Rain", "I've Been Losing You" ], disc_2_tracks.map { |t| t["name"] }
+
+    # Both should share the same artist
+    assert_equal "A-Ha", disc_1_result["artist"]
+    assert_equal "A-Ha", disc_2_result["artist"]
+
+    # Location should be CD format
+    assert_match(/Binder/, disc_1_result["location"])
+    assert_match(/Binder/, disc_2_result["location"])
+
+    # Media type should be CD
+    assert_equal "CD", disc_1_result["media_type"]
+    assert_equal "CD", disc_2_result["media_type"]
+  end
+
   test "search should return tracks with proper structure" do
     get api_v1_widget_search_url,
         params: { q: "Analogue" },

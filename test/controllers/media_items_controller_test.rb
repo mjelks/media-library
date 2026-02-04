@@ -101,15 +101,22 @@ class MediaItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_media_item_url(clone)
   end
 
-  test "should clone media_item with existing disc_number" do
+  test "should clone CD with existing disc_number and assign slot" do
     source = media_items(:cd_multi_disc_1)
     assert_difference("MediaItem.count") do
       post clone_media_item_url(source)
     end
 
     clone = MediaItem.last
+    assert_equal source.release_id, clone.release_id
+    assert_equal source.media_type_id, clone.media_type_id
+    assert_equal source.location_id, clone.location_id
     assert_equal 2, clone.disc_number
     assert_equal "(Disc 2)", clone.additional_info
+    assert_equal 0, clone.play_count
+    assert_nil clone.last_played
+    assert clone.slot_position.present?, "Clone should have a slot_position after move_slot_to_bottom"
+    assert_redirected_to edit_media_item_url(clone)
   end
 
   test "should update additional_info" do

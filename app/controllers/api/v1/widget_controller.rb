@@ -150,7 +150,7 @@ module Api
       def serialize_tracks(tracks)
         return [] if tracks.blank?
 
-        tracks.order(:position).map do |track|
+        tracks.sort_by(&:position).map do |track|
           side = track.position[/^[A-Za-z]+/] || ""
           number = track.position[/\d+$/] || track.position
           {
