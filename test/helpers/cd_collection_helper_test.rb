@@ -85,6 +85,49 @@ class CdCollectionHelperTest < ActionView::TestCase
     assert_equal 13, slot_position_for(2, "B", 0)
   end
 
+  # page_and_side_for tests
+  test "page_and_side_for returns page 1 side A for position 1" do
+    result = page_and_side_for(1)
+    assert_equal 1, result[:page]
+    assert_equal "A", result[:side]
+  end
+
+  test "page_and_side_for returns page 1 side A for position 4" do
+    result = page_and_side_for(4)
+    assert_equal 1, result[:page]
+    assert_equal "A", result[:side]
+  end
+
+  test "page_and_side_for returns page 1 side B for position 5" do
+    result = page_and_side_for(5)
+    assert_equal 1, result[:page]
+    assert_equal "B", result[:side]
+  end
+
+  test "page_and_side_for returns page 1 side B for position 8" do
+    result = page_and_side_for(8)
+    assert_equal 1, result[:page]
+    assert_equal "B", result[:side]
+  end
+
+  test "page_and_side_for returns page 2 side A for position 9" do
+    result = page_and_side_for(9)
+    assert_equal 2, result[:page]
+    assert_equal "A", result[:side]
+  end
+
+  test "page_and_side_for returns page 2 side B for position 13" do
+    result = page_and_side_for(13)
+    assert_equal 2, result[:page]
+    assert_equal "B", result[:side]
+  end
+
+  test "page_and_side_for returns page 25 side B for position 200" do
+    result = page_and_side_for(200)
+    assert_equal 25, result[:page]
+    assert_equal "B", result[:side]
+  end
+
   test "slot_position_for and slot_label_for are inverse operations" do
     # Test a range of positions
     (1..50).each do |pos|
