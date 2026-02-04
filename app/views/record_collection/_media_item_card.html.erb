@@ -38,8 +38,8 @@
   <!-- Album Title -->
   <div class="flex-1 min-w-0">
     <%= link_to media_item_path(media_item), class: "hover:text-blue-600" do %>
-      <p class="font-semibold truncate" title="<%= media_item.title %>">
-        <%= media_item.title || "Untitled" %>
+      <p class="font-semibold truncate" title="<%= media_item.display_title %>">
+        <%= media_item.display_title || "Untitled" %>
       </p>
     <% end %>
   </div>

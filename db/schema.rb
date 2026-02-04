@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_30_210828) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_04_023426) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -58,8 +58,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_30_210828) do
   end
 
   create_table "media_items", force: :cascade do |t|
+    t.string "additional_info"
     t.datetime "created_at", null: false
     t.boolean "currently_playing", default: false, null: false
+    t.integer "disc_number"
     t.integer "item_count", default: 1, null: false
     t.datetime "last_played"
     t.boolean "listening_confirmed", default: false

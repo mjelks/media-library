@@ -3,7 +3,9 @@
 # Table name: media_items
 #
 #  id                  :integer          not null, primary key
+#  additional_info     :string
 #  currently_playing   :boolean          default(FALSE), not null
+#  disc_number         :integer
 #  item_count          :integer          default(1), not null
 #  last_played         :datetime
 #  listening_confirmed :boolean          default(FALSE)
@@ -386,5 +388,50 @@ class MediaItemTest < ActiveSupport::TestCase
     item.release.release_tracks.destroy_all
 
     assert_equal 0, MediaItem.total_duration([ item ])
+  end
+
+  # display_title
+  test "display_title returns release title when no additional_info" do
+    media_item = media_items(:one)
+    assert_equal media_item.release.title, media_item.display_title
+  end
+
+  test "display_title appends additional_info when present" do
+    media_item = media_items(:cd_multi_disc_1)
+    assert_equal "Greatest Hits (Disc 1)", media_item.display_title
+  end
+
+  test "display_title ignores blank additional_info" do
+    media_item = media_items(:one)
+    media_item.additional_info = "  "
+    assert_equal media_item.release.title, media_item.display_title
+  end
+
+  # disc_tracks
+  test "disc_tracks returns all tracks when disc_number is nil" do
+    media_item = media_items(:one)
+    assert_nil media_item.disc_number
+    assert_equal media_item.release_tracks.to_a, media_item.disc_tracks.to_a
+  end
+
+  test "disc_tracks filters tracks by disc_number prefix" do
+    disc1 = media_items(:cd_multi_disc_1)
+    tracks = disc1.disc_tracks
+
+    assert_equal 2, tracks.size
+    assert tracks.all? { |t| t.position.start_with?("1.") }
+  end
+
+  test "disc_tracks returns disc 2 tracks for disc_number 2" do
+    disc2 = media_items(:cd_multi_disc_2)
+    tracks = disc2.disc_tracks
+
+    assert_equal 2, tracks.size
+    assert tracks.all? { |t| t.position.start_with?("2.") }
+  end
+
+  test "disc_tracks returns nil when release is nil" do
+    media_item = MediaItem.new(media_type: media_types(:one), disc_number: 1)
+    assert_nil media_item.disc_tracks
   end
 end

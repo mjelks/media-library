@@ -106,7 +106,7 @@
           </div>
           <div class="flex-1">
             <%= link_to edit_media_item_path(@now_playing), class: "block hover:opacity-80" do %>
-              <h3 class="font-bold text-2xl text-gray-900"><%= @now_playing.release&.title || "Unknown Album" %></h3>
+              <h3 class="font-bold text-2xl text-gray-900"><%= @now_playing.display_title || "Unknown Album" %></h3>
               <p class="text-lg text-gray-600 mt-1"><%= @now_playing.release&.media_owner&.name || "Unknown Artist" %> 
                 <span class="text-xs text-gray-600 mt-1">
                   (<%= duration_formatter(@now_playing.release&.duration) || "Unknown" %>)
@@ -257,7 +257,7 @@
               </div>
               <div class="flex-1 min-w-0">
                 <%= link_to edit_media_item_path(item), class: "block hover:text-gray-900" do %>
-                  <h3 class="font-semibold text-lg truncate"><%= item.release&.title || "Unknown Album" %></h3>
+                  <h3 class="font-semibold text-lg truncate"><%= item.display_title || "Unknown Album" %></h3>
                   <p class="text-gray-600 truncate"><%= item.release&.media_owner&.name || "Unknown Artist" %></p>
                 <% end %>                
                 <p class="text-sm text-gray-400">

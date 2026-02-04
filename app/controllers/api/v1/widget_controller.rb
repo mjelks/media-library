@@ -132,7 +132,7 @@ module Api
       def serialize_media_item(item)
         {
           id: item.id,
-          title: item.release&.title,
+          title: item.display_title,
           artist: item.release&.media_owner&.name,
           year: (item.year || item.release&.original_year)&.to_s,
           duration: item.release&.duration,
@@ -140,7 +140,7 @@ module Api
           cover_url: cover_url_for(item),
           play_count: item.play_count || 0,
           last_played: item.last_played,
-          tracks: serialize_tracks(item.release&.release_tracks),
+          tracks: serialize_tracks(item.disc_tracks),
           location: format_location(item),
           media_type: item.media_type&.name
         }

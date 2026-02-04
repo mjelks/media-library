@@ -5,7 +5,9 @@
 # Table name: media_items
 #
 #  id                  :integer          not null, primary key
+#  additional_info     :string
 #  currently_playing   :boolean          default(FALSE), not null
+#  disc_number         :integer
 #  item_count          :integer          default(1), not null
 #  last_played         :datetime
 #  listening_confirmed :boolean          default(FALSE)
@@ -104,3 +106,29 @@ vinyl_played_long_ago:
   last_played: <%= 30.days.ago.to_fs(:db) %>
   location: vinyl_with_cube
   position: 4
+
+cd_multi_disc_1:
+  release: multi_disc
+  media_type: two
+  year: 2004
+  play_count: 0
+  notes: Disc 1
+  disc_number: 1
+  additional_info: "(Disc 1)"
+  item_count: 1
+  location: cd_binder
+  slot_position: 5
+  position: 5
+
+cd_multi_disc_2:
+  release: multi_disc
+  media_type: two
+  year: 2004
+  play_count: 0
+  notes: Disc 2
+  disc_number: 2
+  additional_info: "(Disc 2)"
+  item_count: 1
+  location: cd_binder
+  slot_position: 6
+  position: 6

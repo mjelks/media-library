@@ -44,3 +44,27 @@ two_track_two:
   position: "2"
   name: Something for the Pain
   duration: "4:29"
+
+multi_disc_1_1:
+  release: multi_disc
+  position: "1.1"
+  name: Take On Me
+  duration: "3:48"
+
+multi_disc_1_2:
+  release: multi_disc
+  position: "1.2"
+  name: The Sun Always Shines on TV
+  duration: "5:07"
+
+multi_disc_2_1:
+  release: multi_disc
+  position: "2.1"
+  name: Crying in the Rain
+  duration: "4:22"
+
+multi_disc_2_2:
+  release: multi_disc
+  position: "2.2"
+  name: I've Been Losing You
+  duration: "4:50"
