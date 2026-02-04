@@ -1,4 +1,6 @@
 class CdCollectionController < ApplicationController
+  include CdCollectionHelper
+
   BINDERS = [ "Binder 1", "Binder 2" ].freeze
   PAGES_PER_BINDER = 25
   SLOTS_PER_SIDE = 4
@@ -29,6 +31,8 @@ class CdCollectionController < ApplicationController
     @slots_per_side = SLOTS_PER_SIDE
     @slots_per_page = SLOTS_PER_PAGE
     @total_slots = PAGES_PER_BINDER * SLOTS_PER_PAGE
+    @initial_page = (params[:page] || 1).to_i.clamp(1, PAGES_PER_BINDER)
+    @initial_side = %w[A B].include?(params[:side]&.upcase) ? params[:side].upcase : "A"
   end
 
   def reorder
@@ -52,7 +56,7 @@ class CdCollectionController < ApplicationController
     @media_item = @location.media_items.find(params[:id])
 
     MediaItem.move_slot_to_top(@location.id, @media_item.id)
-    redirect_to cd_collection_location_path(@location), notice: "Moved to top"
+    redirect_to cd_collection_location_path(@location, page: 1, side: "A"), notice: "Moved to top"
   end
 
   def move_to_bottom
@@ -60,7 +64,9 @@ class CdCollectionController < ApplicationController
     @media_item = @location.media_items.find(params[:id])
 
     MediaItem.move_slot_to_bottom(@location.id, @media_item.id)
-    redirect_to cd_collection_location_path(@location), notice: "Moved to bottom"
+    @media_item.reload
+    ps = page_and_side_for(@media_item.slot_position)
+    redirect_to cd_collection_location_path(@location, page: ps[:page], side: ps[:side]), notice: "Moved to bottom"
   end
 
   def add_to_collection
@@ -74,7 +80,8 @@ class CdCollectionController < ApplicationController
     slot_position = params[:slot].to_i
 
     MediaItem.insert_gap_at_slot(@location.id, slot_position)
-    redirect_to cd_collection_location_path(@location), notice: "Inserted gap at slot #{slot_position}"
+    ps = page_and_side_for(slot_position)
+    redirect_to cd_collection_location_path(@location, page: ps[:page], side: ps[:side]), notice: "Inserted gap at slot #{slot_position}"
   end
 
   def remove_gap
@@ -82,6 +89,7 @@ class CdCollectionController < ApplicationController
     slot_position = params[:slot].to_i
 
     MediaItem.remove_gap_at_slot(@location.id, slot_position)
-    redirect_to cd_collection_location_path(@location), notice: "Removed gap at slot #{slot_position}"
+    ps = page_and_side_for(slot_position)
+    redirect_to cd_collection_location_path(@location, page: ps[:page], side: ps[:side]), notice: "Removed gap at slot #{slot_position}"
   end
 end

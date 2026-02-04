@@ -18,6 +18,14 @@ module CdCollectionHelper
     "#{page}#{slot_letter}"
   end
 
+  # Returns page and side for a given slot_position
+  # e.g., slot_position 9 => { page: 2, side: "A" }
+  def page_and_side_for(slot_position)
+    page = ((slot_position - 1) / 8) + 1
+    side = ((slot_position - 1) / 4) % 2 == 0 ? "A" : "B"
+    { page: page, side: side }
+  end
+
   # Convert a (page, side, slot_index) to slot position
   # page: 1-25, side: 'A' or 'B', slot_index: 0-3
   def slot_position_for(page, side, slot_index)

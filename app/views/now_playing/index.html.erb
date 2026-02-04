@@ -131,8 +131,9 @@
                 <% end %>
                 <%= render partial: "now_playing/position_helper", locals: { now_playing: @now_playing } %>
                 <% else %>
-                 <%= link_to cd_collection_location_path(@now_playing.location), class: "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block" do %>
-                  <%= @now_playing.location.name %>
+                 <% ps = page_and_side_for(@now_playing.slot_position) %>
+                 <%= link_to cd_collection_location_path(@now_playing.location, page: ps[:page], side: ps[:side]), class: "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block" do %>
+                  <%= @now_playing.location.name %> — Page <%= ps[:page] %> Side <%= ps[:side] %>
                  <%end%>
                 <%end%>
             <% end %>
@@ -277,8 +278,9 @@
                     <% if item.location.cube_location.present? %>Cube <%= item.location.cube_location %>, <% end %>Section <%= item.location.name %>
                   <% end %>
                 <% else %>
-                 <%= link_to cd_collection_location_path(item.location), class: "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block" do %>
-                  <%= item.location.name %>
+                 <% ps = page_and_side_for(item.slot_position) %>
+                 <%= link_to cd_collection_location_path(item.location, page: ps[:page], side: ps[:side]), class: "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block" do %>
+                  <%= item.location.name %> — Page <%= ps[:page] %> Side <%= ps[:side] %>
                  <%end%>
                 <%end%>
                   

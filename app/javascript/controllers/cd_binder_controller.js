@@ -9,20 +9,7 @@ export default class extends Controller {
   }
 
   connect() {
-    // Restore state from sessionStorage if available (for Turbo navigations)
-    const savedState = sessionStorage.getItem("cdBinderState")
-    if (savedState) {
-      try {
-        const { page, side, locationId } = JSON.parse(savedState)
-        // Only restore if we're on the same location
-        if (locationId === this.element.dataset.locationId) {
-          this.currentPageValue = Math.min(page, this.totalPagesValue)
-          this.currentSideValue = side
-        }
-      } catch (e) {
-        // Ignore parse errors
-      }
-    }
+    // Initial page/side values come from server-rendered data attributes
     this.updateDisplay()
   }
 
@@ -151,12 +138,11 @@ export default class extends Controller {
   }
 
   saveState() {
-    const state = {
-      page: this.currentPageValue,
-      side: this.currentSideValue,
-      locationId: this.element.dataset.locationId
-    }
-    sessionStorage.setItem("cdBinderState", JSON.stringify(state))
+    // Update URL query params so the page/side is bookmarkable and shareable
+    const url = new URL(window.location)
+    url.searchParams.set("page", this.currentPageValue)
+    url.searchParams.set("side", this.currentSideValue)
+    history.replaceState(null, "", url)
   }
 
   keydown(event) {

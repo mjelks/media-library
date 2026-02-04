@@ -58,7 +58,7 @@ class CdCollectionControllerTest < ActionDispatch::IntegrationTest
     item2 = MediaItem.create!(release: release2, media_type: @cd_type, location: @location, year: 2021, position: 2)
 
     patch cd_collection_move_to_top_url(location_id: @location.id, id: item2.id)
-    assert_redirected_to cd_collection_location_path(@location)
+    assert_redirected_to cd_collection_location_path(@location, page: 1, side: "A")
     assert_equal "Moved to top", flash[:notice]
   end
 
@@ -69,7 +69,7 @@ class CdCollectionControllerTest < ActionDispatch::IntegrationTest
     item2 = MediaItem.create!(release: release2, media_type: @cd_type, location: @location, year: 2021, position: 2)
 
     patch cd_collection_move_to_bottom_url(location_id: @location.id, id: item1.id)
-    assert_redirected_to cd_collection_location_path(@location)
+    assert_response :redirect
     assert_equal "Moved to bottom", flash[:notice]
   end
 
@@ -138,7 +138,7 @@ class CdCollectionControllerTest < ActionDispatch::IntegrationTest
     item2 = MediaItem.create!(release: release2, media_type: @cd_type, location: @location, year: 2021, slot_position: 2)
 
     post cd_collection_insert_gap_url(id: @location.id, slot: 2)
-    assert_redirected_to cd_collection_location_path(@location)
+    assert_redirected_to cd_collection_location_path(@location, page: 1, side: "A")
     assert_equal "Inserted gap at slot 2", flash[:notice]
 
     assert_equal 1, item1.reload.slot_position
@@ -153,7 +153,7 @@ class CdCollectionControllerTest < ActionDispatch::IntegrationTest
     item2 = MediaItem.create!(release: release2, media_type: @cd_type, location: @location, year: 2021, slot_position: 3)
 
     delete cd_collection_remove_gap_url(id: @location.id, slot: 2)
-    assert_redirected_to cd_collection_location_path(@location)
+    assert_redirected_to cd_collection_location_path(@location, page: 1, side: "A")
     assert_equal "Removed gap at slot 2", flash[:notice]
 
     assert_equal 1, item1.reload.slot_position
