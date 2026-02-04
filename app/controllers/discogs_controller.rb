@@ -151,8 +151,8 @@ class DiscogsController < ApplicationController
   def infer_track_position(last_position)
     return "1" if last_position.blank?
 
-    # Match patterns like "A1", "B2", "1", "12", etc.
-    if last_position =~ /\A([A-Za-z]*)(\d+)\z/
+    # Match patterns like "A1", "B2", "1", "12", "2-1", "1-10", etc.
+    if last_position =~ /\A(.*?)(\d+)\z/
       prefix = $1
       number = $2.to_i + 1
       "#{prefix}#{number}"
