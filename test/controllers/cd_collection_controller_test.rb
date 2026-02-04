@@ -160,6 +160,38 @@ class CdCollectionControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, item2.reload.slot_position
   end
 
+  test "show with page and side params sets initial page" do
+    get cd_collection_location_url(@location, page: 3, side: "B")
+    assert_response :success
+    assert_select "[data-cd-binder-current-page-value='3']"
+    assert_select "[data-cd-binder-current-side-value='B']"
+  end
+
+  test "show clamps out-of-range page param" do
+    get cd_collection_location_url(@location, page: 99, side: "A")
+    assert_response :success
+    assert_select "[data-cd-binder-current-page-value='25']"
+  end
+
+  test "show clamps negative page param to 1" do
+    get cd_collection_location_url(@location, page: -5)
+    assert_response :success
+    assert_select "[data-cd-binder-current-page-value='1']"
+  end
+
+  test "show defaults invalid side param to A" do
+    get cd_collection_location_url(@location, page: 2, side: "Z")
+    assert_response :success
+    assert_select "[data-cd-binder-current-side-value='A']"
+  end
+
+  test "show defaults to page 1 side A without params" do
+    get cd_collection_location_url(@location)
+    assert_response :success
+    assert_select "[data-cd-binder-current-page-value='1']"
+    assert_select "[data-cd-binder-current-side-value='A']"
+  end
+
   test "show builds items_by_slot hash" do
     release = releases(:one)
     MediaItem.create!(release: release, media_type: @cd_type, location: @location, year: 2020, position: 1, slot_position: 5)
