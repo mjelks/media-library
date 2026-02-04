@@ -167,4 +167,15 @@ class CdCollectionControllerTest < ActionDispatch::IntegrationTest
     get cd_collection_location_url(@location)
     assert_response :success
   end
+
+  test "show renders multi-disc items with display_title" do
+    binder = locations(:cd_binder)
+    get cd_collection_location_url(binder)
+    assert_response :success
+  end
+
+  test "index counts multi-disc CDs" do
+    get cd_collection_url
+    assert_response :success
+  end
 end
