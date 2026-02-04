@@ -45,6 +45,28 @@ class MediaItemsController < ApplicationController
     end
   end
 
+  def clone
+    source = MediaItem.find(params[:id])
+    @media_item = source.dup
+    @media_item.play_count = 0
+    @media_item.last_played = nil
+    @media_item.currently_playing = false
+    @media_item.listening_confirmed = false
+    @media_item.slot_position = nil
+    @media_item.position = nil
+    @media_item.disc_number = (source.disc_number || 1) + 1
+    @media_item.additional_info = "(Disc #{@media_item.disc_number})"
+
+    if @media_item.save
+      if source.location_id.present? && source.slot_position.present?
+        MediaItem.move_slot_to_bottom(source.location_id, @media_item.id)
+      end
+      redirect_to edit_media_item_path(@media_item), notice: "Cloned successfully. Update the additional info for this disc."
+    else
+      redirect_to media_item_path(source), alert: "Failed to clone media item."
+    end
+  end
+
   def destroy
     @media_item = MediaItem.find(params[:id])
     @media_item.destroy
@@ -54,6 +76,6 @@ class MediaItemsController < ApplicationController
   private
 
   def media_item_params
-    params.require(:media_item).permit(:release_id, :media_type_id, :year, :notes, :play_count, :last_played, :item_count, :artwork, :location_id)
+    params.require(:media_item).permit(:release_id, :media_type_id, :year, :notes, :play_count, :last_played, :item_count, :additional_info, :disc_number, :artwork, :location_id)
   end
 end

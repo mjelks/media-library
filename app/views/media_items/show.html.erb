@@ -9,7 +9,7 @@
     <% end %>
 
     <div class="flex-1">
-      <h1 class="font-bold text-4xl mb-2"><%= @media_item.title %></h1>
+      <h1 class="font-bold text-4xl mb-2"><%= @media_item.display_title %></h1>
 
       <% if @media_item.media_owner %>
         <p class="text-xl text-gray-600 mb-4">
@@ -49,11 +49,11 @@
     </div>
   <% end %>
 
-  <% if @media_item.release_tracks.any? %>
+  <% if @media_item.disc_tracks.any? %>
     <div class="mb-6">
       <h2 class="font-bold text-xl mb-2">Track Listing</h2>
       <% if @media_item.media_type&.name&.downcase&.include?("vinyl") %>
-        <% tracks_by_side = @media_item.release_tracks.group_by { |t| t.position.match(/^([A-Z])/i)&.[](1)&.upcase || "?" } %>
+        <% tracks_by_side = @media_item.disc_tracks.group_by { |t| t.position.match(/^([A-Z])/i)&.[](1)&.upcase || "?" } %>
         <div class="grid grid-cols-2 gap-6">
           <% tracks_by_side.each do |side, tracks| %>
             <div>
@@ -74,7 +74,7 @@
         </div>
       <% else %>
         <ol class="list-decimal list-inside space-y-1">
-          <% @media_item.release_tracks.each do |track| %>
+          <% @media_item.disc_tracks.each do |track| %>
             <li class="text-gray-600">
               <%= track.name %>
               <% if track.duration.present? %>

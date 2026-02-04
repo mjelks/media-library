@@ -132,7 +132,7 @@
                     <% end %>
                     <div class="absolute z-20 -bottom-2 left-0 right-0 text-center">
                       <span class="inline-block px-2 py-1 bg-gray-900/90 text-white text-xs rounded truncate max-w-full opacity-0 group-hover:opacity-100 transition-opacity">
-                        <%= truncate(media_item.title || "Unknown", length: 30) %>
+                        <%= truncate(media_item.display_title || "Unknown", length: 30) %>
                       </span>
                     </div>
                   <% else %>

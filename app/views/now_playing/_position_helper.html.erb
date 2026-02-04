@@ -8,12 +8,12 @@
       <% else %>
         Record can be found between
         <span class="group/prev relative inline-block cursor-pointer underline decoration-dotted hover:text-gray-800">
-          <%= @now_playing.previous.media_owner.name %>: <%= @now_playing.previous.release.title %>
+          <%= @now_playing.previous.media_owner.name %>: <%= @now_playing.previous.display_title %>
           <%= render "shared/media_item_hover_popup", media_item: @now_playing.previous, popup_align: :left, position: :above, group_name: "prev" %>
         </span>
         and
         <span class="group/next relative inline-block cursor-pointer underline decoration-dotted hover:text-gray-800">
-          <%= @now_playing.next.media_owner.name %>: <%= @now_playing.next.release.title %>
+          <%= @now_playing.next.media_owner.name %>: <%= @now_playing.next.display_title %>
           <%= render "shared/media_item_hover_popup", media_item: @now_playing.next, popup_align: :right, position: :above, group_name: "next" %>
         </span>
       <% end %>

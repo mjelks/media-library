@@ -84,4 +84,47 @@ class MediaItemsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to media_items_url
   end
+
+  test "should clone media_item" do
+    assert_difference("MediaItem.count") do
+      post clone_media_item_url(@media_item)
+    end
+
+    clone = MediaItem.last
+    assert_equal @media_item.release_id, clone.release_id
+    assert_equal @media_item.media_type_id, clone.media_type_id
+    assert_equal 0, clone.play_count
+    assert_nil clone.last_played
+    assert_equal false, clone.currently_playing
+    assert_equal 2, clone.disc_number
+    assert_equal "(Disc 2)", clone.additional_info
+    assert_redirected_to edit_media_item_url(clone)
+  end
+
+  test "should clone media_item with existing disc_number" do
+    source = media_items(:cd_multi_disc_1)
+    assert_difference("MediaItem.count") do
+      post clone_media_item_url(source)
+    end
+
+    clone = MediaItem.last
+    assert_equal 2, clone.disc_number
+    assert_equal "(Disc 2)", clone.additional_info
+  end
+
+  test "should update additional_info" do
+    patch media_item_url(@media_item), params: {
+      media_item: { additional_info: "(Disc 1)" }
+    }
+    assert_redirected_to media_item_url(@media_item)
+    assert_equal "(Disc 1)", @media_item.reload.additional_info
+  end
+
+  test "should update disc_number" do
+    patch media_item_url(@media_item), params: {
+      media_item: { disc_number: 1 }
+    }
+    assert_redirected_to media_item_url(@media_item)
+    assert_equal 1, @media_item.reload.disc_number
+  end
 end

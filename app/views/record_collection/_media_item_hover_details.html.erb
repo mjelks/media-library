@@ -6,8 +6,8 @@
   </p>
 
   <!-- Album Title -->
-  <p class="font-semibold text-lg truncate" title="<%= media_item.title %>">
-    <%= media_item.title || "Untitled" %>
+  <p class="font-semibold text-lg truncate" title="<%= media_item.display_title %>">
+    <%= media_item.display_title || "Untitled" %>
   </p>
 
   <!-- Year & Format -->
@@ -26,9 +26,9 @@
   <% end %>
 
   <!-- Tracks by Side -->
-  <% if media_item.release_tracks.any? %>
+  <% if media_item.disc_tracks.any? %>
     <div class="mt-3 pt-3 border-t border-gray-200">
-      <% tracks_by_side = media_item.release_tracks.group_by { |t| t.position.match(/^([A-Z])/i)&.[](1)&.upcase || "?" } %>
+      <% tracks_by_side = media_item.disc_tracks.group_by { |t| t.position.match(/^([A-Z])/i)&.[](1)&.upcase || "?" } %>
       <div class="grid grid-cols-2 gap-4">
         <% tracks_by_side.each do |side, tracks| %>
           <div>

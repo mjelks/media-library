@@ -48,7 +48,7 @@ class NowPlayingController < ApplicationController
     render json: @media_items.map { |item|
       {
         id: item.id,
-        title: item.release&.title,
+        title: item.display_title,
         artist: item.release&.media_owner&.name,
         year: item.year || item.release&.original_year,
         play_count: item.play_count || 0,
@@ -83,7 +83,7 @@ class NowPlayingController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { redirect_to now_playing_path, notice: "Now playing: #{@media_item.title}" }
+      format.html { redirect_to now_playing_path, notice: "Now playing: #{@media_item.display_title}" }
       format.json { render json: { success: true, play_count: @media_item.play_count, last_played: @media_item.last_played } }
     end
   end
@@ -92,7 +92,7 @@ class NowPlayingController < ApplicationController
     @media_item = MediaItem.find(params[:id])
     @media_item.update!(currently_playing: false)
 
-    redirect_to now_playing_path, notice: "Finished playing: #{@media_item.title}"
+    redirect_to now_playing_path, notice: "Finished playing: #{@media_item.display_title}"
   end
 
   def rate
@@ -145,7 +145,7 @@ class NowPlayingController < ApplicationController
 
     render json: [ {
       id: @media_item.id,
-      title: @media_item.release&.title,
+      title: @media_item.display_title,
       artist: @media_item.release&.media_owner&.name,
       year: @media_item.year || @media_item.release&.original_year,
       play_count: @media_item.play_count || 0,
@@ -158,7 +158,7 @@ class NowPlayingController < ApplicationController
     @media_item.rollback_play!
 
     respond_to do |format|
-      format.html { redirect_to now_playing_path, notice: "Removed: #{@media_item.release&.title || 'Unknown Album'}" }
+      format.html { redirect_to now_playing_path, notice: "Removed: #{@media_item.display_title || 'Unknown Album'}" }
       format.turbo_stream { head :ok }
     end
   end

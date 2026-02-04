@@ -53,7 +53,9 @@ Rails.application.routes.draw do
   patch "now_playing/:id/notes", to: "now_playing#update_notes", as: :now_playing_update_notes
   post "now_playing/:id/confirm", to: "now_playing#confirm_listening", as: :now_playing_confirm
   resources :media_types
-  resources :media_items
+  resources :media_items do
+    post :clone, on: :member
+  end
   resources :releases
   resources :genres
   resource :session, only: %i[new create destroy]

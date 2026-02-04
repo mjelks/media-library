@@ -37,3 +37,9 @@ two:
   description: Sixth studio album
   original_year: 1995
   media_owner: two
+
+multi_disc:
+  title: Greatest Hits
+  description: Best of compilation
+  original_year: 2004
+  media_owner: one

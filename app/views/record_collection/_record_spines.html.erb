@@ -63,7 +63,7 @@
                         <span class="text-white/70 font-medium truncate whitespace-nowrap px-0.5"
                               style="font-size: <%= spine_font_size %>px; writing-mode: vertical-rl; text-orientation: mixed; max-height: <%= @spine_config[:spine_text_max_height_desktop] %>px;">
                           <% if local_assigns[:location]&.name == "Soundtracks" %>
-                            <%= media_item.title&.truncate(30) || "" %><%= item_count_display(media_item) %>
+                            <%= media_item.display_title&.truncate(30) || "" %><%= item_count_display(media_item) %>
                           <% else %>
                             <%= media_item.media_owner&.name&.truncate(30) || "" %><%= item_count_display(media_item) %>
                           <% end %>

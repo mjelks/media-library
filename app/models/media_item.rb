@@ -3,7 +3,9 @@
 # Table name: media_items
 #
 #  id                  :integer          not null, primary key
+#  additional_info     :string
 #  currently_playing   :boolean          default(FALSE), not null
+#  disc_number         :integer
 #  item_count          :integer          default(1), not null
 #  last_played         :datetime
 #  listening_confirmed :boolean          default(FALSE)
@@ -160,6 +162,16 @@ class MediaItem < ApplicationRecord
   def next
     return nil unless location_id && position
     self.class.find_by(location_id: location_id, position: position + 1)
+  end
+
+  def display_title
+    [ title, additional_info.presence ].compact.join(" ")
+  end
+
+  def disc_tracks
+    return release_tracks if disc_number.blank? || release.nil?
+
+    release.release_tracks.select { |t| t.position.start_with?("#{disc_number}.") }
   end
 
   # Rollback a play: decrement play count and clear currently playing / last_played
