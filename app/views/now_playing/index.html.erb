@@ -272,9 +272,16 @@
                   <% end %>
                 </p>
                 <% if item.location %>
+                <% if item.media_type&.name == "Vinyl"  %>
                   <%= link_to record_collection_location_path(item.location), class: "italic text-xs text-gray-400 hover:text-gray-600 hover:underline" do %>
                     <% if item.location.cube_location.present? %>Cube <%= item.location.cube_location %>, <% end %>Section <%= item.location.name %>
                   <% end %>
+                <% else %>
+                 <%= link_to cd_collection_location_path(item.location), class: "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block" do %>
+                  <%= item.location.name %>
+                 <%end%>
+                <%end%>
+                  
                 <% end %>
               </div>
               <div class="flex flex-col gap-1" data-controller="voting" data-voting-url-value="<%= now_playing_rate_path(item) %>">
