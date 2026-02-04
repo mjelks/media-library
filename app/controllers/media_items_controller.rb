@@ -71,7 +71,7 @@ class MediaItemsController < ApplicationController
     @releases = Release.includes(:media_owner).order(:title)
     @media_types = MediaType.order(:name)
     @locations = Location.order(:name)
-    @cd_media_type_id = @media_types.find { |mt| mt.name == "CD" }&.id
+    @cd_media_type_id = MediaType.where(name: "CD").pick(:id)
     @max_slot_positions = MediaItem.where(location_id: @locations.select(:id)).group(:location_id).maximum(:slot_position)
   end
 

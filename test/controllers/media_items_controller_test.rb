@@ -119,6 +119,15 @@ class MediaItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_media_item_url(clone)
   end
 
+  test "should update slot_position for CD media item" do
+    cd_item = media_items(:cd_multi_disc_1)
+    patch media_item_url(cd_item), params: {
+      media_item: { slot_position: 10 }
+    }
+    assert_redirected_to media_item_url(cd_item)
+    assert_equal 10, cd_item.reload.slot_position
+  end
+
   test "should update additional_info" do
     patch media_item_url(@media_item), params: {
       media_item: { additional_info: "(Disc 1)" }
