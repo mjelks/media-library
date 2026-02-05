@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_04_023426) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_05_235347) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -96,6 +96,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_04_023426) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "play_sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "end_time"
+    t.integer "media_item_id", null: false
+    t.datetime "start_time", null: false
+    t.datetime "updated_at", null: false
+    t.index ["media_item_id"], name: "index_play_sessions_on_media_item_id"
+    t.index ["start_time"], name: "index_play_sessions_on_start_time"
+  end
+
   create_table "release_genres", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "genre_id", null: false
@@ -158,6 +168,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_04_023426) do
   add_foreign_key "media_items", "locations"
   add_foreign_key "media_items", "media_types"
   add_foreign_key "media_items", "releases"
+  add_foreign_key "play_sessions", "media_items"
   add_foreign_key "release_genres", "genres"
   add_foreign_key "release_genres", "releases"
   add_foreign_key "release_tracks", "releases"

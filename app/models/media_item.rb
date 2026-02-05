@@ -39,6 +39,7 @@ class MediaItem < ApplicationRecord
   belongs_to :media_type
   belongs_to :release, optional: true
   belongs_to :location, optional: true
+  has_many :play_sessions, dependent: :destroy
   has_one_attached :artwork
 
   delegate :title, :description, :genres, :release_tracks, :media_owner, to: :release, allow_nil: true

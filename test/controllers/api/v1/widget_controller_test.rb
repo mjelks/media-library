@@ -835,4 +835,177 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
       assert_match(/\d+:\d{2}/, result["total_duration_formatted"])
     end
   end
+
+  # Play History tests
+  test "play_history should return proper response structure" do
+    get api_v1_widget_play_history_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result.key?("sessions")
+    assert result.key?("total_count")
+    assert_kind_of Array, result["sessions"]
+    assert_kind_of Integer, result["total_count"]
+  end
+
+  test "play_history should return sessions with correct keys" do
+    get api_v1_widget_play_history_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    return if result["sessions"].empty?
+
+    session = result["sessions"].first
+    assert session.key?("id")
+    assert session.key?("album_id")
+    assert session.key?("title")
+    assert session.key?("artist")
+    assert session.key?("year")
+    assert session.key?("cover_url")
+    assert session.key?("media_type")
+    assert session.key?("start_time")
+    assert session.key?("end_time")
+    assert session.key?("duration")
+  end
+
+  test "play_history should include sessions within default 30 days" do
+    get api_v1_widget_play_history_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    session_ids = result["sessions"].map { |s| s["id"] }
+
+    recent_session = play_sessions(:recent_session)
+    assert_includes session_ids, recent_session.id
+  end
+
+  test "play_history should not include sessions older than 30 days by default" do
+    get api_v1_widget_play_history_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    session_ids = result["sessions"].map { |s| s["id"] }
+
+    old_session = play_sessions(:old_session)
+    assert_not_includes session_ids, old_session.id
+  end
+
+  test "play_history should respect custom days parameter" do
+    get api_v1_widget_play_history_url,
+        params: { days: 60 },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    session_ids = result["sessions"].map { |s| s["id"] }
+
+    old_session = play_sessions(:old_session)
+    assert_includes session_ids, old_session.id
+  end
+
+  test "play_history should return correct total_count" do
+    get api_v1_widget_play_history_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert_equal result["sessions"].size, result["total_count"]
+  end
+
+  test "play_history should be ordered by start_time descending" do
+    get api_v1_widget_play_history_url,
+        params: { days: 60 },
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    return if result["sessions"].length < 2
+
+    start_times = result["sessions"].map { |s| Time.parse(s["start_time"]) }
+    assert_equal start_times.sort.reverse, start_times
+  end
+
+  test "play_history should return duration for completed sessions" do
+    get api_v1_widget_play_history_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    completed = result["sessions"].find { |s| s["end_time"].present? }
+    if completed
+      assert_not_nil completed["duration"]
+      assert_kind_of Integer, completed["duration"]
+    end
+  end
+
+  test "play_history should return nil duration for in-progress sessions" do
+    get api_v1_widget_play_history_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    in_progress = result["sessions"].find { |s| s["end_time"].nil? }
+    if in_progress
+      assert_nil in_progress["duration"]
+    end
+  end
+
+  test "play_history should require authentication" do
+    get api_v1_widget_play_history_url
+    assert_response :unauthorized
+  end
+
+  test "play should create a play session" do
+    MediaItem.update_all(currently_playing: false)
+
+    assert_difference "PlaySession.count", 1 do
+      post api_v1_widget_play_url(id: @vinyl_item.id),
+           headers: { "X-Api-Token" => @api_token }
+    end
+    assert_response :success
+
+    session = @vinyl_item.play_sessions.last
+    assert_not_nil session.start_time
+    assert_nil session.end_time
+  end
+
+  test "play should close previous item's play session" do
+    # Setup: now_playing_item has an open session
+    open_session = @now_playing_item.play_sessions.create!(start_time: 1.hour.ago)
+    assert_nil open_session.end_time
+
+    post api_v1_widget_play_url(id: @vinyl_item.id),
+         headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    open_session.reload
+    assert_not_nil open_session.end_time
+  end
+
+  test "done should close play session" do
+    @now_playing_item.update!(currently_playing: true)
+    open_session = @now_playing_item.play_sessions.create!(start_time: 1.hour.ago)
+
+    patch api_v1_widget_done_url(id: @now_playing_item.id),
+          headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    open_session.reload
+    assert_not_nil open_session.end_time
+  end
+
+  test "delete should destroy the most recent play session" do
+    @vinyl_item.update!(play_count: 5)
+    @vinyl_item.play_sessions.create!(start_time: 1.hour.ago)
+
+    assert_difference "PlaySession.count", -1 do
+      delete api_v1_widget_delete_url(id: @vinyl_item.id),
+             headers: { "X-Api-Token" => @api_token }
+    end
+    assert_response :success
+  end
 end
