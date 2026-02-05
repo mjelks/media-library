@@ -64,12 +64,19 @@ module Api
           MediaItem.where(currently_playing: true).update_all(currently_playing: false)
           MediaItem.where(id: existing_now_playing&.id).update_all(listening_confirmed: true)
 
+          # Close the previous item's open play session
+          if existing_now_playing
+            existing_now_playing.play_sessions.where(end_time: nil).update_all(end_time: Time.current)
+          end
+
           media_item.update!(
             play_count: (media_item.play_count || 0) + 1,
             last_played: Time.current,
             currently_playing: true,
             listening_confirmed: false
           )
+
+          media_item.play_sessions.create!(start_time: Time.current)
         end
 
         render json: {
@@ -82,6 +89,7 @@ module Api
 
       def delete
         media_item = MediaItem.find(params[:id])
+        media_item.play_sessions.order(created_at: :desc).first&.destroy
         media_item.rollback_play!
 
         render json: { success: true }
@@ -92,6 +100,7 @@ module Api
       def done
         media_item = MediaItem.find(params[:id])
         media_item.update!(currently_playing: false, listening_confirmed: true)
+        media_item.play_sessions.where(end_time: nil).update_all(end_time: Time.current)
 
         render json: { success: true }
       rescue ActiveRecord::RecordNotFound
@@ -123,6 +132,19 @@ module Api
           recently_played_window: DEFAULT_PLAY_HISTORY_DAYS
         }
       end
+
+      def play_history
+        days = (params[:days] || 30).to_i
+        sessions = PlaySession.recent(days)
+                              .includes(media_item: [ :location, :media_type, { release: [ :media_owner, :cover_image_attachment ] } ])
+
+        render json: {
+          sessions: sessions.map { |session| serialize_play_session(session) },
+          total_count: sessions.size
+        }
+      end
+
+
 
       private
 
@@ -200,6 +222,26 @@ module Api
           end
         end
       end
+
+      # :nocov:
+      # Safe navigation operators create branches for nil cases that can't occur
+      # due to database constraints (foreign keys ensure release/media_owner exist)
+      def serialize_play_session(session)
+        item = session.media_item
+        {
+          id: session.id,
+          album_id: item.id,
+          title: item.display_title,
+          artist: item.release&.media_owner&.name,
+          year: (item.year || item.release&.original_year)&.to_s,
+          cover_url: cover_url_for(item),
+          media_type: item.media_type&.name,
+          start_time: session.start_time&.iso8601,
+          end_time: session.end_time&.iso8601,
+          duration: session.duration
+        }
+      end
+      # :nocov:
 
       def sanitize_like(string)
         string.gsub(/[%_']/) { |match| "\\#{match}" }
