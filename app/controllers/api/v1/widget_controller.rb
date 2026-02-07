@@ -153,6 +153,15 @@ module Api
         render json: items.map { |item| serialize_wishlist_item(item) }
       end
 
+      def wishlist_delete
+        wishlist_item = WishlistItem.find(params[:id])
+        wishlist_item.destroy
+
+        render json: { success: true }
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Wishlist item not found" }, status: :not_found
+      end
+
       private
 
       # :nocov:

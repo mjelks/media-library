@@ -1105,4 +1105,33 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert_not_nil matching
     assert_nil matching["cover_url"]
   end
+
+  # Wishlist Delete tests
+  test "wishlist_delete should destroy wishlist item" do
+    wishlist_item = wishlist_items(:one)
+
+    assert_difference "WishlistItem.count", -1 do
+      delete api_v1_widget_wishlist_delete_url(id: wishlist_item.id),
+             headers: { "X-Api-Token" => @api_token }
+    end
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result["success"]
+  end
+
+  test "wishlist_delete should return 404 for non-existent item" do
+    delete api_v1_widget_wishlist_delete_url(id: 999999),
+           headers: { "X-Api-Token" => @api_token }
+    assert_response :not_found
+
+    result = JSON.parse(response.body)
+    assert_equal "Wishlist item not found", result["error"]
+  end
+
+  test "wishlist_delete should require authentication" do
+    wishlist_item = wishlist_items(:one)
+    delete api_v1_widget_wishlist_delete_url(id: wishlist_item.id)
+    assert_response :unauthorized
+  end
 end
