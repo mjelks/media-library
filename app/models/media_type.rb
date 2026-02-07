@@ -10,6 +10,7 @@
 #
 class MediaType < ApplicationRecord
   has_many :media_items
+  has_many :wishlist_items
 
   validates :name, presence: true
 end

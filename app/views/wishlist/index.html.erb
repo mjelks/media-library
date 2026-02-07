@@ -24,6 +24,9 @@
             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-32">
               <%= sort_link("Album Year", "year") %>
             </th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-32">
+              <%= sort_link("Media Type", "media_type") %>
+            </th>
             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-40">
               <%= sort_link("Date Added", "date_added") %>
             </th>
@@ -41,6 +44,9 @@
               </td>
               <td class="px-4 py-3">
                 <span class="text-gray-500 text-sm"><%= item.album_year || "-" %></span>
+              </td>
+              <td class="px-4 py-3">
+                <span class="text-gray-500 text-sm"><%= item.media_type&.name || "-" %></span>
               </td>
               <td class="px-4 py-3">
                 <span class="text-gray-500 text-sm"><%= item.created_at.strftime("%b %d, %Y") %></span>

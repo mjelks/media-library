@@ -1011,7 +1011,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
 
   # Wishlist tests
   test "wishlist should return all wishlist items" do
-    get api_v1_wishlist_url,
+    get api_v1_widget_wishlist_url,
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
@@ -1021,7 +1021,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "wishlist should return proper response structure" do
-    get api_v1_wishlist_url,
+    get api_v1_widget_wishlist_url,
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
@@ -1040,11 +1040,11 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert_kind_of Array, result["tracks"]
     assert result.key?("media_type")
     assert result.key?("date_added")
-    assert_nil result["media_type"]
+    assert_equal "Vinyl", result["media_type"]
   end
 
   test "wishlist should not include play_count or last_played or location" do
-    get api_v1_wishlist_url,
+    get api_v1_widget_wishlist_url,
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
@@ -1058,7 +1058,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "wishlist should be ordered by date_added descending" do
-    get api_v1_wishlist_url,
+    get api_v1_widget_wishlist_url,
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
@@ -1070,7 +1070,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "wishlist should require authentication" do
-    get api_v1_wishlist_url
+    get api_v1_widget_wishlist_url
     assert_response :unauthorized
   end
 
@@ -1082,7 +1082,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
       content_type: "image/jpeg"
     )
 
-    get api_v1_wishlist_url,
+    get api_v1_widget_wishlist_url,
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
@@ -1096,7 +1096,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     wishlist_item = wishlist_items(:one)
     wishlist_item.release.cover_image.purge if wishlist_item.release.cover_image.attached?
 
-    get api_v1_wishlist_url,
+    get api_v1_widget_wishlist_url,
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
 
