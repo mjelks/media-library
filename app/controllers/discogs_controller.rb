@@ -55,6 +55,56 @@ class DiscogsController < ApplicationController
     end
   end
 
+  def add_to_wishlist
+    release_id = params[:id]
+
+    begin
+      discogs = Discogs.new
+      discogs_release = discogs.get_release(release_id)
+
+      if discogs_release["error"]
+        flash[:alert] = "Error fetching release: #{discogs_release["message"]}"
+        redirect_to discogs_path and return
+      end
+
+      ActiveRecord::Base.transaction do
+        artist_name = discogs_release["artists"]&.map { |a| a["name"].gsub(/\s*\(\d+\)\s*$/, "") }&.join(", ") || "Unknown Artist"
+        media_owner = MediaOwner.find_or_create_by!(name: artist_name)
+        label_name = discogs_release["labels"]&.first&.dig("name")
+
+        release = Release.find_or_create_by!(discogs_release_id: discogs_release["id"]) do |r|
+          r.title = discogs_release["title"]
+          r.media_owner = media_owner
+          r.description = discogs_release["notes"]
+          r.original_year = discogs_release["year"]
+          r.record_label = label_name
+        end
+
+        existing = WishlistItem.find_by(release: release)
+        if existing
+          flash[:notice] = "'#{release.title}' is already on your wishlist."
+        else
+          WishlistItem.create!(release: release)
+
+          if release.previously_new_record?
+            save_tracks_and_genres(discogs_release, release)
+            attach_cover_image(discogs_release, release)
+          end
+
+          flash[:notice] = "Added '#{release.title}' to your wishlist!"
+        end
+      end
+
+      redirect_to wishlist_index_path
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:alert] = "Failed to add to wishlist: #{e.message}"
+      redirect_to wishlist_index_path
+    rescue StandardError => e
+      flash[:alert] = "An error occurred: #{e.message}"
+      redirect_to discogs_path
+    end
+  end
+
   def create
     release_id = params[:release_id]
     session[:last_selected_location_id] = params[:location_id] if params[:location_id].present?
@@ -104,33 +154,8 @@ class DiscogsController < ApplicationController
           )
 
           if release.previously_new_record?
-            last_position = nil
-            discogs_release["tracklist"]&.each do |track|
-              next if track["type_"] == "heading"
-
-              position = track["position"].presence || infer_track_position(last_position)
-              last_position = position
-
-              release.release_tracks.create!(
-                position: position,
-                name: track["title"],
-                duration: track["duration"]
-              )
-            end
-
-            (discogs_release["genres"] || []).each do |genre_name|
-              genre = Genre.find_or_create_by!(name: genre_name)
-              release.release_genres.find_or_create_by!(genre: genre)
-            end
-
-            if (cover_url = discogs_release.dig("images", 0, "uri"))
-              downloaded_image = URI.open(cover_url)
-              release.cover_image.attach(
-                io: downloaded_image,
-                filename: "cover_#{release.id}.jpg",
-                content_type: downloaded_image.content_type
-              )
-            end
+            save_tracks_and_genres(discogs_release, release)
+            attach_cover_image(discogs_release, release)
           end
 
           flash[:notice] = "Successfully added '#{release.title}' (#{format_name}) to your catalog!"
@@ -147,6 +172,38 @@ class DiscogsController < ApplicationController
   end
 
   private
+
+  def save_tracks_and_genres(discogs_release, release)
+    last_position = nil
+    discogs_release["tracklist"]&.each do |track|
+      next if track["type_"] == "heading"
+
+      position = track["position"].presence || infer_track_position(last_position)
+      last_position = position
+
+      release.release_tracks.create!(
+        position: position,
+        name: track["title"],
+        duration: track["duration"]
+      )
+    end
+
+    (discogs_release["genres"] || []).each do |genre_name|
+      genre = Genre.find_or_create_by!(name: genre_name)
+      release.release_genres.find_or_create_by!(genre: genre)
+    end
+  end
+
+  def attach_cover_image(discogs_release, release)
+    if (cover_url = discogs_release.dig("images", 0, "uri"))
+      downloaded_image = URI.open(cover_url)
+      release.cover_image.attach(
+        io: downloaded_image,
+        filename: "cover_#{release.id}.jpg",
+        content_type: downloaded_image.content_type
+      )
+    end
+  end
 
   def infer_track_position(last_position)
     return "1" if last_position.blank?

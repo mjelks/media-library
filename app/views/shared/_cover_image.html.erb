@@ -1,0 +1,7 @@
+<% if cover_image&.attached? %>
+  <%= image_tag cover_image, class: "w-64 h-64 object-cover rounded-lg shadow-lg" %>
+<% else %>
+  <div class="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+    <span class="text-gray-400">No Artwork</span>
+  </div>
+<% end %>

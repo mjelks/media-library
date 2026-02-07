@@ -1008,4 +1008,101 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :success
   end
+
+  # Wishlist tests
+  test "wishlist should return all wishlist items" do
+    get api_v1_wishlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    assert_kind_of Array, results
+    assert results.length >= 2
+  end
+
+  test "wishlist should return proper response structure" do
+    get api_v1_wishlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    return if results.empty?
+
+    result = results.first
+    assert result.key?("id")
+    assert result.key?("title")
+    assert result.key?("artist")
+    assert result.key?("year")
+    assert result.key?("duration")
+    assert result.key?("duration_formatted")
+    assert result.key?("cover_url")
+    assert result.key?("tracks")
+    assert_kind_of Array, result["tracks"]
+    assert result.key?("media_type")
+    assert result.key?("date_added")
+    assert_nil result["media_type"]
+  end
+
+  test "wishlist should not include play_count or last_played or location" do
+    get api_v1_wishlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    return if results.empty?
+
+    result = results.first
+    assert_not result.key?("play_count")
+    assert_not result.key?("last_played")
+    assert_not result.key?("location")
+  end
+
+  test "wishlist should be ordered by date_added descending" do
+    get api_v1_wishlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    return if results.length < 2
+
+    dates = results.map { |r| Time.parse(r["date_added"]) }
+    assert_equal dates.sort.reverse, dates
+  end
+
+  test "wishlist should require authentication" do
+    get api_v1_wishlist_url
+    assert_response :unauthorized
+  end
+
+  test "wishlist should return cover_url when cover image is attached" do
+    wishlist_item = wishlist_items(:one)
+    wishlist_item.release.cover_image.attach(
+      io: StringIO.new("fake image data"),
+      filename: "cover.jpg",
+      content_type: "image/jpeg"
+    )
+
+    get api_v1_wishlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == wishlist_item.id }
+    assert_not_nil matching
+    assert_not_nil matching["cover_url"]
+  end
+
+  test "wishlist should return nil cover_url when no cover image" do
+    wishlist_item = wishlist_items(:one)
+    wishlist_item.release.cover_image.purge if wishlist_item.release.cover_image.attached?
+
+    get api_v1_wishlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    results = JSON.parse(response.body)
+    matching = results.find { |r| r["id"] == wishlist_item.id }
+    assert_not_nil matching
+    assert_nil matching["cover_url"]
+  end
 end

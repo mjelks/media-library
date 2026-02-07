@@ -1,0 +1,68 @@
+<% content_for :title, "Wishlist" %>
+
+<div class="p-4 w-full max-w-6xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="font-bold text-4xl">Wishlist</h1>
+      <p class="text-gray-500 mt-1">
+        <%= pluralize(@wishlist_items.count, "item") %> on your wishlist
+      </p>
+    </div>
+  </div>
+
+  <% if @wishlist_items.any? %>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+      <table class="w-full">
+        <thead class="bg-gray-50 border-b border-gray-200">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+              <%= sort_link("Artist Name", "artist") %>
+            </th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+              <%= sort_link("Album Name", "title") %>
+            </th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-32">
+              <%= sort_link("Album Year", "year") %>
+            </th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-40">
+              <%= sort_link("Date Added", "date_added") %>
+            </th>
+            <th class="px-4 py-3 w-12"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% @wishlist_items.each do |item| %>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3">
+                <span class="font-medium text-gray-900"><%= item.artist_name || "Unknown Artist" %></span>
+              </td>
+              <td class="px-4 py-3">
+                <%= link_to item.album_name, wishlist_path(item), class: "text-blue-600 hover:text-blue-800 hover:underline" %>
+              </td>
+              <td class="px-4 py-3">
+                <span class="text-gray-500 text-sm"><%= item.album_year || "-" %></span>
+              </td>
+              <td class="px-4 py-3">
+                <span class="text-gray-500 text-sm"><%= item.created_at.strftime("%b %d, %Y") %></span>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <%= link_to wishlist_path(item), data: { turbo_method: :delete, turbo_confirm: "Remove from wishlist?" },
+                    class: "text-gray-400 hover:text-red-600 transition-colors", title: "Remove" do %>
+                  <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+      <p class="text-gray-500">Your wishlist is empty.</p>
+      <%= link_to "Search Discogs", discogs_path,
+          class: "mt-4 inline-block rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
+    </div>
+  <% end %>
+</div>

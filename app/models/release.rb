@@ -30,6 +30,7 @@ class Release < ApplicationRecord
   has_many :release_tracks, dependent: :destroy
   has_many :release_genres, dependent: :destroy
   has_many :genres, through: :release_genres
+  has_many :wishlist_items, dependent: :destroy
 
   has_one_attached :cover_image
 

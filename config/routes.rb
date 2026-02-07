@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       post "widget/:id/play", to: "widget#play", as: :widget_play
       patch "widget/:id/done", to: "widget#done", as: :widget_done
       delete "widget/:id", to: "widget#delete", as: :widget_delete
+      get "wishlist", to: "widget#wishlist"
     end
   end
 
@@ -53,6 +54,10 @@ Rails.application.routes.draw do
   post "now_playing/:id/rate", to: "now_playing#rate", as: :now_playing_rate
   patch "now_playing/:id/notes", to: "now_playing#update_notes", as: :now_playing_update_notes
   post "now_playing/:id/confirm", to: "now_playing#confirm_listening", as: :now_playing_confirm
+
+  # Wishlist
+  resources :wishlist, only: %i[index show destroy], controller: "wishlist"
+
   resources :media_types
   resources :media_items do
     post :clone, on: :member
@@ -64,7 +69,9 @@ Rails.application.routes.draw do
   resource :registration, only: %i[new create]
 
   # Discogs search
-  resources :discogs, only: %i[index show create]
+  resources :discogs, only: %i[index show create] do
+    post :add_to_wishlist, on: :member
+  end
 
   # get "homepage/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
