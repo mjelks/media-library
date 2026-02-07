@@ -79,6 +79,10 @@
           Add to Catalog?
         </button>
 
+        <%= button_to "Add to Wishlist", add_to_wishlist_discog_path(@release_id),
+            method: :post,
+            class: "px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 cursor-pointer" %>
+
         <% if @release["uri"].present? %>
           <%= link_to "View on Discogs →",
             @release["uri"],

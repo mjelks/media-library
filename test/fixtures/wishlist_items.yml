@@ -1,0 +1,16 @@
+# == Schema Information
+#
+# Table name: wishlist_items
+#
+#  id         :integer          not null, primary key
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  release_id :integer          not null
+#
+one:
+  release: one
+  created_at: <%= 3.days.ago.to_fs(:db) %>
+
+two:
+  release: two
+  created_at: <%= 1.day.ago.to_fs(:db) %>

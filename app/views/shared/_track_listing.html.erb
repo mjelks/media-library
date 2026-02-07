@@ -1,0 +1,38 @@
+<% if tracks.any? %>
+  <div class="mb-6">
+    <h2 class="font-bold text-xl mb-2">Track Listing</h2>
+    <% has_sides = tracks.any? { |t| t.position.match?(/^[A-Z]/i) } %>
+    <% if has_sides %>
+      <% tracks_by_side = tracks.group_by { |t| t.position.match(/^([A-Z])/i)&.[](1)&.upcase || "?" } %>
+      <div class="grid grid-cols-2 gap-6">
+        <% tracks_by_side.each do |side, side_tracks| %>
+          <div>
+            <h3 class="font-semibold text-lg text-gray-700 mb-2">Side <%= side %></h3>
+            <ol class="list-none space-y-1">
+              <% side_tracks.each.with_index(1) do |track, index| %>
+                <li class="text-gray-600">
+                  <span class=""><%= index %>: </span>
+                  <%= track.name %>
+                  <% if track.duration.present? %>
+                    <span class="text-gray-400">(<%= track.duration %>)</span>
+                  <% end %>
+                </li>
+              <% end %>
+            </ol>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <ol class="list-decimal list-inside space-y-1">
+        <% tracks.each do |track| %>
+          <li class="text-gray-600">
+            <%= track.name %>
+            <% if track.duration.present? %>
+              <span class="text-gray-400">(<%= track.duration %>)</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
+  </div>
+<% end %>

@@ -146,6 +146,13 @@ module Api
 
 
 
+      def wishlist
+        items = WishlistItem.includes(release: [ :media_owner, :release_tracks, :genres, :cover_image_attachment ])
+                            .order(created_at: :desc)
+
+        render json: items.map { |item| serialize_wishlist_item(item) }
+      end
+
       private
 
       # :nocov:
@@ -165,6 +172,22 @@ module Api
           tracks: serialize_tracks(item.disc_tracks),
           location: format_location(item),
           media_type: item.media_type&.name
+        }
+      end
+
+      def serialize_wishlist_item(item)
+        release = item.release
+        {
+          id: item.id,
+          title: release.title,
+          artist: release.media_owner&.name,
+          year: release.original_year&.to_s,
+          duration: release.duration,
+          duration_formatted: format_duration(release.duration),
+          cover_url: release.cover_image.attached? ? rails_blob_url(release.cover_image, host: request.base_url) : nil,
+          tracks: serialize_tracks(release.release_tracks),
+          media_type: nil,
+          date_added: item.created_at.iso8601
         }
       end
       # :nocov:

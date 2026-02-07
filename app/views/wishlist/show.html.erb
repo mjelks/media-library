@@ -1,0 +1,45 @@
+<% content_for :title, @release.title %>
+
+<div class="max-w-4xl">
+  <div class="flex gap-8 mb-8">
+    <%= render "shared/cover_image", cover_image: @release.cover_image %>
+
+    <div class="flex-1">
+      <h1 class="font-bold text-4xl mb-2"><%= @release.title %></h1>
+
+      <% if @release.media_owner %>
+        <p class="text-xl text-gray-600 mb-4">
+          <%= link_to @release.media_owner.name, media_owner_path(@release.media_owner), class: "hover:underline" %>
+        </p>
+      <% end %>
+
+      <div class="space-y-2 text-gray-600">
+        <% if @release.original_year %>
+          <p><strong>Original Release:</strong> <%= @release.original_year %></p>
+        <% end %>
+        <% if @release.record_label.present? %>
+          <p><strong>Label:</strong> <%= @release.record_label %></p>
+        <% end %>
+        <% if @release.genres.any? %>
+          <p><strong>Genre:</strong> <%= @release.genres.map(&:name).join(", ") %></p>
+        <% end %>
+        <p><strong>Added to Wishlist:</strong> <%= @wishlist_item.created_at.strftime("%b %d, %Y") %></p>
+      </div>
+    </div>
+  </div>
+
+  <% if @release.description.present? %>
+    <div class="mb-6">
+      <h2 class="font-bold text-xl mb-2">Description</h2>
+      <p class="text-gray-600"><%= @release.description %></p>
+    </div>
+  <% end %>
+
+  <%= render "shared/track_listing", tracks: @release.release_tracks %>
+
+  <div class="flex gap-2 mt-8">
+    <%= link_to "Back to Wishlist", wishlist_index_path, class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 font-medium" %>
+    <%= link_to "Remove from Wishlist", wishlist_path(@wishlist_item), data: { turbo_method: :delete, turbo_confirm: "Remove from wishlist?" },
+        class: "rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium" %>
+  </div>
+</div>
