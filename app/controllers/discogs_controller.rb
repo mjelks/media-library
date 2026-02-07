@@ -80,11 +80,14 @@ class DiscogsController < ApplicationController
           r.record_label = label_name
         end
 
+        format_name = discogs_release["formats"]&.first&.dig("name")
+        media_type = MediaType.find_by(name: format_name)
+
         existing = WishlistItem.find_by(release: release)
         if existing
           flash[:notice] = "'#{release.title}' is already on your wishlist."
         else
-          WishlistItem.create!(release: release)
+          WishlistItem.create!(release: release, media_type: media_type)
 
           if release.previously_new_record?
             save_tracks_and_genres(discogs_release, release)

@@ -1,5 +1,5 @@
 class WishlistController < ApplicationController
-  SORT_COLUMNS = %w[artist title year date_added].freeze
+  SORT_COLUMNS = %w[artist title year media_type date_added].freeze
   SORT_DIRECTIONS = %w[asc desc].freeze
 
   def index
@@ -10,7 +10,7 @@ class WishlistController < ApplicationController
   end
 
   def show
-    @wishlist_item = WishlistItem.includes(release: [ :media_owner, :release_tracks, :genres, :cover_image_attachment ]).find(params[:id])
+    @wishlist_item = WishlistItem.includes(:media_type, release: [ :media_owner, :release_tracks, :genres, :cover_image_attachment ]).find(params[:id])
     @release = @wishlist_item.release
   end
 
@@ -23,7 +23,7 @@ class WishlistController < ApplicationController
   private
 
   def sorted_wishlist_items
-    base = WishlistItem.includes(release: [ :media_owner, :cover_image_attachment ])
+    base = WishlistItem.includes(:media_type, release: [ :media_owner, :cover_image_attachment ])
     dir = @sort_direction.to_sym
 
     case @sort_column
@@ -35,6 +35,10 @@ class WishlistController < ApplicationController
       year_col = Release.arel_table[:original_year]
       year_order = dir == :asc ? year_col.asc.nulls_last : year_col.desc.nulls_first
       base.joins(:release).order(year_order).order("releases.title": :asc)
+    when "media_type"
+      mt_col = MediaType.arel_table[:name]
+      mt_order = dir == :asc ? mt_col.asc.nulls_last : mt_col.desc.nulls_first
+      base.left_joins(:media_type).order(mt_order).order("releases.title": :asc)
     else
       base.order(created_at: dir)
     end

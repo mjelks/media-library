@@ -23,6 +23,9 @@
         <% if @release.genres.any? %>
           <p><strong>Genre:</strong> <%= @release.genres.map(&:name).join(", ") %></p>
         <% end %>
+        <% if @wishlist_item.media_type %>
+          <p><strong>Format:</strong> <%= @wishlist_item.media_type.name %></p>
+        <% end %>
         <p><strong>Added to Wishlist:</strong> <%= @wishlist_item.created_at.strftime("%b %d, %Y") %></p>
       </div>
     </div>

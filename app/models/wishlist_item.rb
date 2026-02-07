@@ -2,21 +2,25 @@
 #
 # Table name: wishlist_items
 #
-#  id         :integer          not null, primary key
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  release_id :integer          not null
+#  id            :integer          not null, primary key
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  media_type_id :integer
+#  release_id    :integer          not null
 #
 # Indexes
 #
-#  index_wishlist_items_on_release_id  (release_id)
+#  index_wishlist_items_on_media_type_id  (media_type_id)
+#  index_wishlist_items_on_release_id     (release_id)
 #
 # Foreign Keys
 #
-#  release_id  (release_id => releases.id)
+#  media_type_id  (media_type_id => media_types.id)
+#  release_id     (release_id => releases.id)
 #
 class WishlistItem < ApplicationRecord
   belongs_to :release
+  belongs_to :media_type, optional: true
 
   delegate :title, :media_owner, :original_year, to: :release
 

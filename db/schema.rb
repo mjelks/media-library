@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_07_000045) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_07_010022) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -164,8 +164,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_07_000045) do
 
   create_table "wishlist_items", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.integer "media_type_id"
     t.integer "release_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["media_type_id"], name: "index_wishlist_items_on_media_type_id"
     t.index ["release_id"], name: "index_wishlist_items_on_release_id"
   end
 
@@ -181,5 +183,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_07_000045) do
   add_foreign_key "release_tracks", "releases"
   add_foreign_key "releases", "media_owners"
   add_foreign_key "sessions", "users"
+  add_foreign_key "wishlist_items", "media_types"
   add_foreign_key "wishlist_items", "releases"
 end

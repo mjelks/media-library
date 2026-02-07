@@ -49,6 +49,16 @@ class WishlistControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "should get index sorted by media_type asc" do
+    get wishlist_index_url, params: { sort: "media_type", direction: "asc" }
+    assert_response :success
+  end
+
+  test "should get index sorted by media_type desc" do
+    get wishlist_index_url, params: { sort: "media_type", direction: "desc" }
+    assert_response :success
+  end
+
   test "should get index sorted by date_added" do
     get wishlist_index_url, params: { sort: "date_added", direction: "asc" }
     assert_response :success

@@ -295,6 +295,74 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # Add to wishlist tests
+  test "should add release to wishlist" do
+    MediaType.find_or_create_by!(name: "Vinyl", description: "Vinyl records")
+
+    mock_response = mock_success_response({
+      "id" => 77777,
+      "title" => "Wishlist Album",
+      "artists" => [ { "name" => "Wishlist Artist" } ],
+      "labels" => [ { "name" => "Wishlist Label" } ],
+      "formats" => [ { "name" => "Vinyl" } ],
+      "year" => 2023,
+      "notes" => "Great album",
+      "tracklist" => [
+        { "position" => "A1", "title" => "Track 1", "duration" => "3:45", "type_" => "track" }
+      ],
+      "genres" => [ "Rock" ],
+      "images" => []
+    })
+
+    Discogs.stub :get, mock_response do
+      assert_difference([ "WishlistItem.count", "Release.count" ]) do
+        post add_to_wishlist_discog_url(77777)
+      end
+    end
+    assert_redirected_to wishlist_index_path
+
+    wishlist_item = WishlistItem.last
+    assert_equal "Vinyl", wishlist_item.media_type.name
+  end
+
+  test "should not duplicate wishlist item for existing release" do
+    release = releases(:one)
+    release.update!(discogs_release_id: 88888)
+    WishlistItem.find_or_create_by!(release: release)
+
+    mock_response = mock_success_response({
+      "id" => 88888,
+      "title" => release.title,
+      "artists" => [ { "name" => "A-Ha" } ],
+      "labels" => [ { "name" => "Test Label" } ],
+      "formats" => [ { "name" => "Vinyl" } ],
+      "year" => 2005
+    })
+
+    Discogs.stub :get, mock_response do
+      assert_no_difference("WishlistItem.count") do
+        post add_to_wishlist_discog_url(88888)
+      end
+    end
+    assert_redirected_to wishlist_index_path
+  end
+
+  test "should handle add_to_wishlist with API error" do
+    mock_response = mock_success_response({ "error" => true, "message" => "Not found" })
+
+    Discogs.stub :get, mock_response do
+      post add_to_wishlist_discog_url(99999)
+      assert_redirected_to discogs_path
+    end
+  end
+
+  test "should handle add_to_wishlist exception" do
+    Discogs.stub :get, ->(*) { raise StandardError, "Connection failed" } do
+      post add_to_wishlist_discog_url(12345)
+      assert_redirected_to discogs_path
+    end
+  end
+
   private
 
   def mock_success_response(parsed_body)
