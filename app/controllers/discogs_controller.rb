@@ -16,6 +16,9 @@ class DiscogsController < ApplicationController
         search_options = {}
         search_options[:type] = @type_filter if @type_filter.present?
         search_options[:per_page] = 50
+        # https://www.discogs.com/developers#page:database,header:database-search
+        search_params = params.permit(:query, :type, :title, :release_title, :credit, :artist, :anv, :label, :genre, :style, :country, :year, :format, :catno, :barcode, :track, :submitter, :contributor) # add others as needed
+        search_options = search_params.to_h.merge(per_page: 50)
 
         response = discogs.search(@query, search_options)
 
