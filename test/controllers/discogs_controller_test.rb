@@ -47,6 +47,21 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "should search without format filter" do
+    mock_response = mock_success_response({
+      "results" => [
+        { "id" => 1, "title" => "Vinyl Album", "country" => "US", "format" => [ "Vinyl", "LP" ] },
+        { "id" => 2, "title" => "CD Album", "country" => "US", "format" => [ "CD" ] }
+      ],
+      "pagination" => { "pages" => 1, "items" => 2 }
+    })
+
+    Discogs.stub :get, mock_response do
+      get discogs_path, params: { q: "test" }
+      assert_response :success
+    end
+  end
+
   test "should filter results by format parameter" do
     mock_response = mock_success_response({
       "results" => [
