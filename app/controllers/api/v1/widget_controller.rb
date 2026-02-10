@@ -61,13 +61,10 @@ module Api
         media_item = MediaItem.find(params[:id])
 
         MediaItem.transaction do
-          MediaItem.where(currently_playing: true).update_all(currently_playing: false)
-          MediaItem.where(id: existing_now_playing&.id).update_all(listening_confirmed: true)
-
-          # Close the previous item's open play session
-          if existing_now_playing
-            existing_now_playing.play_sessions.where(end_time: nil).update_all(end_time: Time.current)
+          MediaItem.where(currently_playing: true).find_each do |item|
+            item.update!(currently_playing: false)
           end
+          MediaItem.where(id: existing_now_playing&.id).update_all(listening_confirmed: true)
 
           media_item.update!(
             play_count: (media_item.play_count || 0) + 1,
@@ -100,7 +97,6 @@ module Api
       def done
         media_item = MediaItem.find(params[:id])
         media_item.update!(currently_playing: false, listening_confirmed: true)
-        media_item.play_sessions.where(end_time: nil).update_all(end_time: Time.current)
 
         render json: { success: true }
       rescue ActiveRecord::RecordNotFound
