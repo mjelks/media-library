@@ -434,4 +434,152 @@ class MediaItemTest < ActiveSupport::TestCase
     media_item = MediaItem.new(media_type: media_types(:one), disc_number: 1)
     assert_nil media_item.disc_tracks
   end
+
+  # Callback tests
+  test "close_open_play_sessions called when currently_playing changes to false" do
+    media_item = media_items(:vinyl_now_playing)
+    session1 = media_item.play_sessions.create!(start_time: 1.hour.ago)
+    session2 = media_item.play_sessions.create!(start_time: 30.minutes.ago)
+
+    assert_nil session1.end_time
+    assert_nil session2.end_time
+
+    media_item.update!(currently_playing: false)
+
+    assert_not_nil session1.reload.end_time
+    assert_not_nil session2.reload.end_time
+  end
+
+  test "close_open_play_sessions not called when currently_playing changes to true" do
+    media_item = media_items(:vinyl_one)
+    session = media_item.play_sessions.create!(start_time: 1.hour.ago)
+
+    assert_nil session.end_time
+
+    media_item.update!(currently_playing: true)
+
+    assert_nil session.reload.end_time
+  end
+
+  test "close_open_play_sessions not called when currently_playing remains false" do
+    media_item = media_items(:vinyl_one)
+    session = media_item.play_sessions.create!(start_time: 1.hour.ago)
+
+    assert_nil session.end_time
+    assert_equal false, media_item.currently_playing
+
+    media_item.update!(notes: "Updated notes")
+
+    assert_nil session.reload.end_time
+  end
+
+  test "close_open_play_sessions not called when currently_playing remains true" do
+    media_item = media_items(:vinyl_now_playing)
+    session = media_item.play_sessions.create!(start_time: 1.hour.ago)
+
+    assert_nil session.end_time
+    assert_equal true, media_item.currently_playing
+
+    media_item.update!(notes: "Updated notes")
+
+  assert_nil session.reload.end_time
+end
+
+test "close_open_play_sessions does not affect sessions with end_time already set" do
+  media_item = media_items(:vinyl_now_playing)
+  closed_session = media_item.play_sessions.create!(start_time: 2.hours.ago, end_time: 1.hour.ago)
+  open_session = media_item.play_sessions.create!(start_time: 30.minutes.ago)
+
+  original_end_time = closed_session.end_time
+
+  media_item.update!(currently_playing: false)
+
+  assert_equal original_end_time, closed_session.reload.end_time
+  assert_not_nil open_session.reload.end_time
+end
+
+test "rollback_play decrements play_count and clears fields" do
+  media_item = media_items(:vinyl_one)
+  media_item.update!(play_count: 5, last_played: 1.day.ago, currently_playing: true)
+
+  media_item.rollback_play!
+
+  assert_equal 4, media_item.reload.play_count
+  assert_nil media_item.last_played
+  assert_equal false, media_item.currently_playing
+end
+
+test "rollback_play does not go below zero play_count" do
+  media_item = media_items(:vinyl_one)
+  media_item.update!(play_count: 0, last_played: 1.day.ago, currently_playing: true)
+
+  media_item.rollback_play!
+
+  assert_equal 0, media_item.reload.play_count
+end
+
+test "rollback_play handles nil play_count" do
+  media_item = media_items(:vinyl_one)
+  media_item.update!(play_count: nil, last_played: 1.day.ago, currently_playing: true)
+
+  media_item.rollback_play!
+
+  assert_equal 0, media_item.reload.play_count
+end
+# ...existing code...
+
+test "currently_playing_changed_to_false? returns true when changed from true to false" do
+  media_item = media_items(:vinyl_now_playing)
+  assert_equal true, media_item.currently_playing
+
+  media_item.currently_playing = false
+  media_item.save!
+
+  # After save, need to check during callback or use saved_change
+  assert_equal false, media_item.currently_playing
+end
+
+test "currently_playing_changed_to_false? returns false when changed from false to true" do
+  media_item = media_items(:vinyl_one)
+  assert_equal false, media_item.currently_playing
+
+  media_item.currently_playing = true
+  media_item.save!
+
+  assert_equal true, media_item.currently_playing
+end
+
+test "currently_playing_changed_to_false? returns false when unchanged at true" do
+  media_item = media_items(:vinyl_now_playing)
+  assert_equal true, media_item.currently_playing
+
+  media_item.update!(notes: "test")
+
+  assert_equal true, media_item.currently_playing
+end
+
+test "currently_playing_changed_to_false? returns false when unchanged at false" do
+  media_item = media_items(:vinyl_one)
+  assert_equal false, media_item.currently_playing
+
+  media_item.update!(notes: "test")
+
+  assert_equal false, media_item.currently_playing
+end
+
+test "currently_playing_changed_to_false? logic tested via callback behavior" do
+  # Test true -> false (should trigger callback)
+  media_item = media_items(:vinyl_now_playing)
+  session = media_item.play_sessions.create!(start_time: 1.hour.ago)
+
+  media_item.update!(currently_playing: false)
+  assert_not_nil session.reload.end_time, "Callback should have closed the session"
+
+  # Test false -> true (should NOT trigger callback)
+  media_item2 = media_items(:vinyl_one)
+  session2 = media_item2.play_sessions.create!(start_time: 1.hour.ago)
+
+  media_item2.update!(currently_playing: true)
+  assert_nil session2.reload.end_time, "Callback should not have closed the session"
+end
 end

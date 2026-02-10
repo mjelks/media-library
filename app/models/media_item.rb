@@ -42,6 +42,8 @@ class MediaItem < ApplicationRecord
   has_many :play_sessions, dependent: :destroy
   has_one_attached :artwork
 
+  after_update :close_open_play_sessions, if: :currently_playing_changed_to_false?
+
   delegate :title, :description, :genres, :release_tracks, :media_owner, to: :release, allow_nil: true
   delegate :location_name, to: :location, allow_nil: true
 
@@ -182,5 +184,15 @@ class MediaItem < ApplicationRecord
       last_played: nil,
       currently_playing: false
     )
+  end
+
+  private
+
+  def currently_playing_changed_to_false?
+    saved_change_to_currently_playing? && !currently_playing
+  end
+
+  def close_open_play_sessions
+    play_sessions.where(end_time: nil).update_all(end_time: Time.current)
   end
 end
