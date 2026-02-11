@@ -238,9 +238,14 @@ module Api
         return nil unless item.location
 
         if item.media_type&.name == "CD"
-          # CD format: "Binder X, Page Y" (8 CDs per page)
-          page = item.position ? ((item.position - 1) / 8) + 1 : nil
-          page ? "#{item.location.name}, Page #{page}" : "#{item.location.name}"
+            # CD format: "Binder X — Page Y Side Z" (8 CDs per page, 4 per side)
+            if item.slot_position
+              page = ((item.slot_position - 1) / 8) + 1
+              side = ((item.slot_position - 1) % 8) < 4 ? "A" : "B"
+              "#{item.location.name} — Page #{page} Side #{side}"
+            else
+              item.location.name
+            end
         else
           # Vinyl format: "Cube X, Section Y" or "Section Y"
           if item.location.cube_location.present?
