@@ -15,6 +15,9 @@ class NowPlayingController < ApplicationController
                                 .includes(:media_type)
     # .limit(10)
     @recently_played_in_seconds = MediaItem.total_duration(@recently_played)
+
+    @current_cartridge = LpCartridge.current
+    @cartridge_hours_used = @current_cartridge&.hours_used_in_seconds
   end
 
   def search

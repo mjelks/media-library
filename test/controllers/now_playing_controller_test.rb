@@ -173,4 +173,18 @@ class NowPlayingControllerTest < ActionDispatch::IntegrationTest
     get now_playing_url
     assert_redirected_to new_session_path
   end
+
+  # Cartridge integration
+
+  test "index includes cartridge name when a cartridge exists" do
+    get now_playing_url
+    assert_response :success
+    assert_match lp_cartridges(:current_cartridge).name, response.body
+  end
+
+  test "index renders without error when no cartridge exists" do
+    LpCartridge.delete_all
+    get now_playing_url
+    assert_response :success
+  end
 end

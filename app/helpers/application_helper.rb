@@ -65,6 +65,11 @@ module ApplicationHelper
     "#%02x%02x%02x" % [ r, g, b ]
   end
 
+  def quarter_hours(total_seconds)
+    return nil if total_seconds.nil?
+    (total_seconds / 3600.0 * 4).round / 4.0
+  end
+
   def duration_formatter(total_seconds)
     return "-" if total_seconds.nil?
 

@@ -209,6 +209,9 @@
     <div class="mt-8">
       <h2 class="font-bold text-2xl mb-4 text-stone-700">Recently Played</h2>
       You've listened to <strong><%= @recently_played.count %></strong> albums over the past <strong><%= @day_play_counter %></strong> days for a total of <strong><%= duration_formatter(@recently_played_in_seconds) %></strong>.
+      <% if @current_cartridge %>
+        <br><span class="text-xs font-mono text-gray-500">Currently used <%= quarter_hours(@cartridge_hours_used) %> hours of <%= @current_cartridge.name %> last installed <%= @current_cartridge.installed_at.strftime("%b %-d, %Y") %><% if @current_cartridge.usage_limit %> (<%= @current_cartridge.hours_remaining(@cartridge_hours_used) %> hours remain)<% end %></span>
+      <% end %>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <% @recently_played.each do |item| %>
           <div data-controller="now-playing-card"
