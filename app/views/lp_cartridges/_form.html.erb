@@ -1,0 +1,36 @@
+<%= form_with(model: lp_cartridge, class: "contents") do |form| %>
+  <% if lp_cartridge.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(lp_cartridge.errors.count, "error") %> prohibited this cartridge from being saved:</h2>
+      <ul class="list-disc ml-6">
+        <% lp_cartridge.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :name, "Cartridge Name" %>
+    <%= form.text_field :name, placeholder: "e.g. NAGAOKA Cartridge MP-110 Record Cartridge", class: ["block shadow rounded-md border outline-none px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": lp_cartridge.errors[:name].none?, "border-red-400 focus:outline-red-600": lp_cartridge.errors[:name].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :installed_at, "Install Date" %>
+    <%= form.date_field :installed_at, class: ["block shadow rounded-md border outline-none px-3 py-2 mt-2", {"border-gray-400 focus:outline-blue-600": lp_cartridge.errors[:installed_at].none?, "border-red-400 focus:outline-red-600": lp_cartridge.errors[:installed_at].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :usage_limit, "Usage Limit (hours)" %>
+    <%= form.number_field :usage_limit, placeholder: "e.g. 200", class: ["block shadow rounded-md border outline-none px-3 py-2 mt-2", {"border-gray-400 focus:outline-blue-600": lp_cartridge.errors[:usage_limit].none?, "border-red-400 focus:outline-red-600": lp_cartridge.errors[:usage_limit].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :notes %>
+    <%= form.textarea :notes, rows: 3, placeholder: "Optional notes...", class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full focus:outline-blue-600" %>
+  </div>
+
+  <div class="inline">
+    <%= form.submit class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

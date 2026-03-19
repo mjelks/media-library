@@ -59,6 +59,7 @@ Rails.application.routes.draw do
   # Wishlist
   resources :wishlist, only: %i[index show destroy], controller: "wishlist"
 
+  resources :lp_cartridges
   resources :media_types
   resources :media_items do
     post :clone, on: :member

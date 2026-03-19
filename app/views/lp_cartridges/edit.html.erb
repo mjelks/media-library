@@ -1,0 +1,9 @@
+<% content_for :title, "Edit LP Cartridge" %>
+
+<div class="w-full max-w-lg">
+  <h1 class="font-bold text-4xl mb-6">Edit LP Cartridge</h1>
+  <%= render "form", lp_cartridge: @lp_cartridge %>
+  <div class="mt-4">
+    <%= link_to "Back", lp_cartridges_path, class: "text-sm text-gray-600 hover:text-gray-800 underline" %>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# == Schema Information
+#
+# Table name: lp_cartridges
+#
+#  id           :integer          not null, primary key
+#  installed_at :date             not null
+#  name         :string           not null
+#  notes        :text
+#  usage_limit  :integer
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#
+
+# Installed 3 days ago — captures vinyl_now_playing (10 min ago) and vinyl_recently_played (2 days ago)
+# release :one duration = 510s, release :two duration = 641s → total used = 1151s
+current_cartridge:
+  name: NAGAOKA Cartridge MP-110 Record Cartridge
+  installed_at: <%= 3.days.ago.to_date %>
+  usage_limit: 10
+  notes: Current cartridge
+
+# Installed 60 days ago — captures all played vinyl items
+old_cartridge:
+  name: Old Cartridge Model X
+  installed_at: <%= 60.days.ago.to_date %>
+  usage_limit: 200
+
+# No usage_limit set — hours_remaining should return nil
+no_limit_cartridge:
+  name: Cartridge Without Limit
+  installed_at: <%= 5.days.ago.to_date %>

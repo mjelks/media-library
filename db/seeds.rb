@@ -19,3 +19,8 @@ media_types = [
 media_types.each do |media_type|
   MediaType.find_or_create_by!(name: media_type[:name], description: media_type[:description])
 end
+
+LpCartridge.find_or_create_by!(name: "NAGAOKA Cartridge MP-110 Record Cartridge") do |c|
+  c.installed_at = Date.new(2026, 2, 23)
+  c.usage_limit = 200
+end

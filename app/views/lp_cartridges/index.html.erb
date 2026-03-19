@@ -1,0 +1,43 @@
+<% content_for :title, "LP Cartridges" %>
+
+<div class="w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="font-bold text-4xl">LP Cartridges</h1>
+    <%= link_to "New Cartridge", new_lp_cartridge_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
+  </div>
+
+  <% if @lp_cartridges.any? %>
+    <div class="space-y-4">
+      <% @lp_cartridges.each_with_index do |cartridge, index| %>
+        <div class="bg-white rounded-lg shadow border border-gray-100 p-5 <%= index == 0 ? 'border-l-4 border-l-blue-500' : '' %>">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="font-semibold text-lg"><%= cartridge.name %></h2>
+                <% if index == 0 %>
+                  <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Current</span>
+                <% end %>
+              </div>
+              <p class="text-sm text-gray-500 mt-1">Installed: <strong><%= cartridge.installed_at.strftime("%b %-d, %Y") %></strong></p>
+              <% if cartridge.notes.present? %>
+                <p class="text-sm text-gray-600 mt-2"><%= cartridge.notes %></p>
+              <% end %>
+            </div>
+            <div class="flex gap-2 ml-4">
+              <%= link_to "Edit", edit_lp_cartridge_path(cartridge), class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-medium" %>
+              <%= button_to "Delete", lp_cartridge_path(cartridge), method: :delete,
+                  class: "rounded-md px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium",
+                  data: { turbo_confirm: "Delete this cartridge entry?" } %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-center my-10 text-gray-500">No cartridges recorded yet.</p>
+  <% end %>
+</div>
