@@ -34,7 +34,7 @@ class RecordCollectionControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should reorder media items" do
+  test "should reorder media items with media_item_ids" do
     release1 = releases(:one)
     release2 = releases(:two)
     item1 = MediaItem.create!(release: release1, media_type: @vinyl_type, location: @location, year: 2020, position: 1)
@@ -44,6 +44,23 @@ class RecordCollectionControllerTest < ActionDispatch::IntegrationTest
       media_item_ids: [ item2.id, item1.id ]
     }
     assert_response :ok
+  end
+
+  test "should reorder media items with item_slots" do
+    release1 = releases(:one)
+    release2 = releases(:two)
+    item1 = MediaItem.create!(release: release1, media_type: @vinyl_type, location: @location, year: 2020, slot_position: 1)
+    item2 = MediaItem.create!(release: release2, media_type: @vinyl_type, location: @location, year: 2021, slot_position: 2)
+
+    patch record_collection_reorder_url(@location), params: {
+      item_slots: [ { id: item2.id, slot: 1 }, { id: item1.id, slot: 2 } ]
+    }, as: :json
+    assert_response :ok
+
+    assert_equal 1, item2.reload.slot_position
+    assert_equal 1, item2.position
+    assert_equal 2, item1.reload.slot_position
+    assert_equal 2, item1.position
   end
 
   test "should return unprocessable entity when reorder params missing" do

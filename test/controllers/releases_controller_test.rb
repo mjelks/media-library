@@ -76,6 +76,17 @@ class ReleasesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "should update track durations via nested attributes" do
+    track = release_tracks(:one_track_one)
+    patch release_url(@release), params: {
+      release: {
+        release_tracks_attributes: { "0" => { id: track.id, duration: "5:00" } }
+      }
+    }
+    assert_redirected_to release_url(@release)
+    assert_equal "5:00", track.reload.duration
+  end
+
   test "should destroy release" do
     assert_difference("Release.count", -1) do
       delete release_url(@release)

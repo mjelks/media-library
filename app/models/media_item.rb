@@ -101,10 +101,10 @@ class MediaItem < ApplicationRecord
 
   def self.assign_slot_positions(location_id, item_slots)
     transaction do
-      item_slots.each do |assignment|
+      item_slots.each_with_index do |assignment, index|
         id = assignment["id"] || assignment[:id]
         slot = assignment["slot"] || assignment[:slot]
-        where(id: id, location_id: location_id).update_all(slot_position: slot.to_i)
+        where(id: id, location_id: location_id).update_all(slot_position: slot.to_i, position: index + 1)
       end
     end
   end

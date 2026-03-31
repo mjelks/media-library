@@ -12,6 +12,9 @@
     <% if @release.genres.any? %>
       <p><strong>Genre:</strong> <%= @release.genres.map(&:name).join(", ") %></p>
     <% end %>
+    <% if (total_seconds = @release.duration) && total_seconds > 0 %>
+      <p><strong>Duration:</strong> <%= duration_formatter(total_seconds) %></p>
+    <% end %>
   </div>
 
   <% if @release.description.present? %>
