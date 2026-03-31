@@ -22,6 +22,9 @@
         <% if @media_item.genres.any? %>
           <p><strong>Genre:</strong> <%= @media_item.genres.map(&:name).join(", ") %></p>
         <% end %>
+        <% if (total_seconds = @media_item.release&.duration) && total_seconds > 0 %>
+          <p><strong>Duration:</strong> <%= duration_formatter(total_seconds) %></p>
+        <% end %>
         <% if @media_item.play_count && @media_item.play_count > 0 %>
           <p><strong>Play Count:</strong> <%= @media_item.play_count %></p>
         <% end %>

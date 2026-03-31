@@ -28,6 +28,7 @@ class Release < ApplicationRecord
   belongs_to :media_owner
   has_many :media_items, dependent: :destroy
   has_many :release_tracks, dependent: :destroy
+  accepts_nested_attributes_for :release_tracks
   has_many :release_genres, dependent: :destroy
   has_many :genres, through: :release_genres
   has_many :wishlist_items, dependent: :destroy

@@ -31,9 +31,13 @@ class RecordCollectionController < ApplicationController
 
   def reorder
     @location = Location.find(params[:id])
+    item_slots = params[:item_slots]
     ordered_ids = params[:media_item_ids]
 
-    if ordered_ids.present?
+    if item_slots.present?
+      MediaItem.assign_slot_positions(@location.id, item_slots)
+      head :ok
+    elsif ordered_ids.present?
       MediaItem.update_positions(@location.id, ordered_ids)
       head :ok
     else

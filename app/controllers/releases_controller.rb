@@ -52,7 +52,8 @@ class ReleasesController < ApplicationController
   private
 
   def release_params
-    params.require(:release).permit(:title, :description, :original_year, :additional_info, :media_owner_id)
+    params.require(:release).permit(:title, :description, :original_year, :additional_info, :media_owner_id,
+                                    release_tracks_attributes: [ :id, :duration ])
   end
 
   def update_genres
