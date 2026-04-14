@@ -5,6 +5,7 @@ module Authentication
     before_action :require_authentication
     helper_method :authenticated?
     helper_method :auditor?
+    helper_method :is_admin?
   end
 
   class_methods do
@@ -20,6 +21,14 @@ module Authentication
 
     def optionally_resume_session
       resume_session
+    end
+
+    def auditor?
+      Current.user&.auditor?
+    end
+
+    def is_admin?
+      Current.user&.admin?
     end
 
     def auditor?

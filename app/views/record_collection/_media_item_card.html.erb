@@ -1,4 +1,4 @@
-<div class="group flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow <%= auditor? ? '' : 'cursor-move' %> border border-gray-100"
+<div class="group flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow <%= !is_admin? ? '' : 'cursor-move' %> border border-gray-100"
      data-media-item-id="<%= media_item.id %>">
 
   <!-- Position Number -->
@@ -7,7 +7,7 @@
   </div>
 
   <!-- Drag Handle -->
-  <% unless auditor? %>
+  <% if is_admin? %>
   <div class="drag-handle flex-shrink-0 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
@@ -54,7 +54,7 @@
   </div>
 
   <!-- Move to Top/Bottom -->
-  <% unless auditor? %>
+  <% if is_admin? %>
   <div class="flex-shrink-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
     <%= link_to record_collection_move_to_top_path(location_id: location.id, id: media_item.id),
         data: { turbo_method: :patch },

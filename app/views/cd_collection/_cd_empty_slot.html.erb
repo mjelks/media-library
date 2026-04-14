@@ -30,7 +30,7 @@
   </div>
 
   <!-- Remove gap button (only for real gaps between items, not trailing empty slots) -->
-  <% if is_real_gap && !auditor? %>
+  <% if is_real_gap && is_admin? %>
     <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
       <%= button_to cd_collection_remove_gap_path(id: location.id, slot: slot_position),
           method: :delete,
