@@ -3,7 +3,7 @@ require "test_helper"
 class HomepageControllerTest < ActionDispatch::IntegrationTest
   test "should get index without authentication" do
     get root_url
-    assert_response :success
+    assert_redirected_to new_session_path
   end
 
   test "should get index with authentication" do
@@ -14,6 +14,8 @@ class HomepageControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should assign carousel albums" do
+    user = users(:default_user)
+    login_as(user)
     get root_url
     assert_response :success
   end
