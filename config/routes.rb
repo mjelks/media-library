@@ -64,7 +64,12 @@ Rails.application.routes.draw do
   resources :media_items do
     post :clone, on: :member
   end
-  resources :releases
+  resources :releases do
+    collection do
+      get :vinyl
+      get :cd
+    end
+  end
   resources :genres
   resource :session, only: %i[new create destroy]
   resources :passwords, param: :token
@@ -89,7 +94,8 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")
-  root "homepage#index"
+  # root "homepage#index"
+  root "now_playing#index"
 
   # :nocov:
   if Rails.env.development?

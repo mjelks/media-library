@@ -1,6 +1,24 @@
 class ReleasesController < ApplicationController
   def index
-    @releases = Release.includes(:media_owner, :genres).order(created_at: :desc)
+    redirect_to vinyl_releases_path
+  end
+
+  PER_PAGE = 24
+
+  def vinyl
+    @media_type = "Vinyl"
+    load_paginated_releases(
+      MediaItem.vinyl,
+      "locations.position ASC, locations.name ASC, media_items.position ASC"
+    )
+  end
+
+  def cd
+    @media_type = "CD"
+    load_paginated_releases(
+      MediaItem.cd,
+      "locations.position ASC, locations.name ASC, media_items.slot_position ASC"
+    )
   end
 
   def show
@@ -50,6 +68,35 @@ class ReleasesController < ApplicationController
   end
 
   private
+
+  def load_paginated_releases(scope, order_clause)
+    base = Release.joins(:media_items).merge(scope).distinct
+    @total = base.count
+    @page = (params[:page] || 0).to_i
+    @releases = Release.includes(:media_owner, :genres, :cover_image_attachment)
+                       .joins(:media_items)
+                       .joins("LEFT OUTER JOIN locations ON locations.id = media_items.location_id")
+                       .merge(scope)
+                       .order(order_clause)
+                       .distinct
+                       .limit(PER_PAGE)
+                       .offset(@page * PER_PAGE)
+    @has_more = (@page + 1) * PER_PAGE < @total
+
+    if @page > 0
+      response.set_header("X-Next-Page-Url", @has_more ? next_page_url : "")
+      render partial: "release_cards", layout: false
+    else
+      render :index
+    end
+  end
+
+  def next_page_url
+    case @media_type
+    when "Vinyl" then vinyl_releases_path(page: @page + 1)
+    when "CD"    then cd_releases_path(page: @page + 1)
+    end
+  end
 
   def release_params
     params.require(:release).permit(:title, :description, :original_year, :additional_info, :media_owner_id,
