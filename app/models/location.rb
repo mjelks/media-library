@@ -26,6 +26,7 @@ class Location < ApplicationRecord
   validates :name, presence: true
 
   scope :vinyl, -> { joins(:media_type).where(media_types: { name: "Vinyl" }) }
+  scope :cd, -> { joins(:media_type).where(media_types: { name: "CD" }) }
 
   def total_items
     media_items.count

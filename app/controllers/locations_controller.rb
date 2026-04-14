@@ -1,9 +1,38 @@
 class LocationsController < ApplicationController
   before_action :set_location, only: %i[ show edit update destroy ]
 
-  # GET /locations or /locations.json
+  # GET /locations
   def index
-    @locations = Location.all
+    redirect_to vinyl_locations_path
+  end
+
+  # GET /locations/vinyl
+  def vinyl
+    @media_type = "Vinyl"
+    @locations = Location.vinyl.order(:position, :name)
+    @total = @locations.count
+    render :index
+  end
+
+  # GET /locations/cd
+  def cd
+    @media_type = "CD"
+    @locations = Location.cd.order(:position, :name)
+    @total = @locations.count
+    render :index
+  end
+
+  # PATCH /locations/reorder
+  def reorder
+    location_ids = params[:location_ids]
+    if location_ids.present?
+      location_ids.each_with_index do |id, index|
+        Location.where(id: id).update_all(position: index + 1)
+      end
+      head :ok
+    else
+      head :unprocessable_entity
+    end
   end
 
   # GET /locations/1 or /locations/1.json
