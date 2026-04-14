@@ -4,6 +4,7 @@ module Authentication
   included do
     before_action :require_authentication
     helper_method :authenticated?
+    helper_method :auditor?
   end
 
   class_methods do
@@ -15,6 +16,20 @@ module Authentication
   private
     def authenticated?
       resume_session
+    end
+
+    def optionally_resume_session
+      resume_session
+    end
+
+    def auditor?
+      Current.user&.auditor?
+    end
+
+    def require_admin!
+      if auditor?
+        head :forbidden
+      end
     end
 
     def require_authentication

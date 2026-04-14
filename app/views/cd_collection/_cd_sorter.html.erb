@@ -6,16 +6,16 @@
 %>
 
 <% if @media_items.any? || true %>
-    <p class="text-sm text-gray-500 mb-4">
-    <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-    </svg>
-    Drag CDs to reorder them
-    </p>
+    <% unless auditor? %>
+      <p class="text-sm text-gray-500 mb-4">
+      <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+      </svg>
+      Drag CDs to reorder them
+      </p>
+    <% end %>
 
-    <div data-controller="sortable"
-        data-sortable-url-value="<%= cd_collection_reorder_path(@location) %>"
-        data-sortable-refresh-binder-value="true"
+    <div <%= "data-controller='sortable' data-sortable-url-value='#{cd_collection_reorder_path(@location)}' data-sortable-refresh-binder-value='true'" unless auditor? %>
         class="space-y-2">
 
     <% (1..slots_to_show).each do |slot_pos| %>

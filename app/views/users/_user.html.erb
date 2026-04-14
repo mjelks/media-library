@@ -1,2 +1,14 @@
-<div id="<%= dom_id user %>">
+<div id="<%= dom_id user %>" class="flex items-center justify-between py-3 border-b border-gray-200">
+  <div>
+    <span class="font-medium text-gray-900"><%= user.email_address %></span>
+    <span class="ml-3 inline-block px-2 py-0.5 text-xs font-semibold rounded <%= user.admin? ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600' %>">
+      <%= user.role.capitalize %>
+    </span>
+  </div>
+  <div class="flex gap-2">
+    <%= link_to "Edit", edit_user_path(user), class: "rounded px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-medium" %>
+    <%= button_to "Delete", user, method: :delete,
+        class: "rounded px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium",
+        data: { turbo_confirm: "Delete #{user.email_address}?" } %>
+  </div>
 </div>

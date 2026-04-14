@@ -1,6 +1,7 @@
 class NowPlayingController < ApplicationController
   include PlayHistoryDefaults
-
+  # allow_unauthenticated_access(only: :index)
+  before_action :optionally_resume_session, only: :index
   def index
     @media_type = params[:media_type] || "Vinyl"
 

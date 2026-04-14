@@ -41,7 +41,9 @@
         <%= pluralize(@media_items.count, "CD") %> in this binder
       </p>
     </div>
-    <%= link_to "Add CDs", cd_collection_add_path(@location), class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
+    <% unless auditor? %>
+      <%= link_to "Add CDs", cd_collection_add_path(@location), class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
+    <% end %>
   </div>
 
   <!-- Binder View -->
