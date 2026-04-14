@@ -8,6 +8,7 @@
 #  api_token       :string
 #  email_address   :string           not null
 #  password_digest :string           not null
+#  role            :string           default("admin"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #

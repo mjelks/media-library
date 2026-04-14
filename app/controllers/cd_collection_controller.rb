@@ -1,5 +1,8 @@
 class CdCollectionController < ApplicationController
   include CdCollectionHelper
+  # allow_unauthenticated_access(only: %i[index show])
+  before_action :optionally_resume_session, only: %i[index show]
+  before_action :require_admin!, only: %i[reorder move_to_top move_to_bottom add_to_collection insert_gap remove_gap]
 
   BINDERS = [ "Binder 1", "Binder 2" ].freeze
   PAGES_PER_BINDER = 25

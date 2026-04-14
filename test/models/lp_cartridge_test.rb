@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: lp_cartridges
+#
+#  id           :integer          not null, primary key
+#  installed_at :date             not null
+#  name         :string           not null
+#  notes        :text
+#  usage_limit  :integer
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#
 require "test_helper"
 
 class LpCartridgeTest < ActiveSupport::TestCase

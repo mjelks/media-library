@@ -1,5 +1,9 @@
 class RecordCollectionController < ApplicationController
+  # allow_unauthenticated_access(only: %i[index show cube])
   CUBES = %w[A B C D E F].freeze
+
+  before_action :optionally_resume_session, only: %i[index show cube]
+  before_action :require_admin!, only: %i[reorder move_to_top move_to_bottom add_to_collection]
 
   def index
     @locations = Location.includes(:media_type, :media_items)

@@ -6,6 +6,7 @@
 #  api_token       :string
 #  email_address   :string           not null
 #  password_digest :string           not null
+#  role            :string           default("admin"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #
@@ -17,6 +18,8 @@
 class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
+
+  enum :role, { admin: "admin", auditor: "auditor" }, default: "admin"
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
