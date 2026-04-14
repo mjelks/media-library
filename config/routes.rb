@@ -24,7 +24,13 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :locations
+  resources :locations do
+    collection do
+      get :vinyl
+      get :cd
+      patch :reorder
+    end
+  end
   resources :users
   resources :media_owners
   get "record_collection", to: "record_collection#index"

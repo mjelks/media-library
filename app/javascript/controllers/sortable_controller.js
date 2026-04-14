@@ -5,18 +5,24 @@ export default class extends Controller {
   static values = {
     url: String,
     animation: { type: Number, default: 150 },
-    refreshBinder: { type: Boolean, default: false }
+    refreshBinder: { type: Boolean, default: false },
+    idAttribute: { type: String, default: "data-media-item-id" },
+    paramName: { type: String, default: "media_item_ids" },
+    simpleMode: { type: Boolean, default: false }
   }
 
   connect() {
+    const draggable = this.simpleModeValue
+      ? `[${this.idAttributeValue}]`
+      : "[data-media-item-id], [data-empty-slot]"
+
     this.sortable = Sortable.create(this.element, {
       animation: this.animationValue,
       handle: ".drag-handle",
       ghostClass: "sortable-ghost",
       chosenClass: "sortable-chosen",
       dragClass: "sortable-drag",
-      // Allow dragging over empty slots too
-      draggable: "[data-media-item-id], [data-empty-slot]",
+      draggable: draggable,
       onEnd: this.onEnd.bind(this)
     })
 
@@ -37,6 +43,13 @@ export default class extends Controller {
   }
 
   onEnd(event) {
+    if (this.simpleModeValue) {
+      const items = this.element.querySelectorAll(`[${this.idAttributeValue}]`)
+      const orderedIds = Array.from(items).map(el => el.getAttribute(this.idAttributeValue))
+      this.updatePositions(orderedIds)
+      return
+    }
+
     // Get all elements (items and empty slots) in DOM order after drag
     const allElements = this.element.querySelectorAll("[data-media-item-id], [data-empty-slot]")
 
@@ -71,7 +84,7 @@ export default class extends Controller {
           "X-CSRF-Token": csrfToken,
           "Accept": "application/json"
         },
-        body: JSON.stringify({ media_item_ids: orderedIds })
+        body: JSON.stringify({ [this.paramNameValue]: orderedIds })
       })
 
       if (response.ok) {

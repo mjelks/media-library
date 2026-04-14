@@ -1,25 +1,87 @@
-<% content_for :title, "Locations" %>
+<% content_for :title, "#{@media_type} Locations" %>
 
-<div class="p-4">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-  <% end %>
-
-  <div class="flex justify-between items-center">
-    <h1 class="font-bold text-4xl">Locations</h1>
-    <%= link_to "New location", new_location_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white block font-medium" %>
+<div class="p-4 w-full max-w-6xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="font-bold text-4xl"><%= @media_type %> Locations</h1>
+      <p class="text-gray-500 mt-1"><%= @total %> locations</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="flex rounded-lg overflow-hidden border border-gray-300">
+        <%= link_to "Vinyl", vinyl_locations_path,
+            class: "px-4 py-2 font-medium text-sm transition-colors #{@media_type == 'Vinyl' ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}" %>
+        <%= link_to "CD", cd_locations_path,
+            class: "px-4 py-2 font-medium text-sm transition-colors #{@media_type == 'CD' ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}" %>
+      </div>
+      <%= link_to "Add New", new_location_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
+    </div>
   </div>
 
-  <div id="locations" class="min-w-full">
-    <% if @locations.any? %>
-      <% @locations.each do |location| %>
-        <%= render location %>
-        <p>
-          <%= link_to "Show this location", location, class: "ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-        </p>
+  <% if @locations.empty? %>
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+      <p class="text-gray-500 text-lg">No <%= @media_type %> locations found</p>
+    </div>
+  <% else %>
+    <p class="text-sm text-gray-500 mb-4">
+      <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+      </svg>
+      Drag locations to reorder them
+    </p>
+
+    <div data-controller="sortable"
+         data-sortable-url-value="<%= reorder_locations_path %>"
+         data-sortable-id-attribute-value="data-location-id"
+         data-sortable-param-name-value="location_ids"
+         data-sortable-simple-mode-value="true"
+         class="space-y-2">
+
+      <% @locations.each_with_index do |location, index| %>
+        <% collection_path = @media_type == 'Vinyl' ? record_collection_location_path(location) : cd_collection_location_path(location) %>
+        <div class="group flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100"
+             data-location-id="<%= location.id %>">
+
+          <!-- Position Number -->
+          <div class="flex-shrink-0 w-8 text-center">
+            <span class="text-gray-400 font-mono text-sm"><%= index + 1 %>.</span>
+          </div>
+
+          <!-- Drag Handle -->
+          <div class="drag-handle flex-shrink-0 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+            </svg>
+          </div>
+
+          <!-- Location Name & Description -->
+          <div class="flex-1 min-w-0">
+            <%= link_to collection_path, class: "hover:text-blue-600" do %>
+              <p class="font-semibold truncate" title="<%= location.name %>"><%= location.name %></p>
+            <% end %>
+            <% if location.description.present? %>
+              <p class="text-gray-500 text-sm truncate"><%= location.description %></p>
+            <% end %>
+          </div>
+
+          <!-- Cube Location -->
+          <% if location.cube_location.present? %>
+            <div class="flex-shrink-0">
+              <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Cube <%= location.cube_location %></span>
+            </div>
+          <% end %>
+
+          <!-- Item Count -->
+          <div class="flex-shrink-0 w-20 text-right">
+            <span class="text-gray-500 text-sm"><%= pluralize(location.total_items, "item") %></span>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex-shrink-0 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <%= link_to "Edit", edit_location_path(location),
+                class: "text-xs rounded px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium" %>
+          </div>
+        </div>
       <% end %>
-    <% else %>
-      <p class="text-center my-10">No locations found.</p>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 </div>
