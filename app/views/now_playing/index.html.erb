@@ -4,11 +4,11 @@
   <div class="flex justify-between items-center mb-6">
     <div>
       <h1 class="font-bold text-4xl">Now Playing</h1>
-      <% unless auditor? %>
+      <% if is_admin? %>
       <p class="text-gray-500 mt-1">Search your collection and track what you're listening to</p>
       <% end %>
     </div>
-    <% unless auditor? %>
+    <% if is_admin? %>
     <div class="flex items-center gap-4">
       <%= link_to "Back to Collection", record_collection_path,
           class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-200 font-medium" %>
@@ -17,7 +17,7 @@
   </div>
 
   <!-- Search with Autocomplete -->
-  <% unless auditor? %>
+  <% if is_admin? %>
   <div class="mb-8" data-controller="now-playing-search media-type-toggle"
        data-now-playing-search-url-value="<%= now_playing_search_path %>"
        data-now-playing-search-random-url-value="<%= now_playing_random_path %>"
@@ -144,7 +144,7 @@
                 <%end%>
             <% end %>
           </div>
-          <% unless auditor? %>
+          <% if is_admin? %>
           <div class="flex flex-col gap-2">
             <%= button_to "Done Playing", now_playing_done_path(@now_playing),
                 class: "px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors",
@@ -297,7 +297,7 @@
                   
                 <% end %>
               </div>
-              <% unless auditor? %>
+              <% if is_admin? %>
               <div class="flex flex-col gap-1" data-controller="voting" data-voting-url-value="<%= now_playing_rate_path(item) %>">
                 <button type="button"
                     data-action="click->voting#vote"
