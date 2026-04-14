@@ -1,0 +1,45 @@
+<% @releases.each do |release| %>
+  <div class="relative p-4 bg-white rounded-lg shadow border border-gray-100 hover:shadow-md transition-shadow duration-300">
+    <div class="flex items-center gap-4">
+      <div class="flex-shrink-0">
+        <%= link_to release do %>
+          <% if release.cover_image.attached? %>
+            <%= image_tag release.cover_image.variant(resize_to_limit: [80, 80]),
+                class: "w-20 h-20 object-cover rounded-md shadow" %>
+          <% else %>
+            <div class="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center">
+              <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+              </svg>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+      <div class="flex-1 min-w-0">
+        <%= link_to release, class: "block hover:text-gray-900" do %>
+          <h3 class="font-semibold text-lg truncate"><%= release.title %></h3>
+          <p class="text-gray-600 truncate"><%= release.media_owner.name %></p>
+        <% end %>
+        <div class="flex gap-3 text-sm text-gray-400 mt-1 flex-wrap">
+          <% if release.original_year %>
+            <span><%= release.original_year %></span>
+          <% end %>
+          <% if @media_type == "Vinyl" %>
+            <span title="Vinyl" class="inline-flex items-center justify-center w-5 h-5 bg-gray-600 text-white text-[10px] font-bold rounded-full align-middle">LP</span>
+          <% else %>
+            <span title="CD">💿</span>
+          <% end %>
+          <% if release.genres.any? %>
+            <span><%= release.genres.map(&:name).join(", ") %></span>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="flex-shrink-0">
+        <%= link_to "Edit", edit_release_path(release),
+            class: "px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-sm text-center" %>
+      </div>
+    </div>
+  </div>
+<% end %>

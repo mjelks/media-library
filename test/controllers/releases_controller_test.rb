@@ -8,8 +8,13 @@ class ReleasesControllerTest < ActionDispatch::IntegrationTest
     @media_owner = media_owners(:one)
   end
 
-  test "should get index" do
-    get releases_url
+  test "should get vinyl index" do
+    get vinyl_releases_url
+    assert_response :success
+  end
+
+  test "should get cd index" do
+    get cd_releases_url
     assert_response :success
   end
 
