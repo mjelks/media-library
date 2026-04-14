@@ -10,7 +10,7 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
 
   test "should get index" do
     get locations_url
-    assert_response :success
+    assert_redirected_to vinyl_locations_url
   end
 
   test "should get show" do
