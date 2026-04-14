@@ -28,7 +28,7 @@ class PasswordsMailerTest < ActionMailer::TestCase
   test "reset email has correct from address" do
     email = PasswordsMailer.reset(@user)
 
-    assert_equal [ "from@example.com" ], email.from
+    assert_equal [ "info@bicyclelad.com" ], email.from
   end
 
   test "reset email body contains password reset link" do
