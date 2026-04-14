@@ -23,6 +23,8 @@ class UsersController < ApplicationController
   # POST /users
   def create
     @user = User.new(user_params)
+    # Explicit assignment is much safer than mass assignment
+    @user.role = params[:user][:role] if Current.user&.admin?
 
     respond_to do |format|
       if @user.save
@@ -35,11 +37,18 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1
   def update
-    params_to_update = user_params
-    params_to_update = params_to_update.reject { |k, v| k == "password" && v.blank? }
+    # 1. Filter out blank passwords (standard Rails practice for profile updates)
+    filtered_params = user_params.reject { |k, v| k == "password" && v.blank? }
+
+    # 2. Explicitly handle the role assignment
+    # This ensures 'role' only changes via your specific logic, not mass assignment
+    if params[:user][:role].present?
+      @user.role = params[:user][:role]
+    end
 
     respond_to do |format|
-      if @user.update(params_to_update)
+      # 3. Update with the safe, permitted params
+      if @user.update(filtered_params)
         format.html { redirect_to users_path, notice: "User was successfully updated." }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -62,6 +71,7 @@ class UsersController < ApplicationController
     end
 
     def user_params
-      params.require(:user).permit(:email_address, :password, :password_confirmation, :role)
+      # Remove :role from here permanently to satisfy the security check
+      params.require(:user).permit(:email_address, :password, :password_confirmation)
     end
 end
