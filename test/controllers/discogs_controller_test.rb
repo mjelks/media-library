@@ -3,14 +3,17 @@ require "minitest/mock"
 
 class DiscogsControllerTest < ActionDispatch::IntegrationTest
   setup do
+    @user = users(:default_user)
+    login_as(@user)
     @location = locations(:one)
     @vinyl_type = media_types(:vinyl)
   end
 
   # Index action tests
-  test "should get index without authentication" do
+  test "should redirect unauthenticated user from index" do
+    delete session_path
     get discogs_path
-    assert_response :success
+    assert_redirected_to new_session_path
   end
 
   test "should get index without query" do
