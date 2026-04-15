@@ -98,4 +98,32 @@ class ReleasesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to releases_url
   end
+
+  test "should get vinyl releases with pagination" do
+    get vinyl_releases_url, params: { page: 1 }
+    assert_response :success
+  end
+
+  test "should get cd releases with pagination" do
+    get cd_releases_url, params: { page: 1 }
+    assert_response :success
+  end
+
+  test "should filter vinyl releases by no_duration" do
+    get vinyl_releases_url, params: { no_duration: true }
+    assert_response :success
+  end
+
+  test "should filter cd releases by no_duration" do
+    get cd_releases_url, params: { no_duration: true }
+    assert_response :success
+  end
+
+  test "should update release with genre ids" do
+    genre = genres(:rock)
+    patch release_url(@release), params: {
+      release: { title: @release.title, genre_ids: [ genre.id.to_s ] }
+    }
+    assert_redirected_to release_url(@release)
+  end
 end

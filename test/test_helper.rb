@@ -1,4 +1,5 @@
 ENV["RAILS_ENV"] ||= "test"
+ENV["DISCOGS_TOKEN"] ||= "test_token"
 
 require "simplecov"
 SimpleCov.start "rails" do

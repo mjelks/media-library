@@ -182,7 +182,10 @@ class DiscogsController < ApplicationController
   def save_tracks_and_genres(discogs_release, release)
     last_position = nil
     discogs_release["tracklist"]&.each do |track|
-      next if track["type_"] == "heading"
+      if track["type_"] == "heading"
+        last_position = track["position"].presence || last_position
+        next
+      end
 
       position = track["position"].presence || infer_track_position(last_position)
       last_position = position

@@ -135,6 +135,20 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :no_content
   end
 
+  test "should reorder locations" do
+    loc1 = locations(:one)
+    loc2 = locations(:two)
+    patch reorder_locations_url, params: { location_ids: [ loc2.id, loc1.id ] }
+    assert_response :ok
+    assert_equal 1, loc2.reload.position
+    assert_equal 2, loc1.reload.position
+  end
+
+  test "should return unprocessable entity when reordering without ids" do
+    patch reorder_locations_url, params: {}
+    assert_response :unprocessable_entity
+  end
+
   test "should require authentication" do
     delete session_path
     get locations_url
