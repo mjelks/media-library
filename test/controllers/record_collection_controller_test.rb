@@ -46,6 +46,17 @@ class RecordCollectionControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
+  test "auditor should not be able to reorder" do
+    auditor = User.create!(email_address: "auditor@example.com", password: "password", role: :auditor)
+    login_as(auditor)
+
+    release1 = releases(:one)
+    item1 = MediaItem.create!(release: release1, media_type: @vinyl_type, location: @location, year: 2020, position: 1)
+
+    patch record_collection_reorder_url(@location), params: { media_item_ids: [ item1.id ] }
+    assert_response :forbidden
+  end
+
   test "should reorder media items with item_slots" do
     release1 = releases(:one)
     release2 = releases(:two)
