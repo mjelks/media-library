@@ -21,8 +21,15 @@
 class PlaySession < ApplicationRecord
   belongs_to :media_item
 
+  # Sessions within the last `days` days — used for stats
   scope :recent, ->(days = 30) {
     where("start_time >= ?", days.days.ago)
+      .order(start_time: :desc)
+  }
+
+  # All completed sessions (no end_time means still playing) — used for the history list
+  scope :all_history, -> {
+    where.not(end_time: nil)
       .order(start_time: :desc)
   }
 

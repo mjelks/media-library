@@ -1,16 +1,15 @@
-<% grouped = @recently_played.group_by { |item| item.last_played.to_date } %>
-<% grouped.each_with_index do |(date, items), group_index| %>
-  <% unless group_index == 0 && @last_date == date.to_s %>
-    <div class="mt-6 mb-3">
-      <h3 class="font-semibold text-lg text-stone-600 mb-2">
-        <%= date.strftime("%B %-d, %Y") %>
-        <span class="text-sm font-mono text-gray-500 font-normal ml-1">(<%= duration_formatter(MediaItem.total_duration(items)) %>)</span>
-      </h3>
-      <hr class="border-gray-300">
-    </div>
-  <% end %>
+<% grouped = @play_sessions.group_by { |ps| ps.start_time.to_date } %>
+<% grouped.each do |date, sessions| %>
+  <div class="mt-6 mb-3">
+    <h3 class="font-semibold text-lg text-stone-600 mb-2">
+      <%= date.strftime("%B %-d, %Y") %>
+      <span class="text-sm font-mono text-gray-500 font-normal ml-1">(<%= duration_formatter(sessions.sum { |ps| ps.media_item.release&.duration || 0 }) %>)</span>
+    </h3>
+    <hr class="border-gray-300">
+  </div>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-  <% items.each do |item| %>
+  <% sessions.each do |play_session| %>
+    <% item = play_session.media_item %>
     <div data-controller="now-playing-card"
          data-now-playing-card-confirm-url-value="<%= now_playing_confirm_path(item) %>">
       <div class="relative p-4 bg-white rounded-lg shadow border border-gray-100 hover:shadow-md transition-shadow transition-opacity duration-300"
@@ -63,7 +62,7 @@
               <p class="text-gray-600 truncate"><%= item.release&.media_owner&.name || "Unknown Artist" %></p>
             <% end %>
             <p class="text-sm text-gray-400">
-              Played <%= time_ago_in_words(item.last_played) %> ago
+              Played <%= time_ago_in_words(play_session.start_time) %> ago
               <span class="mx-1">&middot;</span>
               <%= pluralize(item.play_count || 0, "play") %>
               <span class="mx-1">&middot;</span>

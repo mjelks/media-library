@@ -12,13 +12,11 @@ class NowPlayingController < ApplicationController
     @page = (params[:page] || 0).to_i
 
     if @page > 0
-      base_scope = MediaItem.recently_played(@days_ago_play_history.to_i)
-                            .includes(:media_type, release: [ :release_tracks ])
+      base_scope = all_play_sessions_scope
       total = base_scope.count
-      @recently_played = base_scope.limit(PER_PAGE).offset(@page * PER_PAGE)
+      @play_sessions = base_scope.limit(PER_PAGE).offset(@page * PER_PAGE)
       @has_more = (@page + 1) * PER_PAGE < total
-      @last_date = params[:last_date]
-      next_url = @has_more ? now_playing_path(page: @page + 1, last_date: @recently_played.last&.last_played&.to_date&.to_s) : ""
+      next_url = @has_more ? now_playing_path(page: @page + 1) : ""
       response.set_header("X-Next-Page-Url", next_url)
       return render partial: "recently_played_items", layout: false
     end
@@ -28,13 +26,14 @@ class NowPlayingController < ApplicationController
                             .includes(:media_type)
                             .first
 
-    # Recently played (not currently playing, has been played before) - show all media types
-    full_scope = MediaItem.recently_played(@days_ago_play_history.to_i)
-                          .includes(:media_type, release: [ :release_tracks ])
-    @total_recently_played = full_scope.count
-    @recently_played_in_seconds = MediaItem.total_duration(full_scope)
-    @recently_played = full_scope.limit(PER_PAGE)
-    @has_more = @total_recently_played > PER_PAGE
+    # Stats are scoped to the configured window; the list shows all history
+    windowed_scope = play_session_scope
+    @total_recently_played = windowed_scope.count
+    @recently_played_in_seconds = windowed_scope.sum { |ps| ps.media_item.release&.duration || 0 }
+
+    list_scope = all_play_sessions_scope
+    @play_sessions = list_scope.limit(PER_PAGE)
+    @has_more = list_scope.count > PER_PAGE
 
     @current_cartridge = LpCartridge.current
     @cartridge_hours_used = @current_cartridge&.hours_used_in_seconds
@@ -93,6 +92,10 @@ class NowPlayingController < ApplicationController
     @media_item = MediaItem.find(params[:id])
 
     MediaItem.transaction do
+      # Close any open play sessions before update_all bypasses the callback
+      PlaySession.where(media_item: MediaItem.where(currently_playing: true), end_time: nil)
+                 .update_all(end_time: Time.current)
+
       # Clear any currently playing items
       MediaItem.where(currently_playing: true).update_all(currently_playing: false)
 
@@ -103,6 +106,9 @@ class NowPlayingController < ApplicationController
         currently_playing: true,
         listening_confirmed: false
       )
+
+      # Open a new play session
+      @media_item.play_sessions.create!(start_time: Time.current)
     end
 
     respond_to do |format|
@@ -187,6 +193,16 @@ class NowPlayingController < ApplicationController
   end
 
   private
+
+  def play_session_scope
+    PlaySession.recent(@days_ago_play_history)
+               .includes(media_item: [ :media_type, :location, release: [ :release_tracks, :media_owner, cover_image_attachment: :blob ] ])
+  end
+
+  def all_play_sessions_scope
+    PlaySession.all_history
+               .includes(media_item: [ :media_type, :location, release: [ :release_tracks, :media_owner, cover_image_attachment: :blob ] ])
+  end
 
   def sanitize_like(string)
     string.gsub(/[%_']/) { |match| "\\#{match}" }

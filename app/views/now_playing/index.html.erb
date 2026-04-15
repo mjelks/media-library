@@ -219,7 +219,7 @@
   <% end %>
 
   <!-- Recently Played Section (older than 60 minutes) -->
-  <% if @recently_played.any? %>
+  <% if @play_sessions&.any? %>
     <div class="mt-8">
       <h2 class="font-bold text-2xl mb-4 text-stone-700">Recently Played</h2>
       You've listened to <strong><%= @total_recently_played %></strong> albums over the past <strong><%= @days_ago_play_history %></strong> days for a total of <strong><%= duration_formatter(@recently_played_in_seconds) %></strong>.
@@ -233,7 +233,7 @@
 
         <% if @has_more %>
           <div data-infinite-scroll-target="sentinel"
-               data-url="<%= now_playing_path(page: 1, last_date: @recently_played.last&.last_played&.to_date) %>"
+               data-url="<%= now_playing_path(page: 1) %>"
                class="h-8 mt-4">
           </div>
         <% end %>
