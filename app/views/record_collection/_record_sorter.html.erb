@@ -8,8 +8,13 @@
       </p>
     <% end %>
 
-    <div <%= "data-controller='sortable' data-sortable-url-value='#{record_collection_reorder_path(@location)}'" if is_admin? %>
-        class="space-y-2">
+    <% if is_admin? %>
+    <div data-controller="sortable"
+         data-sortable-url-value="<%= record_collection_reorder_path(@location) %>"
+         class="space-y-2">
+    <% else %>
+    <div class="space-y-2">
+    <% end %>
 
     <% @media_items.each_with_index do |media_item, index| %>
         <%= render partial: "record_collection/media_item_card", locals: { media_item: media_item, index: index, location: @location } %>

@@ -170,6 +170,7 @@
         </div>
 
         <!-- Inline Notes Editor -->
+        <% if is_admin? %>
         <div class="mt-4 pt-4 border-t border-blue-200"
              data-controller="inline-edit"
              data-inline-edit-url-value="<%= now_playing_update_notes_path(@now_playing) %>">
@@ -208,6 +209,11 @@
             <p class="text-xs text-gray-400 mt-1">Enter to save, Alt+Enter for new line, Esc to cancel</p>
           </div>
         </div>
+        <% elsif @now_playing.notes.present? %>
+        <div class="mt-4 pt-4 border-t border-blue-200">
+          <p class="text-sm whitespace-pre-wrap text-gray-600"><%= @now_playing.notes %></p>
+        </div>
+        <% end %>
       </div>
     </div>
   <% end %>
@@ -318,6 +324,7 @@
             </div>
 
             <!-- Inline Notes Editor -->
+            <% if is_admin? %>
             <div class="mt-3 pt-3 border-t border-gray-100"
                  data-controller="inline-edit"
                  data-inline-edit-url-value="<%= now_playing_update_notes_path(item) %>">
@@ -355,6 +362,11 @@
                 </div>
               </div>
             </div>
+            <% elsif item.notes.present? %>
+            <div class="mt-3 pt-3 border-t border-gray-100">
+              <p class="text-xs whitespace-pre-wrap text-gray-500"><%= item.notes %></p>
+            </div>
+            <% end %>
             </div>
           </div>
         <% end %>

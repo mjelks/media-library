@@ -119,6 +119,17 @@ class NowPlayingControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Great album!", @media_item.notes
   end
 
+  test "auditor should not be able to update notes" do
+    auditor = User.create!(email_address: "auditor@example.com", password: "password", role: :auditor)
+    login_as(auditor)
+
+    patch now_playing_update_notes_url(@media_item), params: { notes: "Should not save" }
+    assert_response :forbidden
+
+    @media_item.reload
+    assert_not_equal "Should not save", @media_item.notes
+  end
+
   test "should confirm listening" do
     post now_playing_confirm_url(@media_item), as: :json
     assert_response :success

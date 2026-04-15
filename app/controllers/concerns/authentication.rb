@@ -31,14 +31,8 @@ module Authentication
       Current.user&.admin?
     end
 
-    def auditor?
-      Current.user&.auditor?
-    end
-
     def require_admin!
-      if auditor?
-        head :forbidden
-      end
+      head :forbidden unless is_admin?
     end
 
     def require_authentication

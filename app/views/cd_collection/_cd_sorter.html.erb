@@ -15,8 +15,14 @@
       </p>
     <% end %>
 
-    <div <%= "data-controller='sortable' data-sortable-url-value='#{cd_collection_reorder_path(@location)}' data-sortable-refresh-binder-value='true'" unless auditor? %>
-        class="space-y-2">
+    <% if is_admin? %>
+    <div data-controller="sortable"
+         data-sortable-url-value="<%= cd_collection_reorder_path(@location) %>"
+         data-sortable-refresh-binder-value="true"
+         class="space-y-2">
+    <% else %>
+    <div class="space-y-2">
+    <% end %>
 
     <% (1..slots_to_show).each do |slot_pos| %>
         <% media_item = @items_by_slot[slot_pos] %>
