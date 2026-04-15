@@ -198,4 +198,14 @@ class NowPlayingControllerTest < ActionDispatch::IntegrationTest
     get now_playing_url
     assert_response :success
   end
+
+  test "should return paginated results when page > 0" do
+    get now_playing_url, params: { page: 1 }
+    assert_response :success
+  end
+
+  test "should search with CD media type" do
+    get now_playing_search_url, params: { q: @media_item.release.title, media_type: "CD" }
+    assert_response :success
+  end
 end

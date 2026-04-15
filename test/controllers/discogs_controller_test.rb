@@ -381,6 +381,128 @@ class DiscogsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "should create release with nil artists and labels" do
+    MediaType.find_or_create_by!(name: "Vinyl", description: "Vinyl records")
+
+    mock_response = mock_success_response({
+      "id" => 99991,
+      "title" => "No Artist Album",
+      "formats" => [ { "name" => "Vinyl" } ],
+      "year" => 2023,
+      "tracklist" => [],
+      "genres" => [],
+      "images" => []
+    })
+
+    Discogs.stub :get, mock_response do
+      assert_difference("Release.count") do
+        post discogs_path, params: { release_id: 99991, location_id: @location.id }
+      end
+    end
+    assert_redirected_to discogs_path
+    assert_equal "Unknown Artist", Release.last.media_owner.name
+  end
+
+  test "should add to wishlist with nil artists and labels" do
+    MediaType.find_or_create_by!(name: "Vinyl", description: "Vinyl records")
+
+    mock_response = mock_success_response({
+      "id" => 99992,
+      "title" => "Wishlist No Artist",
+      "formats" => [ { "name" => "Vinyl" } ],
+      "year" => 2023,
+      "tracklist" => [],
+      "genres" => [],
+      "images" => []
+    })
+
+    Discogs.stub :get, mock_response do
+      assert_difference("WishlistItem.count") do
+        post add_to_wishlist_discog_url(99992)
+      end
+    end
+    assert_redirected_to wishlist_index_path
+    assert_equal "Unknown Artist", WishlistItem.last.release.media_owner.name
+  end
+
+  test "should create CD media item with slot position" do
+    MediaType.find_or_create_by!(name: "CD", description: "Compact Disc")
+
+    mock_response = mock_success_response({
+      "id" => 99993,
+      "title" => "CD Album",
+      "artists" => [ { "name" => "CD Artist" } ],
+      "labels" => [ { "name" => "CD Label" } ],
+      "formats" => [ { "name" => "CD" } ],
+      "year" => 2023,
+      "tracklist" => [],
+      "genres" => [],
+      "images" => []
+    })
+
+    Discogs.stub :get, mock_response do
+      assert_difference("MediaItem.count") do
+        post discogs_path, params: { release_id: 99993, location_id: @location.id }
+      end
+    end
+    assert_redirected_to discogs_path
+    assert_not_nil MediaItem.last.slot_position
+  end
+
+  test "should infer track position when first track has no position" do
+    MediaType.find_or_create_by!(name: "Vinyl", description: "Vinyl records")
+
+    mock_response = mock_success_response({
+      "id" => 99994,
+      "title" => "Blank Position Album",
+      "artists" => [ { "name" => "Track Artist" } ],
+      "labels" => [ { "name" => "Label" } ],
+      "formats" => [ { "name" => "Vinyl" } ],
+      "year" => 2023,
+      "tracklist" => [
+        { "position" => "", "title" => "First Track", "duration" => "3:00", "type_" => "track" }
+      ],
+      "genres" => [],
+      "images" => []
+    })
+
+    Discogs.stub :get, mock_response do
+      post discogs_path, params: { release_id: 99994 }
+    end
+    assert_redirected_to discogs_path
+    assert_equal "1", Release.last.release_tracks.first.position
+  end
+
+  test "should fallback when track position cannot be parsed" do
+    MediaType.find_or_create_by!(name: "Vinyl", description: "Vinyl records")
+
+    mock_response = mock_success_response({
+      "id" => 99995,
+      "title" => "Unparseable Position Album",
+      "artists" => [ { "name" => "Track Artist" } ],
+      "labels" => [ { "name" => "Label" } ],
+      "formats" => [ { "name" => "Vinyl" } ],
+      "year" => 2023,
+      "tracklist" => [
+        { "position" => "A1", "title" => "First Track", "duration" => "3:00", "type_" => "track" },
+        { "position" => "A", "title" => "Side A", "duration" => "", "type_" => "heading" },
+        { "position" => "", "title" => "Second Track", "duration" => "3:00", "type_" => "track" }
+      ],
+      "genres" => [],
+      "images" => []
+    })
+
+    Discogs.stub :get, mock_response do
+      assert_difference("Release.count") do
+        post discogs_path, params: { release_id: 99995 }
+      end
+    end
+    assert_redirected_to discogs_path
+    release = Release.find_by!(discogs_release_id: 99995)
+    tracks = release.release_tracks.order(:id)
+    assert_equal "A", tracks.second.position
+  end
+
   private
 
   def mock_success_response(parsed_body)
