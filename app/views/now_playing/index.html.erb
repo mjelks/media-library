@@ -222,154 +222,28 @@
   <% if @recently_played.any? %>
     <div class="mt-8">
       <h2 class="font-bold text-2xl mb-4 text-stone-700">Recently Played</h2>
-      You've listened to <strong><%= @recently_played.count %></strong> albums over the past <strong><%= @day_play_counter %></strong> days for a total of <strong><%= duration_formatter(@recently_played_in_seconds) %></strong>.
+      You've listened to <strong><%= @total_recently_played %></strong> albums over the past <strong><%= @days_ago_play_history %></strong> days for a total of <strong><%= duration_formatter(@recently_played_in_seconds) %></strong>.
       <% if @current_cartridge %>
         <br><span class="text-xs font-mono text-gray-500">Currently used <%= quarter_hours(@cartridge_hours_used) %> hours of <%= @current_cartridge.name %> last installed <%= @current_cartridge.installed_at.strftime("%b %-d, %Y") %><% if @current_cartridge.usage_limit %> (<%= @current_cartridge.hours_remaining(@cartridge_hours_used) %> hours remain)<% end %></span>
       <% end %>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <% @recently_played.each do |item| %>
-          <div data-controller="now-playing-card"
-               data-now-playing-card-confirm-url-value="<%= now_playing_confirm_path(item) %>">
-            <div class="relative p-4 bg-white rounded-lg shadow border border-gray-100 hover:shadow-md transition-shadow transition-opacity duration-300"
-                 data-now-playing-card-target="card">
-              <%= render partial: "close_confirm_buttons", locals: { media_item: item } %>
+      <div data-controller="infinite-scroll" class="mt-4">
+        <div data-infinite-scroll-target="container">
+          <%= render partial: "recently_played_items" %>
+        </div>
 
-              <!-- Confirmation Modal -->
-              <div data-now-playing-card-target="modal" class="hidden absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center z-20">
-                <div class="bg-white rounded-lg p-4 shadow-xl max-w-sm mx-4">
-                  <p class="text-gray-800 font-medium text-center mb-3">Are you sure?</p>
-                  <p class="text-gray-500 text-sm text-center mb-4">This will remove the album and undo the play count.</p>
-                  <div class="flex gap-3 justify-center">
-                    <button type="button"
-                            data-action="click->now-playing-card#hideConfirm"
-                            class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors text-sm">
-                      No
-                    </button>
-                    <button type="button"
-                            data-action="click->now-playing-card#confirmDelete"
-                            data-now-playing-card-url-param="<%= now_playing_delete_path(item) %>"
-                            class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors text-sm">
-                      Yes
-                    </button>
-                  </div>
-                </div>
-              </div>
-            <div class="flex items-center gap-4">
-              <div class="flex-shrink-0 relative group/cover">
-                <%= link_to edit_media_item_path(item) do %>
-                  <% if item.release&.cover_image&.attached? %>
-                    <%= image_tag item.release.cover_image.variant(resize_to_limit: [80, 80]),
-                        class: "w-20 h-20 object-cover rounded-md shadow" %>
-                  <% else %>
-                    <div class="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center">
-                      <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
-                      </svg>
-                    </div>
-                  <% end %>
-                <% end %>
-                <!-- Hover details popup -->
-                <div class="absolute left-full top-0 ml-4 z-20 opacity-0 invisible group-hover/cover:opacity-100 group-hover/cover:visible transition-all duration-200 pointer-events-none">
-                  <%= render partial: "record_collection/media_item_hover_details", locals: { media_item: item } %>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <%= link_to edit_media_item_path(item), class: "block hover:text-gray-900" do %>
-                  <h3 class="font-semibold text-lg truncate"><%= item.display_title || "Unknown Album" %></h3>
-                  <p class="text-gray-600 truncate"><%= item.release&.media_owner&.name || "Unknown Artist" %></p>
-                <% end %>                
-                <p class="text-sm text-gray-400">
-                  Played <%= time_ago_in_words(item.last_played) %> ago
-                  <span class="mx-1">&middot;</span>
-                  <%= pluralize(item.play_count || 0, "play") %>
-                  <span class="mx-1">&middot;</span>
-                  <% if item.media_type&.name == "CD" %>
-                    <span title="CD">💿</span>
-                  <% else %>
-                    <span title="Vinyl" class="inline-flex items-center justify-center w-5 h-5 bg-gray-600 text-white text-[10px] font-bold rounded-full align-middle">LP</span>
-                  <% end %>
-                </p>
-                <% if item.location %>
-                <% if item.media_type&.name == "Vinyl"  %>
-                  <%= link_to record_collection_location_path(item.location), class: "italic text-xs text-gray-400 hover:text-gray-600 hover:underline" do %>
-                    <% if item.location.cube_location.present? %>Cube <%= item.location.cube_location %>, <% end %>Section <%= item.location.name %>
-                  <% end %>
-                <% else %>
-                 <% ps = page_and_side_for(item.slot_position) %>
-                 <%= link_to cd_collection_location_path(item.location, page: ps[:page], side: ps[:side]), class: "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block" do %>
-                  <%= item.location.name %> — Page <%= ps[:page] %> Side <%= ps[:side] %>
-                 <%end%>
-                <%end%>
-                  
-                <% end %>
-              </div>
-              <% if is_admin? %>
-              <div class="flex flex-col gap-1" data-controller="voting" data-voting-url-value="<%= now_playing_rate_path(item) %>">
-                <button type="button"
-                    data-action="click->voting#vote"
-                    data-rating="meh"
-                    data-active="false"
-                    class="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium rounded-lg transition-all text-center text-sm">
-                  🫤 <span class="text-xs" data-voting-target="mehCount">(<%= item.release&.meh_count || 0 %>)</span>
-                </button>
-                <button type="button"
-                    data-action="click->voting#vote"
-                    data-rating="thumbs_up"
-                    data-active="false"
-                    class="px-3 py-1.5 bg-green-100 hover:bg-green-200 text-green-800 font-medium rounded-lg transition-all text-center text-sm">
-                  👍 <span class="text-xs" data-voting-target="thumbsUpCount">(<%= item.release&.thumbs_up_count || 0 %>)</span>
-                </button>
-              </div>
-              <% end %>
-            </div>
-
-            <!-- Inline Notes Editor -->
-            <% if is_admin? %>
-            <div class="mt-3 pt-3 border-t border-gray-100"
-                 data-controller="inline-edit"
-                 data-inline-edit-url-value="<%= now_playing_update_notes_path(item) %>">
-              <!-- Display Mode -->
-              <div data-inline-edit-target="display" class="group">
-                <a href="#" data-action="click->inline-edit#edit" class="flex items-start gap-2 text-gray-500 hover:text-gray-700">
-                  <svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                  <span data-notes-placeholder class="text-xs italic text-gray-400 <%= item.notes.present? ? 'hidden' : '' %>">
-                    Add notes...
-                  </span>
-                  <span data-notes-text class="text-xs whitespace-pre-wrap <%= item.notes.blank? ? 'hidden' : '' %>"><%= item.notes %></span>
-                </a>
-              </div>
-
-              <!-- Edit Mode -->
-              <div data-inline-edit-target="form" class="hidden">
-                <textarea data-inline-edit-target="input"
-                          data-action="keydown->inline-edit#handleKeydown"
-                          rows="2"
-                          placeholder="Add notes..."
-                          class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"><%= item.notes %></textarea>
-                <div class="flex justify-end gap-2 mt-1.5">
-                  <button type="button"
-                          data-action="click->inline-edit#cancel"
-                          class="px-2 py-1 text-xs text-gray-600 hover:text-gray-800 font-medium">
-                    Cancel
-                  </button>
-                  <button type="button"
-                          data-action="click->inline-edit#save"
-                          class="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium rounded">
-                    Save
-                  </button>
-                </div>
-              </div>
-            </div>
-            <% elsif item.notes.present? %>
-            <div class="mt-3 pt-3 border-t border-gray-100">
-              <p class="text-xs whitespace-pre-wrap text-gray-500"><%= item.notes %></p>
-            </div>
-            <% end %>
-            </div>
+        <% if @has_more %>
+          <div data-infinite-scroll-target="sentinel"
+               data-url="<%= now_playing_path(page: 1, last_date: @recently_played.last&.last_played&.to_date) %>"
+               class="h-8 mt-4">
           </div>
         <% end %>
+
+        <div data-infinite-scroll-target="spinner" class="hidden py-8 flex justify-center">
+          <svg class="w-6 h-6 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+        </div>
       </div>
     </div>
   <% elsif @now_playing.nil? %>

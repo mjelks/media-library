@@ -3,20 +3,38 @@ class NowPlayingController < ApplicationController
   # allow_unauthenticated_access(only: :index)
   before_action :optionally_resume_session, only: :index
   before_action :require_admin!, only: :update_notes
+
+  PER_PAGE = 20
+
   def index
     @media_type = params[:media_type] || "Vinyl"
+    @days_ago_play_history = DEFAULT_PLAY_HISTORY_DAYS
+    @page = (params[:page] || 0).to_i
+
+    if @page > 0
+      base_scope = MediaItem.recently_played(@days_ago_play_history.to_i)
+                            .includes(:media_type, release: [:release_tracks])
+      total = base_scope.count
+      @recently_played = base_scope.limit(PER_PAGE).offset(@page * PER_PAGE)
+      @has_more = (@page + 1) * PER_PAGE < total
+      @last_date = params[:last_date]
+      next_url = @has_more ? now_playing_path(page: @page + 1, last_date: @recently_played.last&.last_played&.to_date&.to_s) : ""
+      response.set_header("X-Next-Page-Url", next_url)
+      return render partial: "recently_played_items", layout: false
+    end
 
     # Currently playing (stays until Done or new selection) - show all media types
     @now_playing = MediaItem.now_playing
                             .includes(:media_type)
                             .first
-    @days_ago_play_history = DEFAULT_PLAY_HISTORY_DAYS
 
     # Recently played (not currently playing, has been played before) - show all media types
-    @recently_played = MediaItem.recently_played(@days_ago_play_history.to_i)
-                                .includes(:media_type)
-    # .limit(10)
-    @recently_played_in_seconds = MediaItem.total_duration(@recently_played)
+    full_scope = MediaItem.recently_played(@days_ago_play_history.to_i)
+                          .includes(:media_type, release: [:release_tracks])
+    @total_recently_played = full_scope.count
+    @recently_played_in_seconds = MediaItem.total_duration(full_scope)
+    @recently_played = full_scope.limit(PER_PAGE)
+    @has_more = @total_recently_played > PER_PAGE
 
     @current_cartridge = LpCartridge.current
     @cartridge_hours_used = @current_cartridge&.hours_used_in_seconds
