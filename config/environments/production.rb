@@ -68,7 +68,7 @@ Rails.application.configure do
     authentication: :plain,
     enable_starttls_auto: true
   }
-  config.action_mailer.default_url_options = { host: "bicyclelad.com" }
+  config.action_mailer.default_url_options = { host: "discos.bicyclelad.com" }
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {
