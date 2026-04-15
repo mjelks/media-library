@@ -156,6 +156,14 @@ class ReleaseTest < ActiveSupport::TestCase
     assert_equal 510, release.duration
   end
 
+  test "duration handles tracks with minutes-only duration (no colon)" do
+    release = releases(:minutes_only)
+    # Track one: "4" = 4:00 = 240 seconds
+    # Track two: "3:30" = 210 seconds
+    # Total: 450 seconds
+    assert_equal 450, release.duration
+  end
+
   test "duration handles tracks without duration" do
     release = Release.create!(title: "Test Album", media_owner: media_owners(:one))
     release.release_tracks.create!(name: "Track 1", position: "1", duration: "3:00")

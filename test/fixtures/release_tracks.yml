@@ -68,3 +68,15 @@ multi_disc_2_2:
   position: "2.2"
   name: I've Been Losing You
   duration: "4:50"
+
+minutes_only_track_one:
+  release: minutes_only
+  position: "1"
+  name: Some Song
+  duration: "4"
+
+minutes_only_track_two:
+  release: minutes_only
+  position: "2"
+  name: Another Song
+  duration: "3:30"

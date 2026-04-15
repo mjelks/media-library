@@ -57,7 +57,8 @@ class Release < ApplicationRecord
     return nil unless release_tracks.any?
     release_tracks.sum do |track|
       next 0 unless track.duration.present?
-      mins, secs = track.duration.split(":").map(&:to_i)
+      parts = track.duration.split(":")
+      mins, secs = parts.length > 1 ? parts.map(&:to_i) : [ parts[0].to_i, 0 ]
       (mins * 60) + secs
     end
   end
