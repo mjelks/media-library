@@ -1,8 +1,8 @@
 require "open-uri"
 
 class DiscogsController < ApplicationController
-  allow_unauthenticated_access
-
+  # allow_unauthenticated_access
+  before_action :optionally_resume_session, only: :index
   def index
     @query = params[:q]
     @type_filter = params[:type] || "release"

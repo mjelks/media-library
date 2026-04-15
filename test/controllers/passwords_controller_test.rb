@@ -22,8 +22,8 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Password reset instructions sent (if user with that email address exists).", flash[:notice]
   end
 
-  test "should enqueue password reset email" do
-    assert_enqueued_with(job: ActionMailer::MailDeliveryJob) do
+  test "should send password reset email" do
+    assert_emails 1 do
       post passwords_url, params: { email_address: @user.email_address }
     end
   end
