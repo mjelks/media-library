@@ -43,3 +43,9 @@ multi_disc:
   description: Best of compilation
   original_year: 2004
   media_owner: one
+
+minutes_only:
+  title: Minutes Only Album
+  description: Album with minute-only durations
+  original_year: 2000
+  media_owner: one
