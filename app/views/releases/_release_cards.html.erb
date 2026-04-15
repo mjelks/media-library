@@ -25,6 +25,9 @@
           <% if release.original_year %>
             <span><%= release.original_year %></span>
           <% end %>
+          <% if release.duration %>
+            <span><%= duration_formatter(release.duration) %></span>
+          <% end %>
           <% if @media_type == "Vinyl" %>
             <span title="Vinyl" class="inline-flex items-center justify-center w-5 h-5 bg-gray-600 text-white text-[10px] font-bold rounded-full align-middle">LP</span>
           <% else %>

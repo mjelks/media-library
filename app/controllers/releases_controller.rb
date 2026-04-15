@@ -70,6 +70,20 @@ class ReleasesController < ApplicationController
   private
 
   def load_paginated_releases(scope, order_clause)
+    if params[:no_duration]
+      @releases = Release.includes(:media_owner, :genres, :cover_image_attachment)
+                         .joins(:media_items)
+                         .joins("LEFT OUTER JOIN locations ON locations.id = media_items.location_id")
+                         .merge(scope)
+                         .where(no_duration_filter)
+                         .order(order_clause)
+                         .distinct
+      @total = @releases.size
+      @page = 0
+      @has_more = false
+      return render :index
+    end
+
     base = Release.joins(:media_items).merge(scope).distinct
     @total = base.count
     @page = (params[:page] || 0).to_i
@@ -92,10 +106,15 @@ class ReleasesController < ApplicationController
   end
 
   def next_page_url
+    extra = params[:no_duration] ? { no_duration: true } : {}
     case @media_type
-    when "Vinyl" then vinyl_releases_path(page: @page + 1)
-    when "CD"    then cd_releases_path(page: @page + 1)
+    when "Vinyl" then vinyl_releases_path(extra.merge(page: @page + 1))
+    when "CD"    then cd_releases_path(extra.merge(page: @page + 1))
     end
+  end
+
+  def no_duration_filter
+    "releases.id NOT IN (SELECT release_id FROM release_tracks WHERE duration IS NOT NULL AND duration != '')"
   end
 
   def release_params
