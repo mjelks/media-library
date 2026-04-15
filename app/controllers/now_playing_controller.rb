@@ -13,7 +13,7 @@ class NowPlayingController < ApplicationController
 
     if @page > 0
       base_scope = MediaItem.recently_played(@days_ago_play_history.to_i)
-                            .includes(:media_type, release: [:release_tracks])
+                            .includes(:media_type, release: [ :release_tracks ])
       total = base_scope.count
       @recently_played = base_scope.limit(PER_PAGE).offset(@page * PER_PAGE)
       @has_more = (@page + 1) * PER_PAGE < total
@@ -30,7 +30,7 @@ class NowPlayingController < ApplicationController
 
     # Recently played (not currently playing, has been played before) - show all media types
     full_scope = MediaItem.recently_played(@days_ago_play_history.to_i)
-                          .includes(:media_type, release: [:release_tracks])
+                          .includes(:media_type, release: [ :release_tracks ])
     @total_recently_played = full_scope.count
     @recently_played_in_seconds = MediaItem.total_duration(full_scope)
     @recently_played = full_scope.limit(PER_PAGE)
