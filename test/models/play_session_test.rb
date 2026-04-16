@@ -31,8 +31,14 @@ class PlaySessionTest < ActiveSupport::TestCase
     assert_includes PlaySession.all_history, play_sessions(:old_session)
   end
 
-  test "all_history excludes open sessions" do
+  test "all_history excludes open session for currently-playing item" do
     assert_not_includes PlaySession.all_history, play_sessions(:now_playing_session)
+  end
+
+  test "all_history includes session with no end_time when item is not currently playing" do
+    session = play_sessions(:recent_session)
+    session.update!(end_time: nil)
+    assert_includes PlaySession.all_history, session
   end
 
   test "all_history returns sessions regardless of age" do
