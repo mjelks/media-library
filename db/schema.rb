@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_14_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_16_000003) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -167,6 +167,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_14_000001) do
     t.string "email_address", null: false
     t.string "password_digest", null: false
     t.string "role", default: "admin", null: false
+    t.string "timezone", default: "Pacific Time (US & Canada)", null: false
     t.datetime "updated_at", null: false
     t.index ["api_token"], name: "index_users_on_api_token", unique: true
     t.index ["email_address"], name: "index_users_on_email_address", unique: true

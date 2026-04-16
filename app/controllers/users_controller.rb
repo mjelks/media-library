@@ -72,6 +72,6 @@ class UsersController < ApplicationController
 
     def user_params
       # Remove :role from here permanently to satisfy the security check
-      params.require(:user).permit(:email_address, :password, :password_confirmation)
+      params.require(:user).permit(:email_address, :password, :password_confirmation, :timezone)
     end
 end

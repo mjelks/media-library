@@ -9,6 +9,7 @@
 #  email_address   :string           not null
 #  password_digest :string           not null
 #  role            :string           default("admin"), not null
+#  timezone        :string           default("Pacific Time (US & Canada)"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #
