@@ -7,6 +7,7 @@
 #  email_address   :string           not null
 #  password_digest :string           not null
 #  role            :string           default("admin"), not null
+#  timezone        :string           default("Pacific Time (US & Canada)"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #
@@ -25,6 +26,7 @@ class User < ApplicationRecord
 
   validates :email_address, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :password_digest, presence: true
+  validates :timezone, presence: true, inclusion: { in: ActiveSupport::TimeZone.all.map(&:name) }
 
   def generate_api_token!
     update!(api_token: SecureRandom.hex(32))
