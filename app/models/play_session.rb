@@ -27,10 +27,13 @@ class PlaySession < ApplicationRecord
       .order(start_time: :desc)
   }
 
-  # All completed sessions (no end_time means still playing) — used for the history list
+  # All non-active sessions — used for the history list.
+  # Excludes only the open session for a currently-playing item;
+  # backfilled sessions with no end_time (but item no longer playing) are included.
   scope :all_history, -> {
-    where.not(end_time: nil)
-      .order(start_time: :desc)
+    joins(:media_item)
+      .where("play_sessions.end_time IS NOT NULL OR media_items.currently_playing = ?", false)
+      .order("play_sessions.start_time DESC")
   }
 
   def duration
