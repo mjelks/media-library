@@ -867,6 +867,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert session.key?("media_type")
     assert session.key?("start_time")
     assert session.key?("end_time")
+    assert session.key?("session_duration")
     assert session.key?("duration")
   end
 
@@ -929,7 +930,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert_equal start_times.sort.reverse, start_times
   end
 
-  test "play_history should return duration for completed sessions" do
+  test "play_history should return session_duration for completed sessions" do
     get api_v1_widget_play_history_url,
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
@@ -937,12 +938,12 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     result = JSON.parse(response.body)
     completed = result["sessions"].find { |s| s["end_time"].present? }
     if completed
-      assert_not_nil completed["duration"]
-      assert_kind_of Integer, completed["duration"]
+      assert_not_nil completed["session_duration"]
+      assert_kind_of Integer, completed["session_duration"]
     end
   end
 
-  test "play_history should return nil duration for in-progress sessions" do
+  test "play_history should return nil session_duration for in-progress sessions" do
     get api_v1_widget_play_history_url,
         headers: { "X-Api-Token" => @api_token }
     assert_response :success
@@ -950,7 +951,20 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     result = JSON.parse(response.body)
     in_progress = result["sessions"].find { |s| s["end_time"].nil? }
     if in_progress
-      assert_nil in_progress["duration"]
+      assert_nil in_progress["session_duration"]
+    end
+  end
+
+  test "play_history should return album duration for all sessions" do
+    get api_v1_widget_play_history_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    return if result["sessions"].empty?
+
+    result["sessions"].each do |session|
+      assert_kind_of Integer, session["duration"]
     end
   end
 
