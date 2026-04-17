@@ -261,6 +261,7 @@ module Api
       # due to database constraints (foreign keys ensure release/media_owner exist)
       def serialize_play_session(session)
         item = session.media_item
+        media_item_duration = item.release&.duration || 2400
         {
           id: session.id,
           album_id: item.id,
@@ -271,7 +272,8 @@ module Api
           media_type: item.media_type&.name,
           start_time: session.start_time&.iso8601,
           end_time: session.end_time&.iso8601,
-          duration: session.duration
+          session_duration: session.duration,
+          duration: media_item_duration
         }
       end
       # :nocov:
