@@ -21,8 +21,7 @@ class PlaylistController < ApplicationController
   end
 
   def destroy
-    playlist_item = Playlist.find(params[:id])
-    playlist_item.update!(played: true)
+    Playlist.find(params[:id]).destroy!
 
     respond_to do |format|
       format.json { render json: { success: true } }

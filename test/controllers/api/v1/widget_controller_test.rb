@@ -1298,7 +1298,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
   end
 
   # Playlist delete tests
-  test "playlist_delete should mark item as played" do
+  test "playlist_delete should destroy the record" do
     entry = playlists(:active_first)
 
     delete api_v1_widget_playlist_delete_url(id: entry.id),
@@ -1307,7 +1307,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
 
     result = JSON.parse(response.body)
     assert result["success"]
-    assert entry.reload.played
+    assert_raises(ActiveRecord::RecordNotFound) { entry.reload }
   end
 
   test "playlist_delete should remove item from active queue" do
