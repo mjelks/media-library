@@ -59,6 +59,22 @@
            class="absolute z-10 left-0 right-16 mt-14 bg-white border border-gray-300 rounded-lg shadow-lg hidden">
       </div>
     </div>
+
+    <!-- Queue mode toggle -->
+    <div class="flex items-center gap-2 mt-3">
+      <input type="checkbox"
+             id="queue-mode-toggle"
+             data-now-playing-search-target="queueToggle"
+             data-action="change->now-playing-search#toggleQueueMode"
+             class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+      <label for="queue-mode-toggle" class="text-sm text-gray-600 cursor-pointer select-none">
+        Add to <strong>Up Next</strong> instead of playing
+      </label>
+      <span data-now-playing-search-target="queueBadge"
+            class="hidden px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700 rounded-full">
+        Queue mode active
+      </span>
+    </div>
   </div>
   <% end %>
 
@@ -216,6 +232,11 @@
         <% end %>
       </div>
     </div>
+  <% end %>
+
+  <!-- Up Next Section -->
+  <% if is_admin? %>
+    <%= render partial: "up_next" %>
   <% end %>
 
   <!-- Recently Played Section (older than 60 minutes) -->

@@ -1,0 +1,57 @@
+<li class="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-lg mb-2 hover:bg-gray-50 transition-colors"
+    data-playlist-id="<%= playlist_item.id %>"
+    data-media-item-id="<%= playlist_item.media_item_id %>">
+
+  <!-- Drag handle -->
+  <div class="drag-handle cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 flex-shrink-0">
+    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
+    </svg>
+  </div>
+
+  <!-- Cover art -->
+  <% mi = playlist_item.media_item %>
+  <div class="flex-shrink-0">
+    <% if mi.release&.cover_image&.attached? %>
+      <%= image_tag mi.release.cover_image.variant(resize_to_limit: [ 48, 48 ]),
+          class: "w-12 h-12 object-cover rounded shadow" %>
+    <% else %>
+      <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center shadow">
+        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+        </svg>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Info -->
+  <div class="flex-1 min-w-0">
+    <p class="font-medium text-gray-900 truncate"><%= mi.display_title || "Unknown Album" %></p>
+    <p class="text-sm text-gray-500 truncate"><%= mi.release&.media_owner&.name || "Unknown Artist" %></p>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex items-center gap-1 flex-shrink-0">
+    <!-- Play Now (same behavior as Done on current + start this) -->
+    <%= button_to playlist_play_path(playlist_item),
+        method: :post,
+        class: "p-2 rounded-lg bg-green-100 hover:bg-green-200 text-green-700 transition-colors",
+        title: "Play Now",
+        form: { data: { turbo: false } } do %>
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+      </svg>
+    <% end %>
+
+    <!-- Remove from queue -->
+    <%= button_to playlist_item_path(playlist_item),
+        method: :delete,
+        class: "p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 transition-colors",
+        title: "Remove from Up Next",
+        form: { data: { turbo: false } } do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    <% end %>
+  </div>
+</li>

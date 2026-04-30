@@ -51,6 +51,12 @@ Rails.application.routes.draw do
   post "cd_collection/location/:id/insert_gap/:slot", to: "cd_collection#insert_gap", as: :cd_collection_insert_gap
   delete "cd_collection/location/:id/remove_gap/:slot", to: "cd_collection#remove_gap", as: :cd_collection_remove_gap
 
+  # Playlist (Up Next queue)
+  post "playlist", to: "playlist#create", as: :playlist
+  delete "playlist/:id", to: "playlist#destroy", as: :playlist_item
+  patch "playlist/reorder", to: "playlist#reorder", as: :playlist_reorder
+  post "playlist/:id/play", to: "playlist#play", as: :playlist_play
+
   # Now Playing
   get "now_playing", to: "now_playing#index"
   get "now_playing/search", to: "now_playing#search"

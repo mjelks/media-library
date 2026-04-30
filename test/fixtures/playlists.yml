@@ -1,0 +1,25 @@
+# == Schema Information
+#
+# Table name: playlists
+#
+#  id            :integer          not null, primary key
+#  played        :boolean          default(FALSE), not null
+#  position      :integer          not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  media_item_id :integer          not null
+
+active_first:
+  media_item: vinyl_one
+  position: 1
+  played: false
+
+active_second:
+  media_item: vinyl_two
+  position: 2
+  played: false
+
+already_played:
+  media_item: vinyl_recently_played
+  position: 3
+  played: true

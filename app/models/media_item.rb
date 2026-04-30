@@ -177,13 +177,20 @@ class MediaItem < ApplicationRecord
     release.release_tracks.select { |t| t.position.start_with?("#{disc_number}.") }
   end
 
-  # Rollback a play: decrement play count and clear currently playing / last_played
+  # Rollback a play: destroy the latest session, decrement play count,
+  # and restore last_played to the previous session (or nil if none remain).
   def rollback_play!
-    update!(
-      play_count: [ (play_count || 1) - 1, 0 ].max,
-      last_played: nil,
-      currently_playing: false
-    )
+    transaction do
+      play_sessions.order(start_time: :desc).first&.destroy
+
+      previous_session = play_sessions.order(start_time: :desc).first
+
+      update!(
+        play_count: [ (play_count || 1) - 1, 0 ].max,
+        last_played: previous_session&.start_time,
+        currently_playing: false
+      )
+    end
   end
 
   private

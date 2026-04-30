@@ -37,6 +37,9 @@ class NowPlayingController < ApplicationController
 
     @current_cartridge = LpCartridge.current
     @cartridge_hours_used = @current_cartridge&.hours_used_in_seconds
+
+    @playlist = Playlist.active
+                        .includes(media_item: [ :media_type, release: [ :media_owner, cover_image_attachment: :blob ] ])
   end
 
   def search
@@ -48,6 +51,7 @@ class NowPlayingController < ApplicationController
     end
 
     media_type = params[:media_type] || "Vinyl"
+    exclude_ids = params[:exclude_ids].to_s.split(",").map(&:to_i).reject(&:zero?)
     sanitized_query = sanitize_like(query)
     @media_items = MediaItem.media_type_option(media_type)
                             .joins(release: :media_owner)
@@ -56,6 +60,7 @@ class NowPlayingController < ApplicationController
                               "releases.title LIKE :query OR media_owners.name LIKE :query",
                               query: "%#{query}%"
                             )
+                            .then { |scope| exclude_ids.any? ? scope.where.not(id: exclude_ids) : scope }
                             .order(
                               Arel.sql(
                                 ActiveRecord::Base.sanitize_sql_array([

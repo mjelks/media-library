@@ -208,4 +208,32 @@ class NowPlayingControllerTest < ActionDispatch::IntegrationTest
     get now_playing_search_url, params: { q: @media_item.release.title, media_type: "CD" }
     assert_response :success
   end
+
+  test "should exclude items by id from search results" do
+    get now_playing_search_url, params: { q: @media_item.release.title, exclude_ids: @media_item.id.to_s }
+    assert_response :success
+
+    ids = response.parsed_body.map { |r| r["id"] }
+    assert_not_includes ids, @media_item.id
+  end
+
+  test "should exclude multiple items by id from search results" do
+    other = media_items(:vinyl_now_playing)
+    exclude = "#{@media_item.id},#{other.id}"
+
+    get now_playing_search_url, params: { q: @media_item.release.title, exclude_ids: exclude }
+    assert_response :success
+
+    ids = response.parsed_body.map { |r| r["id"] }
+    assert_not_includes ids, @media_item.id
+    assert_not_includes ids, other.id
+  end
+
+  test "should return full results when exclude_ids is empty" do
+    get now_playing_search_url, params: { q: @media_item.release.title, exclude_ids: "" }
+    assert_response :success
+
+    ids = response.parsed_body.map { |r| r["id"] }
+    assert_includes ids, @media_item.id
+  end
 end
