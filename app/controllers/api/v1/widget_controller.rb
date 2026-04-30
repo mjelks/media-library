@@ -129,6 +129,27 @@ module Api
         }
       end
 
+      def playlist_reorder
+        ids = params[:playlist_ids] || []
+        Playlist.transaction do
+          ids.each_with_index do |id, index|
+            Playlist.where(id: id).update_all(position: index + 1)
+          end
+        end
+        render json: { success: true }
+      end
+
+      def playlist
+        items = Playlist.active
+                        .includes(media_item: [ :location, :media_type, { release: [ :media_owner, :cover_image_attachment, :release_tracks ] } ])
+
+        render json: {
+          items: items.map { |entry| serialize_media_item(entry.media_item) },
+          total_duration: MediaItem.total_duration(items.map(&:media_item)),
+          total_duration_formatted: format_duration(MediaItem.total_duration(items.map(&:media_item)))
+        }
+      end
+
       def play_history
         days = (params[:days] || 30).to_i
         sessions = PlaySession.recent(days)
@@ -139,8 +160,6 @@ module Api
           total_count: sessions.size
         }
       end
-
-
 
       def wishlist
         items = WishlistItem.includes(:media_type, release: [ :media_owner, :release_tracks, :genres, :cover_image_attachment ])

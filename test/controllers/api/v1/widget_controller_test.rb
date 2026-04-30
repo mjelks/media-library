@@ -1148,4 +1148,115 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     delete api_v1_widget_wishlist_delete_url(id: wishlist_item.id)
     assert_response :unauthorized
   end
+
+  # Playlist tests
+  test "playlist should return response with items and duration keys" do
+    get api_v1_widget_playlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result.key?("items")
+    assert result.key?("total_duration")
+    assert result.key?("total_duration_formatted")
+    assert_kind_of Array, result["items"]
+  end
+
+  test "playlist should return only unplayed items in position order" do
+    get api_v1_widget_playlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    ids = result["items"].map { |i| i["id"] }
+
+    assert_includes ids, media_items(:vinyl_one).id
+    assert_includes ids, media_items(:vinyl_two).id
+    assert_not_includes ids, media_items(:vinyl_recently_played).id
+  end
+
+  test "playlist should return items in position order" do
+    get api_v1_widget_playlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    ids = result["items"].map { |i| i["id"] }
+
+    assert_equal [ media_items(:vinyl_one).id, media_items(:vinyl_two).id ], ids
+  end
+
+  test "playlist should return proper item response structure" do
+    get api_v1_widget_playlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    return if result["items"].empty?
+
+    item = result["items"].first
+    assert item.key?("id")
+    assert item.key?("title")
+    assert item.key?("artist")
+    assert item.key?("year")
+    assert item.key?("duration")
+    assert item.key?("duration_formatted")
+    assert item.key?("cover_url")
+    assert item.key?("play_count")
+    assert item.key?("last_played")
+    assert item.key?("tracks")
+    assert_kind_of Array, item["tracks"]
+    assert item.key?("location")
+    assert item.key?("media_type")
+  end
+
+  test "playlist should return empty items array when queue is empty" do
+    Playlist.update_all(played: true)
+
+    get api_v1_widget_playlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert_equal [], result["items"]
+    assert_equal 0, result["total_duration"]
+  end
+
+  test "playlist should require authentication" do
+    get api_v1_widget_playlist_url
+    assert_response :unauthorized
+  end
+
+  # Playlist reorder tests
+  test "playlist_reorder should update positions" do
+    first = playlists(:active_first)
+    second = playlists(:active_second)
+
+    patch api_v1_widget_playlist_reorder_url,
+          params: { playlist_ids: [ second.id, first.id ] },
+          headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result["success"]
+
+    assert_equal 1, second.reload.position
+    assert_equal 2, first.reload.position
+  end
+
+  test "playlist_reorder should return success with empty ids" do
+    patch api_v1_widget_playlist_reorder_url,
+          params: { playlist_ids: [] },
+          headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result["success"]
+  end
+
+  test "playlist_reorder should require authentication" do
+    patch api_v1_widget_playlist_reorder_url,
+          params: { playlist_ids: [] }
+    assert_response :unauthorized
+  end
 end

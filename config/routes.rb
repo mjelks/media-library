@@ -14,6 +14,8 @@ Rails.application.routes.draw do
       get "widget/random", to: "widget#random"
       get "widget/now_playing", to: "widget#now_playing"
       get "widget/recently_played", to: "widget#recently_played"
+      get "widget/playlist", to: "widget#playlist"
+      patch "widget/playlist/reorder", to: "widget#playlist_reorder"
       get "widget/play_history", to: "widget#play_history"
       get "widget/wishlist", to: "widget#wishlist"
       delete "widget/wishlist/:id", to: "widget#wishlist_delete", as: :widget_wishlist_delete
