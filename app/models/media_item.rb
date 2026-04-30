@@ -40,6 +40,7 @@ class MediaItem < ApplicationRecord
   belongs_to :release, optional: true
   belongs_to :location, optional: true
   has_many :play_sessions, dependent: :destroy
+  has_many :playlists, dependent: :destroy
   has_one_attached :artwork
 
   after_update :close_open_play_sessions, if: :currently_playing_changed_to_false?
