@@ -1196,6 +1196,7 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
 
     item = result["items"].first
     assert item.key?("id")
+    assert item.key?("playlist_id")
     assert item.key?("title")
     assert item.key?("artist")
     assert item.key?("year")
@@ -1208,6 +1209,19 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert_kind_of Array, item["tracks"]
     assert item.key?("location")
     assert item.key?("media_type")
+  end
+
+  test "playlist should return correct playlist_id for each item" do
+    get api_v1_widget_playlist_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    first_item = result["items"].find { |i| i["id"] == media_items(:vinyl_one).id }
+    second_item = result["items"].find { |i| i["id"] == media_items(:vinyl_two).id }
+
+    assert_equal playlists(:active_first).id, first_item["playlist_id"]
+    assert_equal playlists(:active_second).id, second_item["playlist_id"]
   end
 
   test "playlist should return empty items array when queue is empty" do
