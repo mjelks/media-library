@@ -57,8 +57,7 @@ class PlaylistControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert response.parsed_body["success"]
-    @active_item.reload
-    assert @active_item.played
+    assert_raises(ActiveRecord::RecordNotFound) { @active_item.reload }
   end
 
   test "destroy redirects for html format" do

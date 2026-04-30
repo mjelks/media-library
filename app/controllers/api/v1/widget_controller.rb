@@ -144,8 +144,8 @@ module Api
       end
 
       def playlist_delete
-        playlist_item = Playlist.find(params[:id])
-        playlist_item.update!(played: true)
+        Playlist.find(params[:id]).destroy!
+
         render json: { success: true }
       rescue ActiveRecord::RecordNotFound
         render json: { error: "Playlist item not found" }, status: :not_found
