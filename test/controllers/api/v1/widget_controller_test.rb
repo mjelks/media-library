@@ -1227,6 +1227,99 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
+  # Playlist create tests
+  test "playlist_create should add a media item to the queue" do
+    assert_difference "Playlist.active.count", 1 do
+      post api_v1_widget_playlist_url,
+           params: { media_item_id: @played_long_ago_item.id },
+           headers: { "X-Api-Token" => @api_token }
+    end
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result["success"]
+    assert_equal false, result["already_queued"]
+  end
+
+  test "playlist_create should not duplicate an already queued item" do
+    assert_no_difference "Playlist.active.count" do
+      post api_v1_widget_playlist_url,
+           params: { media_item_id: media_items(:vinyl_one).id },
+           headers: { "X-Api-Token" => @api_token }
+    end
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result["success"]
+    assert result["already_queued"]
+  end
+
+  test "playlist_create should append at the end of the queue" do
+    existing_max = Playlist.active.maximum(:position)
+
+    post api_v1_widget_playlist_url,
+         params: { media_item_id: @played_long_ago_item.id },
+         headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    new_entry = Playlist.active.order(:position).last
+    assert_equal @played_long_ago_item.id, new_entry.media_item_id
+    assert new_entry.position > existing_max
+  end
+
+  test "playlist_create should return 404 for non-existent media item" do
+    post api_v1_widget_playlist_url,
+         params: { media_item_id: 999999 },
+         headers: { "X-Api-Token" => @api_token }
+    assert_response :not_found
+
+    result = JSON.parse(response.body)
+    assert_equal "Media item not found", result["error"]
+  end
+
+  test "playlist_create should require authentication" do
+    post api_v1_widget_playlist_url,
+         params: { media_item_id: @vinyl_item.id }
+    assert_response :unauthorized
+  end
+
+  # Playlist delete tests
+  test "playlist_delete should mark item as played" do
+    entry = playlists(:active_first)
+
+    delete api_v1_widget_playlist_delete_url(id: entry.id),
+           headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert result["success"]
+    assert entry.reload.played
+  end
+
+  test "playlist_delete should remove item from active queue" do
+    entry = playlists(:active_first)
+
+    assert_difference "Playlist.active.count", -1 do
+      delete api_v1_widget_playlist_delete_url(id: entry.id),
+             headers: { "X-Api-Token" => @api_token }
+    end
+    assert_response :success
+  end
+
+  test "playlist_delete should return 404 for non-existent playlist item" do
+    delete api_v1_widget_playlist_delete_url(id: 999999),
+           headers: { "X-Api-Token" => @api_token }
+    assert_response :not_found
+
+    result = JSON.parse(response.body)
+    assert_equal "Playlist item not found", result["error"]
+  end
+
+  test "playlist_delete should require authentication" do
+    delete api_v1_widget_playlist_delete_url(id: playlists(:active_first).id)
+    assert_response :unauthorized
+  end
+
   # Playlist reorder tests
   test "playlist_reorder should update positions" do
     first = playlists(:active_first)

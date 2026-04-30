@@ -129,6 +129,28 @@ module Api
         }
       end
 
+      def playlist_create
+        media_item = MediaItem.find(params[:media_item_id])
+
+        if Playlist.active.exists?(media_item_id: media_item.id)
+          render json: { success: true, already_queued: true }
+          return
+        end
+
+        Playlist.create!(media_item: media_item, position: Playlist.next_position)
+        render json: { success: true, already_queued: false }
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Media item not found" }, status: :not_found
+      end
+
+      def playlist_delete
+        playlist_item = Playlist.find(params[:id])
+        playlist_item.update!(played: true)
+        render json: { success: true }
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Playlist item not found" }, status: :not_found
+      end
+
       def playlist_reorder
         ids = params[:playlist_ids] || []
         Playlist.transaction do
