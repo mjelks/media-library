@@ -166,7 +166,7 @@ module Api
                         .includes(media_item: [ :location, :media_type, { release: [ :media_owner, :cover_image_attachment, :release_tracks ] } ])
 
         render json: {
-          items: items.map { |entry| serialize_media_item(entry.media_item) },
+          items: items.map { |entry| serialize_media_item(entry.media_item).merge(playlist_id: entry.id) },
           total_duration: MediaItem.total_duration(items.map(&:media_item)),
           total_duration_formatted: format_duration(MediaItem.total_duration(items.map(&:media_item)))
         }
