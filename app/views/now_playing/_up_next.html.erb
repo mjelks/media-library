@@ -1,0 +1,13 @@
+<div id="up-next-section" class="mb-8 <%= @playlist.none? ? 'hidden' : '' %>">
+  <h2 class="font-bold text-2xl mb-4 text-stone-700">Up Next</h2>
+  <ol id="up-next-list"
+      data-controller="sortable"
+      data-sortable-url-value="<%= playlist_reorder_path %>"
+      data-sortable-simple-mode-value="true"
+      data-sortable-id-attribute-value="data-playlist-id"
+      data-sortable-param-name-value="playlist_ids">
+    <% @playlist.each do |item| %>
+      <%= render partial: "now_playing/playlist_item", locals: { playlist_item: item } %>
+    <% end %>
+  </ol>
+</div>

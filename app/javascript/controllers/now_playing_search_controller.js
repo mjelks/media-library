@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "results"]
+  static targets = ["input", "results", "queueToggle", "queueBadge"]
   static values = { url: String, randomUrl: String }
 
   connect() {
@@ -54,9 +54,19 @@ export default class extends Controller {
     }, 200)
   }
 
+  getActiveQueueIds() {
+    const list = document.getElementById("up-next-list")
+    if (!list) return []
+    return Array.from(list.querySelectorAll("[data-media-item-id]"))
+      .map(el => el.dataset.mediaItemId)
+      .filter(Boolean)
+  }
+
   async performSearch(query) {
+    const excludeIds = this.getActiveQueueIds()
+    const excludeParam = excludeIds.length ? `&exclude_ids=${excludeIds.join(",")}` : ""
     try {
-      const response = await fetch(`${this.urlValue}?q=${encodeURIComponent(query)}&media_type=${encodeURIComponent(this.mediaType)}`, {
+      const response = await fetch(`${this.urlValue}?q=${encodeURIComponent(query)}&media_type=${encodeURIComponent(this.mediaType)}${excludeParam}`, {
         headers: {
           "Accept": "application/json"
         }
@@ -133,8 +143,17 @@ export default class extends Controller {
           <div class="font-medium truncate">${this.escapeHtml(item.title || 'Unknown Album')}</div>
           <div class="text-sm text-gray-600 truncate">${this.escapeHtml(item.artist || 'Unknown Artist')}</div>
         </div>
-        <div class="text-sm text-gray-400">
-          ${item.play_count || 0} plays
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span class="text-sm text-gray-400">${item.play_count || 0} plays</span>
+          <button type="button"
+                  class="p-1.5 rounded-md bg-indigo-100 hover:bg-indigo-200 text-indigo-700 transition-colors"
+                  title="Add to Up Next"
+                  data-item-id="${item.id}"
+                  data-action="click->now-playing-search#addToQueue">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </button>
         </div>
       </div>
     `).join('')
@@ -159,7 +178,11 @@ export default class extends Controller {
         case "Enter":
           event.preventDefault()
           if (this.selectedIndex >= 0 && this.results[this.selectedIndex]) {
-            this.playItem(this.results[this.selectedIndex])
+            if (this.hasQueueToggleTarget && this.queueToggleTarget.checked) {
+              this.addToQueueById(this.results[this.selectedIndex].id)
+            } else {
+              this.playItem(this.results[this.selectedIndex])
+            }
           }
           break
         case "Escape":
@@ -186,8 +209,22 @@ export default class extends Controller {
     event.stopPropagation()
     const index = parseInt(event.currentTarget.dataset.index, 10)
     if (this.results[index]) {
-      this.playItem(this.results[index])
+      if (this.hasQueueToggleTarget && this.queueToggleTarget.checked) {
+        this.addToQueueById(this.results[index].id)
+      } else {
+        this.playItem(this.results[index])
+      }
     }
+  }
+
+  toggleQueueMode() {
+    const isQueueMode = this.queueToggleTarget.checked
+    if (this.hasQueueBadgeTarget) {
+      this.queueBadgeTarget.classList.toggle("hidden", !isQueueMode)
+    }
+    this.inputTarget.placeholder = isQueueMode
+      ? "Search to add to Up Next..."
+      : "Search by artist or album title..."
   }
 
   async playItem(item) {
@@ -210,6 +247,56 @@ export default class extends Controller {
       }
     } catch (error) {
       console.error("Play error:", error)
+    }
+  }
+
+  async addToQueue(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    this.hideResults()
+    this.inputTarget.value = ""
+
+    const button = event.currentTarget
+    button.disabled = true
+
+    await this.addToQueueById(button.dataset.itemId)
+
+    // Visual confirmation after the fetch completes
+    button.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+    </svg>`
+    button.classList.remove("bg-indigo-100", "hover:bg-indigo-200", "text-indigo-700")
+    button.classList.add("bg-green-100", "text-green-700")
+  }
+
+  async addToQueueById(itemId) {
+    const csrfToken = document.querySelector("meta[name='csrf-token']")?.content
+    try {
+      const response = await fetch("/playlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ media_item_id: itemId })
+      })
+      if (response.ok) {
+        const data = await response.json()
+        if (data.html) {
+          const section = document.getElementById("up-next-section")
+          const list = document.getElementById("up-next-list")
+          if (section) section.classList.remove("hidden")
+          if (list) list.insertAdjacentHTML("beforeend", data.html)
+        }
+        this.hideResults()
+        this.inputTarget.value = ""
+      } else {
+        console.error("Failed to add to queue")
+      }
+    } catch (error) {
+      console.error("Queue error:", error)
     }
   }
 
