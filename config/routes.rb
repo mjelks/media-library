@@ -77,6 +77,7 @@ Rails.application.routes.draw do
 
   resource :pick_random_config, only: %i[show edit update] do
     get :candidates, on: :member
+    get :inverse_candidates, on: :member
   end
   resources :lp_cartridges
   resources :media_types
