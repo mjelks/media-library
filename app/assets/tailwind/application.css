@@ -53,6 +53,11 @@
     flex-shrink: 0;
   }
 
+  /* Disclosure triangle rotation for <details> elements */
+  details[open] summary .details-arrow {
+    transform: rotate(90deg);
+  }
+
   /* SortableJS drag-and-drop states */
   .sortable-ghost {
     @apply opacity-40 bg-gray-100;

@@ -1,4 +1,4 @@
-<% @candidates.each do |item| %>
+<% (local_assigns[:candidates] || @candidates).each do |item| %>
   <div class="relative p-4 bg-white rounded-lg shadow border border-gray-100 hover:shadow-md transition-shadow">
     <div class="flex items-center gap-4">
       <div class="flex-shrink-0 relative group/cover">

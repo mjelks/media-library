@@ -61,6 +61,14 @@ class MediaItem < ApplicationRecord
       .in_the_last(days.days)
       .order(last_played: :desc)
   }
+  scope :recently_played_candidates, ->(media_type = "Vinyl") {
+    config = PickRandomConfig.current(media_type)
+    media_type_option(media_type)
+      .where("last_played >= ?", config.last_played_days_ago.days.ago)
+      .includes(release: [ :media_owner, :cover_image_attachment, :release_tracks ])
+      .order(last_played: :desc)
+  }
+
   scope :random_candidates, ->(media_type = "Vinyl") {
     config = PickRandomConfig.current(media_type)
     scope = media_type_option(media_type)

@@ -11,6 +11,8 @@ class PickRandomConfigsController < ApplicationController
     @total_candidates = @media_type == "CD" ? @cd_count : @vinyl_count
     @candidates = MediaItem.random_candidates(@media_type).limit(PER_PAGE)
     @has_more = @total_candidates > PER_PAGE
+    @inverse_total = MediaItem.recently_played_candidates(@media_type).count
+    @inverse_candidates = MediaItem.recently_played_candidates(@media_type).limit(PER_PAGE)
   end
 
   def candidates
