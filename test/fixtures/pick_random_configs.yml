@@ -1,0 +1,25 @@
+# == Schema Information
+#
+# Table name: pick_random_configs
+#
+#  id                   :integer          not null, primary key
+#  last_played_days_ago :integer          default(60), not null
+#  media_type           :string           default("Vinyl"), not null
+#  play_count_operator  :string           default("none"), not null
+#  play_count_threshold :integer
+#  rating_filter        :string           default("none"), not null
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#
+
+vinyl:
+  media_type: Vinyl
+  last_played_days_ago: 60
+  play_count_operator: none
+  rating_filter: none
+
+cd:
+  media_type: CD
+  last_played_days_ago: 30
+  play_count_operator: none
+  rating_filter: none

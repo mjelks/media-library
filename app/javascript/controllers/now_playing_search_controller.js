@@ -98,13 +98,14 @@ export default class extends Controller {
         return
       }
 
-      this.results = await response.json()
+      const data = await response.json()
+      this.results = data.results
       this.selectedIndex = -1
 
       if (this.results.length === 0) {
         this.resultsTarget.innerHTML = `
           <div class="px-4 py-3 text-gray-500 text-center">
-            No albums available (all played within the last 60 days)
+            No matches found for: ${data.filter_description}
           </div>
         `
         this.showResults()

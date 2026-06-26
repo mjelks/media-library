@@ -22,11 +22,12 @@
                 </svg>
               </button>
               <div data-dropdown-target="menu" class="hidden absolute left-0 mt-2 bg-gray-800 rounded shadow-lg z-50 min-w-max">
-                <%= link_to "Releases", releases_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
                 <%= link_to "Album/CD Locations", locations_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
                 <%= link_to "LP Cartridges", lp_cartridges_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
                 <%= link_to "Media Items", media_items_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
                 <%= link_to "Media Types", media_types_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
+                <%= link_to "Pick Random Settings", pick_random_config_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
+                <%= link_to "Releases", releases_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
                 <%= link_to "Users", users_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400" %>
               </div>
             </div>
@@ -68,11 +69,12 @@
           <div class="border-t border-gray-600 pt-2">
             <span class="text-gray-400 text-sm uppercase tracking-wide">Config</span>
             <div class="mt-1 flex flex-col space-y-1 pl-3">
-              <%= link_to "Releases", releases_path, class: "block hover:text-blue-400" %>
               <%= link_to "Album/CD Locations", locations_path, class: "block hover:text-blue-400" %>
               <%= link_to "LP Cartridges", lp_cartridges_path, class: "block hover:text-blue-400" %>
               <%= link_to "Media Items", media_items_path, class: "block hover:text-blue-400" %>
               <%= link_to "Media Types", media_types_path, class: "block hover:text-blue-400" %>
+              <%= link_to "Pick Random Settings", pick_random_config_path, class: "block hover:text-blue-400" %>
+              <%= link_to "Releases", releases_path, class: "block hover:text-blue-400" %>
               <%= link_to "Users", users_path, class: "block hover:text-blue-400" %>
             </div>
           </div>

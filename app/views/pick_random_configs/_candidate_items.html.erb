@@ -1,0 +1,56 @@
+<% @candidates.each do |item| %>
+  <div class="relative p-4 bg-white rounded-lg shadow border border-gray-100 hover:shadow-md transition-shadow">
+    <div class="flex items-center gap-4">
+      <div class="flex-shrink-0 relative group/cover">
+        <%= link_to edit_media_item_path(item) do %>
+          <% if item.release&.cover_image&.attached? %>
+            <%= image_tag item.release.cover_image.variant(resize_to_limit: [80, 80]),
+                class: "w-20 h-20 object-cover rounded-md shadow" %>
+          <% else %>
+            <div class="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center">
+              <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+              </svg>
+            </div>
+          <% end %>
+        <% end %>
+        <div class="absolute left-full top-0 ml-4 z-20 opacity-0 invisible group-hover/cover:opacity-100 group-hover/cover:visible transition-all duration-200 pointer-events-none">
+          <%= render partial: "record_collection/media_item_hover_details", locals: { media_item: item } %>
+        </div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <%= link_to edit_media_item_path(item), class: "block hover:text-gray-900" do %>
+          <h3 class="font-semibold text-lg truncate"><%= item.display_title || "Unknown Album" %></h3>
+          <p class="text-gray-600 truncate"><%= item.release&.media_owner&.name || "Unknown Artist" %></p>
+        <% end %>
+        <p class="text-sm text-gray-400">
+          <% if item.last_played %>
+            Played <%= time_ago_in_words(item.last_played) %> ago
+          <% else %>
+            Never played
+          <% end %>
+          <span class="mx-1">&middot;</span>
+          <%= pluralize(item.play_count || 0, "play") %>
+          <span class="mx-1">&middot;</span>
+          <% if item.media_type&.name == "CD" %>
+            <span title="CD">💿</span>
+          <% else %>
+            <span title="Vinyl" class="inline-flex items-center justify-center w-5 h-5 bg-gray-600 text-white text-[10px] font-bold rounded-full align-middle">LP</span>
+          <% end %>
+        </p>
+        <% if item.location %>
+          <% if item.media_type&.name == "Vinyl" %>
+            <%= link_to record_collection_location_path(item.location), class: "italic text-xs text-gray-400 hover:text-gray-600 hover:underline" do %>
+              <% if item.location.cube_location.present? %>Cube <%= item.location.cube_location %>, <% end %>Section <%= item.location.name %>
+            <% end %>
+          <% elsif item.slot_position %>
+            <% ps = page_and_side_for(item.slot_position) %>
+            <%= link_to cd_collection_location_path(item.location, page: ps[:page], side: ps[:side]), class: "italic text-xs text-gray-400 hover:text-gray-600 hover:underline" do %>
+              <%= item.location.name %> — Page <%= ps[:page] %> Side <%= ps[:side] %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

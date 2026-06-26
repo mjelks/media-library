@@ -1,0 +1,80 @@
+<% content_for :title, "Pick Random Settings" %>
+
+<div class="p-4 w-full max-w-6xl mx-auto">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="font-bold text-4xl">Pick Random Settings</h1>
+    <div class="flex items-center gap-3">
+      <div class="flex rounded-lg overflow-hidden border border-gray-300">
+        <%= link_to pick_random_config_path(media_type: "Vinyl"),
+            class: "px-4 py-2 font-medium text-sm transition-colors #{@media_type == 'Vinyl' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}" do %>
+          Vinyl <span class="text-xs opacity-75">(<%= @vinyl_count %>)</span>
+        <% end %>
+        <%= link_to pick_random_config_path(media_type: "CD"),
+            class: "px-4 py-2 font-medium text-sm transition-colors border-l border-gray-300 #{@media_type == 'CD' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}" do %>
+          CD <span class="text-xs opacity-75">(<%= @cd_count %>)</span>
+        <% end %>
+      </div>
+      <%= link_to "Edit", edit_pick_random_config_path(media_type: @media_type), class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+      <h2 class="font-semibold text-lg mb-3">Last Played</h2>
+      <p class="text-gray-700">Not played in the last <strong><%= @config.last_played_days_ago %> days</strong></p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+      <h2 class="font-semibold text-lg mb-3">Play Count</h2>
+      <% if @config.play_count_active? %>
+        <p class="text-gray-700">
+          Play count
+          <strong><%= @config.play_count_operator.humanize.downcase %></strong>
+          <strong><%= @config.play_count_threshold %></strong>
+        </p>
+      <% else %>
+        <p class="text-gray-400 italic">Disabled</p>
+      <% end %>
+    </div>
+
+    <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+      <h2 class="font-semibold text-lg mb-3">Rating Filter</h2>
+      <% if @config.rating_filter_active? %>
+        <% label = { "exclude_meh" => "Exclude meh'd releases", "prefer_thumbs_up" => "Prefer thumbs-up only" }[@config.rating_filter] %>
+        <p class="text-gray-700"><strong><%= label %></strong></p>
+      <% else %>
+        <p class="text-gray-400 italic">Disabled (all ratings included)</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="mt-8">
+    <h2 class="font-bold text-2xl mb-4 text-stone-700">
+      <%= pluralize(@total_candidates, "item") %> would fall under this search
+    </h2>
+
+    <div data-controller="infinite-scroll">
+      <div data-infinite-scroll-target="container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <%= render partial: "candidate_items" %>
+      </div>
+
+      <% if @has_more %>
+        <div data-infinite-scroll-target="sentinel"
+             data-url="<%= candidates_pick_random_config_path(page: 1, media_type: @media_type) %>"
+             class="h-8 mt-4">
+        </div>
+      <% end %>
+
+      <div data-infinite-scroll-target="spinner" class="hidden py-8 flex justify-center">
+        <svg class="w-6 h-6 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>

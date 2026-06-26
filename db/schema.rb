@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_29_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_26_180217) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -103,6 +103,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_29_000001) do
     t.text "description"
     t.string "name"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "pick_random_configs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "last_played_days_ago", default: 60, null: false
+    t.string "media_type", default: "Vinyl", null: false
+    t.string "play_count_operator", default: "none", null: false
+    t.integer "play_count_threshold"
+    t.string "rating_filter", default: "none", null: false
+    t.datetime "updated_at", null: false
+    t.index ["media_type"], name: "index_pick_random_configs_on_media_type", unique: true
   end
 
   create_table "play_sessions", force: :cascade do |t|
