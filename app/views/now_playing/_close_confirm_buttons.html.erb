@@ -1,4 +1,4 @@
-<div class="absolute -top-2 -right-2 z-10 group/buttons <%= 'hidden' if !params[:tweak] && media_item.listening_confirmed? %>" data-now-playing-card-target="buttonGroup">
+<div class="absolute -top-2 -right-2 z-10 group/buttons <%= 'hidden tweak-hidden' if media_item.listening_confirmed? && !params[:tweak] %>" data-now-playing-card-target="buttonGroup">
     <!-- Red X button (delete) - stays in place -->
     <button type="button"
             data-action="click->now-playing-card#showConfirm mouseenter->tooltip#show mouseleave->tooltip#hide"
