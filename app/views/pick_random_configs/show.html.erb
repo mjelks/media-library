@@ -64,12 +64,25 @@
       </span>
     </summary>
 
-    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-      <%= render partial: "candidate_items", locals: { candidates: @inverse_candidates } %>
+    <div data-controller="infinite-scroll" class="mt-4">
+      <div data-infinite-scroll-target="container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <%= render partial: "candidate_items", locals: { candidates: @inverse_candidates } %>
+      </div>
+
+      <% if @inverse_total > PickRandomConfigsController::PER_PAGE %>
+        <div data-infinite-scroll-target="sentinel"
+             data-url="<%= inverse_candidates_pick_random_config_path(page: 1, media_type: @media_type) %>"
+             class="h-8 mt-4">
+        </div>
+      <% end %>
+
+      <div data-infinite-scroll-target="spinner" class="hidden py-8 flex justify-center">
+        <svg class="w-6 h-6 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+      </div>
     </div>
-    <% if @inverse_total > PickRandomConfigsController::PER_PAGE %>
-      <p class="mt-3 text-sm text-gray-400 italic">Showing first <%= PickRandomConfigsController::PER_PAGE %> of <%= @inverse_total %> items</p>
-    <% end %>
   </details>
 
   <details class="mt-8">

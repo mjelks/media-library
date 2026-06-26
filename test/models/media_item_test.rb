@@ -258,6 +258,50 @@ class MediaItemTest < ActiveSupport::TestCase
     assert_includes MediaItem.random_candidates("CD"), cd_item
   end
 
+  # recently_played_candidates
+  test "recently_played_candidates includes items played within the config window" do
+    pick_random_configs(:vinyl).update!(last_played_days_ago: 60)
+    vinyl_item = media_items(:vinyl_one)
+    vinyl_item.update!(last_played: 30.days.ago)
+    assert_includes MediaItem.recently_played_candidates("Vinyl"), vinyl_item
+  end
+
+  test "recently_played_candidates excludes items never played" do
+    vinyl_item = media_items(:vinyl_one)
+    vinyl_item.update!(last_played: nil)
+    assert_not_includes MediaItem.recently_played_candidates("Vinyl"), vinyl_item
+  end
+
+  test "recently_played_candidates excludes items played outside the config window" do
+    pick_random_configs(:vinyl).update!(last_played_days_ago: 60)
+    vinyl_item = media_items(:vinyl_one)
+    vinyl_item.update!(last_played: 90.days.ago)
+    assert_not_includes MediaItem.recently_played_candidates("Vinyl"), vinyl_item
+  end
+
+  test "recently_played_candidates only returns the specified media type" do
+    vinyl_candidates = MediaItem.recently_played_candidates("Vinyl")
+    assert vinyl_candidates.all? { |item| item.media_type.name == "Vinyl" }
+
+    cd_candidates = MediaItem.recently_played_candidates("CD")
+    assert cd_candidates.all? { |item| item.media_type.name == "CD" }
+  end
+
+  test "recently_played_candidates uses its own media type config window" do
+    pick_random_configs(:vinyl).update!(last_played_days_ago: 60)
+    pick_random_configs(:cd).update!(last_played_days_ago: 30)
+
+    vinyl_item = media_items(:vinyl_one)
+    vinyl_item.update!(last_played: 45.days.ago)
+
+    # 45 days is within Vinyl's 60-day window → included
+    assert_includes MediaItem.recently_played_candidates("Vinyl"), vinyl_item
+    # 45 days is outside CD's 30-day window → a CD item at that age would be excluded
+    cd_item = media_items(:one)
+    cd_item.update!(last_played: 45.days.ago)
+    assert_not_includes MediaItem.recently_played_candidates("CD"), cd_item
+  end
+
   # random_candidates — rating filter
   test "random_candidates exclude_meh filter removes meh'd releases" do
     pick_random_configs(:vinyl).update!(rating_filter: "exclude_meh")

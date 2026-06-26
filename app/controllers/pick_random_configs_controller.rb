@@ -27,6 +27,18 @@ class PickRandomConfigsController < ApplicationController
     render partial: "candidate_items", layout: false
   end
 
+  def inverse_candidates
+    @media_type = params[:media_type].presence_in(%w[Vinyl CD]) || "Vinyl"
+    page = (params[:page] || 1).to_i
+    all = MediaItem.recently_played_candidates(@media_type)
+    total = all.count
+    @candidates = all.limit(PER_PAGE).offset(page * PER_PAGE)
+    has_more = (page + 1) * PER_PAGE < total
+    next_url = has_more ? inverse_candidates_pick_random_config_path(page: page + 1, media_type: @media_type) : ""
+    response.set_header("X-Next-Page-Url", next_url)
+    render partial: "candidate_items", layout: false
+  end
+
   def edit
     @media_type = params[:media_type].presence_in(%w[Vinyl CD]) || "Vinyl"
     @config = PickRandomConfig.current(@media_type)

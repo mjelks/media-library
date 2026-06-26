@@ -88,6 +88,36 @@ class PickRandomConfigsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  # inverse_candidates
+  test "requires login for inverse_candidates" do
+    delete session_path
+    get inverse_candidates_pick_random_config_url
+    assert_redirected_to new_session_path
+  end
+
+  test "inverse_candidates returns a successful response" do
+    get inverse_candidates_pick_random_config_url
+    assert_response :success
+  end
+
+  test "inverse_candidates sets X-Next-Page-Url response header" do
+    get inverse_candidates_pick_random_config_url, params: { page: 1 }
+    assert_response :success
+    assert response.headers.key?("X-Next-Page-Url")
+  end
+
+  test "inverse_candidates next-page URL includes media_type when CD" do
+    get inverse_candidates_pick_random_config_url, params: { media_type: "CD", page: 1 }
+    assert_response :success
+    next_url = response.headers["X-Next-Page-Url"]
+    assert_includes next_url, "media_type=CD" if next_url.present?
+  end
+
+  test "inverse_candidates accepts CD media_type without error" do
+    get inverse_candidates_pick_random_config_url, params: { media_type: "CD" }
+    assert_response :success
+  end
+
   # edit
   test "edit succeeds" do
     get edit_pick_random_config_url
