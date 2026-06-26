@@ -75,6 +75,9 @@ Rails.application.routes.draw do
   # Wishlist
   resources :wishlist, only: %i[index show destroy], controller: "wishlist"
 
+  resource :pick_random_config, only: %i[show edit update] do
+    get :candidates, on: :member
+  end
   resources :lp_cartridges
   resources :media_types
   resources :media_items do

@@ -167,24 +167,26 @@ class NowPlayingController < ApplicationController
 
   def random
     media_type = params[:media_type] || "Vinyl"
+    config = PickRandomConfig.current
     @media_item = MediaItem.random_candidates(media_type)
                            .includes(release: [ :media_owner, :cover_image_attachment ])
                            .order("RANDOM()")
                            .first
 
-    if @media_item.nil?
-      render json: []
-      return
+    results = if @media_item
+      [ {
+        id: @media_item.id,
+        title: @media_item.display_title,
+        artist: @media_item.release&.media_owner&.name,
+        year: @media_item.year || @media_item.release&.original_year,
+        play_count: @media_item.play_count || 0,
+        cover_url: @media_item.release&.cover_image&.attached? ? url_for(@media_item.release.cover_image.variant(resize_to_limit: [ 100, 100 ])) : nil
+      } ]
+    else
+      []
     end
 
-    render json: [ {
-      id: @media_item.id,
-      title: @media_item.display_title,
-      artist: @media_item.release&.media_owner&.name,
-      year: @media_item.year || @media_item.release&.original_year,
-      play_count: @media_item.play_count || 0,
-      cover_url: @media_item.release&.cover_image&.attached? ? url_for(@media_item.release.cover_image.variant(resize_to_limit: [ 100, 100 ])) : nil
-    } ]
+    render json: { results: results, filter_description: config.description }
   end
 
   def delete

@@ -62,9 +62,26 @@ class MediaItem < ApplicationRecord
       .order(last_played: :desc)
   }
   scope :random_candidates, ->(media_type = "Vinyl") {
-    media_type_option(media_type)
-      .where("last_played IS NULL OR last_played < ?", 60.days.ago)
-      .includes(release: [ :media_owner, :cover_image_attachment, :release_tracks ])
+    config = PickRandomConfig.current(media_type)
+    scope = media_type_option(media_type)
+              .where("last_played IS NULL OR last_played < ?", config.last_played_days_ago.days.ago)
+              .includes(release: [ :media_owner, :cover_image_attachment, :release_tracks ])
+
+    if config.play_count_active?
+      if config.play_count_operator == "less_than"
+        scope = scope.where("play_count IS NULL OR play_count < ?", config.play_count_threshold)
+      else
+        scope = scope.where("play_count > ?", config.play_count_threshold)
+      end
+    end
+
+    if config.rating_filter == "exclude_meh"
+      scope = scope.joins(:release).where(releases: { meh_count: 0 })
+    elsif config.rating_filter == "prefer_thumbs_up"
+      scope = scope.joins(:release).where("releases.thumbs_up_count > 0")
+    end
+
+    scope
   }
 
   def self.random_candidate(media_type = "Vinyl")

@@ -8,6 +8,16 @@
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #  media_item_id :integer          not null
+#
+# Indexes
+#
+#  index_playlists_on_media_item_id  (media_item_id)
+#  index_playlists_on_position       (position)
+#
+# Foreign Keys
+#
+#  media_item_id  (media_item_id => media_items.id)
+#
 
 active_first:
   media_item: vinyl_one

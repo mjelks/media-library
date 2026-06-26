@@ -1,0 +1,70 @@
+<%= form_with(model: config, url: pick_random_config_path(media_type: media_type), method: :patch, class: "contents") do |form| %>
+  <%= form.hidden_field :media_type %>
+  <% if config.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(config.errors.count, "error") %> prohibited these settings from being saved:</h2>
+      <ul class="list-disc ml-6">
+        <% config.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Last Played Filter -->
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5 mb-4">
+    <h2 class="font-semibold text-lg mb-1 text-gray-900">Last Played</h2>
+    <p class="text-sm text-gray-500 mb-4">Only include items not played within the last N days (or never played).</p>
+    <div class="flex items-center gap-3">
+      <%= form.label :last_played_days_ago, "Not played in the last", class: "text-sm font-medium text-gray-700 whitespace-nowrap" %>
+      <%= form.number_field :last_played_days_ago,
+            min: 1,
+            class: ["w-24 block shadow rounded-md border outline-none px-3 py-2",
+                    {"border-gray-400 focus:outline-blue-600 bg-white text-gray-900": config.errors[:last_played_days_ago].none?,
+                     "border-red-400 focus:outline-red-600": config.errors[:last_played_days_ago].any?}] %>
+      <span class="text-sm text-gray-700">days</span>
+    </div>
+  </div>
+
+  <!-- Play Count Filter -->
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5 mb-4">
+    <h2 class="font-semibold text-lg mb-1 text-gray-900">Play Count</h2>
+    <p class="text-sm text-gray-500 mb-4">Filter by how many times an item has been played. Set operator to "None" to disable.</p>
+    <div class="flex items-center gap-3 flex-wrap">
+      <%= form.label :play_count_operator, "Play count", class: "text-sm font-medium text-gray-700 whitespace-nowrap" %>
+      <%= form.select :play_count_operator,
+            [["None (disabled)", "none"], ["Less than", "less_than"], ["Greater than", "greater_than"]],
+            {},
+            class: ["block shadow rounded-md border outline-none px-3 py-2",
+                    {"border-gray-400 focus:outline-blue-600 bg-white text-gray-900": config.errors[:play_count_operator].none?,
+                     "border-red-400 focus:outline-red-600": config.errors[:play_count_operator].any?}] %>
+      <%= form.number_field :play_count_threshold,
+            min: 0,
+            placeholder: "threshold",
+            class: ["w-28 block shadow rounded-md border outline-none px-3 py-2",
+                    {"border-gray-400 focus:outline-blue-600 bg-white text-gray-900": config.errors[:play_count_threshold].none?,
+                     "border-red-400 focus:outline-red-600": config.errors[:play_count_threshold].any?}] %>
+    </div>
+    <p class="text-xs text-gray-400 mt-2">Leave threshold blank to disable even if operator is set.</p>
+  </div>
+
+  <!-- Rating Filter -->
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5 mb-6">
+    <h2 class="font-semibold text-lg mb-1 text-gray-900">Rating Filter</h2>
+    <p class="text-sm text-gray-500 mb-4">Filter candidates based on the release's meh / thumbs-up rating.</p>
+    <div class="flex items-center gap-3">
+      <%= form.label :rating_filter, "Filter", class: "text-sm font-medium text-gray-700" %>
+      <%= form.select :rating_filter,
+            [["None (all ratings)", "none"], ["Exclude meh'd releases", "exclude_meh"], ["Prefer thumbs-up only", "prefer_thumbs_up"]],
+            {},
+            class: ["block shadow rounded-md border outline-none px-3 py-2",
+                    {"border-gray-400 focus:outline-blue-600 bg-white text-gray-900": config.errors[:rating_filter].none?,
+                     "border-red-400 focus:outline-red-600": config.errors[:rating_filter].any?}] %>
+    </div>
+  </div>
+
+  <div class="flex gap-3">
+    <%= form.submit "Save Settings", class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium cursor-pointer" %>
+    <%= link_to "Cancel", pick_random_config_path(media_type: media_type), class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium" %>
+  </div>
+<% end %>

@@ -138,37 +138,182 @@ class MediaItemTest < ActiveSupport::TestCase
     assert_not_includes recent, media_item
   end
 
-  test "random_candidates scope returns vinyl items not played recently" do
+  # random_candidates — last_played window
+  test "random_candidates includes vinyl items with nil last_played" do
     vinyl_item = media_items(:vinyl_one)
-    vinyl_item.update!(last_played: 90.days.ago)
-    candidates = MediaItem.random_candidates
-    assert_includes candidates, vinyl_item
+    assert_nil vinyl_item.last_played
+    assert_includes MediaItem.random_candidates("Vinyl"), vinyl_item
   end
 
-  test "random_candidates excludes recently played items" do
+  test "random_candidates includes items played outside the config window" do
+    pick_random_configs(:vinyl).update!(last_played_days_ago: 60)
+    vinyl_item = media_items(:vinyl_one)
+    vinyl_item.update!(last_played: 90.days.ago)
+    assert_includes MediaItem.random_candidates("Vinyl"), vinyl_item
+  end
+
+  test "random_candidates excludes items played within the config window" do
+    pick_random_configs(:vinyl).update!(last_played_days_ago: 60)
     vinyl_item = media_items(:vinyl_one)
     vinyl_item.update!(last_played: 30.days.ago)
-    candidates = MediaItem.random_candidates
-    assert_not_includes candidates, vinyl_item
+    assert_not_includes MediaItem.random_candidates("Vinyl"), vinyl_item
   end
 
-  test "random_candidates scope supports CD media type" do
-    cd_item = media_items(:one)
-    cd_item.update!(last_played: 90.days.ago)
-    candidates = MediaItem.random_candidates("CD")
-    assert_includes candidates, cd_item
-  end
+  # random_candidates — per-media-type config independence
+  test "random_candidates for Vinyl uses Vinyl config, not CD config" do
+    pick_random_configs(:vinyl).update!(last_played_days_ago: 60)
+    pick_random_configs(:cd).update!(last_played_days_ago: 30)
 
-  test "random_candidate returns a single item" do
     vinyl_item = media_items(:vinyl_one)
-    vinyl_item.update!(last_played: 90.days.ago)
-    candidate = MediaItem.random_candidate
+    vinyl_item.update!(last_played: 45.days.ago)
+
+    # 45 days is within Vinyl's 60-day window → excluded
+    assert_not_includes MediaItem.random_candidates("Vinyl"), vinyl_item
+    # (if it mistakenly used the CD config's 30-day window, 45 days would be outside → included)
+  end
+
+  test "random_candidates for CD uses CD config, not Vinyl config" do
+    pick_random_configs(:vinyl).update!(last_played_days_ago: 60)
+    pick_random_configs(:cd).update!(last_played_days_ago: 30)
+
+    cd_item = media_items(:one)
+    cd_item.update!(last_played: 45.days.ago)
+
+    # 45 days is outside CD's 30-day window → included
+    assert_includes MediaItem.random_candidates("CD"), cd_item
+    # (if it mistakenly used the Vinyl config's 60-day window, 45 days would be inside → excluded)
+  end
+
+  # random_candidates — media type filtering
+  test "random_candidates only returns the specified media type" do
+    vinyl_candidates = MediaItem.random_candidates("Vinyl")
+    assert vinyl_candidates.all? { |item| item.media_type.name == "Vinyl" }
+
+    cd_candidates = MediaItem.random_candidates("CD")
+    assert cd_candidates.all? { |item| item.media_type.name == "CD" }
+  end
+
+  # random_candidates — play_count filter
+  test "random_candidates applies less_than play_count filter" do
+    pick_random_configs(:vinyl).update!(play_count_operator: "less_than", play_count_threshold: 3)
+
+    low_play = media_items(:vinyl_one)   # play_count: 0
+    high_play = media_items(:vinyl_two)  # play_count: 5
+    low_play.update!(last_played: nil)
+    high_play.update!(last_played: nil)
+
+    candidates = MediaItem.random_candidates("Vinyl")
+    assert_includes candidates, low_play
+    assert_not_includes candidates, high_play
+  end
+
+  test "random_candidates applies greater_than play_count filter" do
+    pick_random_configs(:vinyl).update!(play_count_operator: "greater_than", play_count_threshold: 3)
+
+    low_play = media_items(:vinyl_one)   # play_count: 0
+    high_play = media_items(:vinyl_two)  # play_count: 5
+    low_play.update!(last_played: nil)
+    high_play.update!(last_played: nil)
+
+    candidates = MediaItem.random_candidates("Vinyl")
+    assert_not_includes candidates, low_play
+    assert_includes candidates, high_play
+  end
+
+  test "random_candidates treats nil play_count as qualifying under less_than filter" do
+    pick_random_configs(:vinyl).update!(play_count_operator: "less_than", play_count_threshold: 3)
+
+    item = media_items(:vinyl_one)
+    item.update!(play_count: nil, last_played: nil)
+
+    assert_includes MediaItem.random_candidates("Vinyl"), item
+  end
+
+  test "random_candidates skips play_count filter when operator is none" do
+    pick_random_configs(:vinyl).update!(play_count_operator: "none", play_count_threshold: 1)
+
+    high_play = media_items(:vinyl_two)  # play_count: 5, would be excluded if filter active
+    high_play.update!(last_played: nil)
+
+    assert_includes MediaItem.random_candidates("Vinyl"), high_play
+  end
+
+  test "random_candidates skips play_count filter when threshold is nil" do
+    pick_random_configs(:vinyl).update!(play_count_operator: "less_than", play_count_threshold: nil)
+
+    high_play = media_items(:vinyl_two)  # play_count: 5, would be excluded if filter active
+    high_play.update!(last_played: nil)
+
+    assert_includes MediaItem.random_candidates("Vinyl"), high_play
+  end
+
+  test "random_candidates CD and Vinyl play_count filters are independent" do
+    pick_random_configs(:vinyl).update!(play_count_operator: "less_than", play_count_threshold: 3)
+    pick_random_configs(:cd).update!(play_count_operator: "none")
+
+    cd_item = media_items(:one)  # play_count: 1, CD type
+    cd_item.update!(last_played: nil)
+
+    # CD config has no play_count filter, so cd_item should be included
+    assert_includes MediaItem.random_candidates("CD"), cd_item
+  end
+
+  # random_candidates — rating filter
+  test "random_candidates exclude_meh filter removes meh'd releases" do
+    pick_random_configs(:vinyl).update!(rating_filter: "exclude_meh")
+
+    clean = media_items(:vinyl_one)   # release: one, meh_count defaults to 0
+    meh   = media_items(:vinyl_two)   # release: two
+    clean.update!(last_played: nil)
+    meh.update!(last_played: nil)
+    meh.release.update!(meh_count: 1)
+
+    candidates = MediaItem.random_candidates("Vinyl")
+    assert_includes candidates, clean
+    assert_not_includes candidates, meh
+  end
+
+  test "random_candidates prefer_thumbs_up filter keeps only thumbs-up releases" do
+    pick_random_configs(:vinyl).update!(rating_filter: "prefer_thumbs_up")
+
+    liked    = media_items(:vinyl_one)  # release: one
+    neutral  = media_items(:vinyl_two)  # release: two
+    liked.update!(last_played: nil)
+    neutral.update!(last_played: nil)
+    liked.release.update!(thumbs_up_count: 1)
+    neutral.release.update!(thumbs_up_count: 0)
+
+    candidates = MediaItem.random_candidates("Vinyl")
+    assert_includes candidates, liked
+    assert_not_includes candidates, neutral
+  end
+
+  test "random_candidates CD and Vinyl rating filters are independent" do
+    pick_random_configs(:vinyl).update!(rating_filter: "exclude_meh")
+    pick_random_configs(:cd).update!(rating_filter: "none")
+
+    cd_item = media_items(:one)  # CD type
+    cd_item.update!(last_played: nil)
+    cd_item.release.update!(meh_count: 1)
+
+    # CD config has no rating filter, so the meh'd CD item should still appear
+    assert_includes MediaItem.random_candidates("CD"), cd_item
+  end
+
+  # random_candidate
+  test "random_candidate returns a single MediaItem" do
+    media_items(:vinyl_one).update!(last_played: nil)
+    candidate = MediaItem.random_candidate("Vinyl")
     assert_kind_of MediaItem, candidate
   end
 
-  test "random_candidate supports CD media type" do
-    cd_item = media_items(:one)
-    cd_item.update!(last_played: 90.days.ago)
+  test "random_candidate returns nil when no candidates match" do
+    pick_random_configs(:cd).update!(play_count_operator: "greater_than", play_count_threshold: 9999)
+    assert_nil MediaItem.random_candidate("CD")
+  end
+
+  test "random_candidate returns only the specified media type" do
+    media_items(:one).update!(last_played: nil)
     candidate = MediaItem.random_candidate("CD")
     assert_equal "CD", candidate.media_type.name
   end
