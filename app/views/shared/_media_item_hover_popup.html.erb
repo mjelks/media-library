@@ -40,6 +40,10 @@
       <p class="text-stone-500 text-xs mt-1">
         <%= display_year(media_item) %>
       </p>
+      <% last_end = @last_play_end_times&.[](media_item.id) %>
+      <% if last_end %>
+        <p class="text-stone-600 text-xs mt-1">Last Played <%= format_last_played(last_end) %></p>
+      <% end %>
     </div>
   </div>
   <% if position == :above %>

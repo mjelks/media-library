@@ -30,4 +30,9 @@ module MediaItemsHelper
     return "" if media_item.item_count <= 1
     " (#{media_item.item_count})"
   end
+
+  def format_last_played(time)
+    return nil unless time
+    time.strftime("%a, %b %-d @ %-I:%M %p")
+  end
 end
