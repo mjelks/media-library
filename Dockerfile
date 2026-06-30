@@ -53,7 +53,7 @@ COPY . .
 RUN bundle exec bootsnap precompile app/ lib/
 
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:clobber assets:precompile
 
 RUN curl -L https://github.com/DarthSim/overmind/releases/latest/download/overmind-linux-amd64 -o /usr/local/bin/overmind && \
     chmod +x /usr/local/bin/overmind
@@ -70,7 +70,7 @@ COPY --from=build /rails /rails
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
-    chown -R rails:rails db log storage tmp
+    chown -R rails:rails db log storage tmp app/assets/builds
 USER 1000:1000
 
 # Entrypoint prepares the database.
