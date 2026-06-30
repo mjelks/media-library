@@ -23,6 +23,9 @@ class RecordCollectionController < ApplicationController
                             .includes(release: [ :media_owner, :cover_image_attachment ])
                             .ordered
 
+    @pick_random_config = PickRandomConfig.current("Vinyl")
+    @last_play_end_times = last_play_end_times_for(@media_items)
+
     # Spine shelf configuration (heights in pixels)
     @spine_config = {
       container_height_mobile: 180,
@@ -90,6 +93,9 @@ class RecordCollectionController < ApplicationController
                             .includes(release: [ :media_owner, :cover_image_attachment ])
                             .ordered_by_location
 
+    @pick_random_config = PickRandomConfig.current("Vinyl")
+    @last_play_end_times = last_play_end_times_for(@media_items)
+
     @spine_config = {
       container_height_mobile: 180,
       container_height_desktop: 280,
@@ -97,5 +103,15 @@ class RecordCollectionController < ApplicationController
       spine_height_desktop: 240,
       spine_text_max_height_desktop: 220
     }
+  end
+
+  private
+
+  def last_play_end_times_for(media_items)
+    PlaySession
+      .where(media_item_id: media_items.select(:id))
+      .where.not(end_time: nil)
+      .group(:media_item_id)
+      .maximum(:end_time)
   end
 end
