@@ -45,7 +45,7 @@ module Api
 
       def random
         media_type = params[:media_type] || "Vinyl"
-        media_item = MediaItem.random_candidate(media_type)
+        media_item = MediaItem.random_candidate_with_scope(media_type)
 
         if media_item.nil?
           render json: { error: "No albums available" }, status: :not_found

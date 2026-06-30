@@ -1,5 +1,23 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: pick_random_configs
+#
+#  id                   :integer          not null, primary key
+#  last_played_days_ago :integer          default(60), not null
+#  location_scope       :string           default("none"), not null
+#  media_type           :string           default("Vinyl"), not null
+#  play_count_operator  :string           default("none"), not null
+#  play_count_threshold :integer
+#  rating_filter        :string           default("none"), not null
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#
+# Indexes
+#
+#  index_pick_random_configs_on_media_type  (media_type) UNIQUE
+#
 class PickRandomConfigTest < ActiveSupport::TestCase
   # Validations
   test "valid with all required attributes" do
@@ -200,5 +218,102 @@ class PickRandomConfigTest < ActiveSupport::TestCase
     config.rating_filter = "none"
     assert_not_includes config.description, "meh"
     assert_not_includes config.description, "thumbs"
+  end
+
+  # location_scope validation
+  test "accepts none as location_scope for both media types" do
+    [ pick_random_configs(:vinyl), pick_random_configs(:cd) ].each do |config|
+      config.location_scope = "none"
+      assert config.valid?, "Expected none to be valid for #{config.media_type}"
+    end
+  end
+
+  test "accepts same_cube and same_section for vinyl" do
+    config = pick_random_configs(:vinyl)
+    %w[same_cube same_section].each do |scope|
+      config.location_scope = scope
+      assert config.valid?, "Expected #{scope} to be valid for Vinyl"
+    end
+  end
+
+  test "rejects same_cube and same_section for CD" do
+    config = pick_random_configs(:cd)
+    %w[same_cube same_section].each do |scope|
+      config.location_scope = scope
+      assert_not config.valid?, "Expected #{scope} to be invalid for CD"
+      assert_includes config.errors[:location_scope], "is not valid for CD"
+    end
+  end
+
+  test "accepts same_binder for CD" do
+    config = pick_random_configs(:cd)
+    config.location_scope = "same_binder"
+    assert config.valid?
+  end
+
+  test "rejects same_binder for vinyl" do
+    config = pick_random_configs(:vinyl)
+    config.location_scope = "same_binder"
+    assert_not config.valid?
+    assert_includes config.errors[:location_scope], "is not valid for Vinyl"
+  end
+
+  # #location_scope_active?
+  test "location_scope_active? is false when scope is none" do
+    config = pick_random_configs(:vinyl)
+    config.location_scope = "none"
+    assert_not config.location_scope_active?
+  end
+
+  test "location_scope_active? is true for same_cube" do
+    config = pick_random_configs(:vinyl)
+    config.location_scope = "same_cube"
+    assert config.location_scope_active?
+  end
+
+  test "location_scope_active? is true for same_section" do
+    config = pick_random_configs(:vinyl)
+    config.location_scope = "same_section"
+    assert config.location_scope_active?
+  end
+
+  test "location_scope_active? is true for same_binder" do
+    config = pick_random_configs(:cd)
+    config.location_scope = "same_binder"
+    assert config.location_scope_active?
+  end
+
+  # #description with location_scope
+  test "description includes same cube clause" do
+    config = pick_random_configs(:vinyl)
+    config.location_scope = "same_cube"
+    assert_includes config.description, "same cube as currently playing"
+  end
+
+  test "description includes same section clause" do
+    config = pick_random_configs(:vinyl)
+    config.location_scope = "same_section"
+    assert_includes config.description, "same section as currently playing"
+  end
+
+  test "description includes same binder clause" do
+    config = pick_random_configs(:cd)
+    config.location_scope = "same_binder"
+    assert_includes config.description, "same binder as currently playing"
+  end
+
+  test "description omits location clause when scope is none" do
+    config = pick_random_configs(:vinyl)
+    config.location_scope = "none"
+    assert_not_includes config.description, "cube"
+    assert_not_includes config.description, "section"
+    assert_not_includes config.description, "binder"
+  end
+
+  # .current defaults
+  test "current creates a record with location_scope none by default" do
+    PickRandomConfig.delete_all
+    config = PickRandomConfig.current("Vinyl")
+    assert_equal "none", config.location_scope
   end
 end

@@ -1366,4 +1366,65 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
           params: { playlist_ids: [] }
     assert_response :unauthorized
   end
+
+  # Location scope tests
+  test "random respects same_cube location scope using currently playing anchor" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    MediaItem.create!(
+      release: releases(:one), media_type: media_types(:vinyl),
+      location: locations(:vinyl_with_cube), play_count: 0, position: 99
+    )
+
+    get api_v1_widget_random_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    item = MediaItem.find(result["id"])
+    assert_equal "C", item.location&.cube_location
+  end
+
+  test "random respects same_section location scope" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_section")
+    MediaItem.create!(
+      release: releases(:one), media_type: media_types(:vinyl),
+      location: locations(:vinyl_with_cube), play_count: 0, position: 99
+    )
+
+    get api_v1_widget_random_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    item = MediaItem.find(result["id"])
+    assert_equal locations(:vinyl_with_cube).id, item.location_id
+  end
+
+  test "random with same_cube returns 404 when scoped pool is exhausted" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    # vinyl_one is the only non-recently-played item in cube C but is in the active playlist
+
+    get api_v1_widget_random_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :not_found
+
+    result = JSON.parse(response.body)
+    assert_equal "No albums available", result["error"]
+  end
+
+  test "random with same_cube falls back to playlist anchor when nothing playing" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    media_items(:vinyl_now_playing).update_columns(currently_playing: false)
+    extra = MediaItem.create!(
+      release: releases(:one), media_type: media_types(:vinyl),
+      location: locations(:vinyl_with_cube), play_count: 0, position: 99
+    )
+
+    get api_v1_widget_random_url,
+        headers: { "X-Api-Token" => @api_token }
+    assert_response :success
+
+    result = JSON.parse(response.body)
+    assert_equal extra.id, result["id"]
+  end
 end

@@ -62,7 +62,8 @@ class PickRandomConfigsController < ApplicationController
       :last_played_days_ago,
       :play_count_operator,
       :play_count_threshold,
-      :rating_filter
+      :rating_filter,
+      :location_scope
     ])
   end
 end

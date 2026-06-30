@@ -49,7 +49,7 @@
   </div>
 
   <!-- Rating Filter -->
-  <div class="bg-white rounded-lg shadow border border-gray-100 p-5 mb-6">
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5 mb-4">
     <h2 class="font-semibold text-lg mb-1 text-gray-900">Rating Filter</h2>
     <p class="text-sm text-gray-500 mb-4">Filter candidates based on the release's meh / thumbs-up rating.</p>
     <div class="flex items-center gap-3">
@@ -61,6 +61,46 @@
                     {"border-gray-400 focus:outline-blue-600 bg-white text-gray-900": config.errors[:rating_filter].none?,
                      "border-red-400 focus:outline-red-600": config.errors[:rating_filter].any?}] %>
     </div>
+  </div>
+
+  <!-- Location Scope -->
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5 mb-6">
+    <% if media_type == "Vinyl" %>
+      <h2 class="font-semibold text-lg mb-1 text-gray-900">Location Scope</h2>
+      <p class="text-sm text-gray-500 mb-2">Restrict random picks to the same physical location as the currently playing item.</p>
+      <ol class="text-xs text-gray-400 list-decimal ml-4 mb-4 space-y-0.5">
+        <li>Currently playing item</li>
+        <li>First item in the Up Next queue</li>
+        <li>Last played item (by end time)</li>
+      </ol>
+      <div class="flex items-center gap-3">
+        <%= form.label :location_scope, "Scope", class: "text-sm font-medium text-gray-700" %>
+        <%= form.select :location_scope,
+              [["Any location (disabled)", "none"], ["Same cube (A, B, C…)", "same_cube"], ["Same section", "same_section"]],
+              {},
+              class: ["block shadow rounded-md border outline-none px-3 py-2",
+                      {"border-gray-400 focus:outline-blue-600 bg-white text-gray-900": config.errors[:location_scope].none?,
+                       "border-red-400 focus:outline-red-600": config.errors[:location_scope].any?}] %>
+      </div>
+    <% else %>
+      <h2 class="font-semibold text-lg mb-1 text-gray-900">Binder Scope</h2>
+      <p class="text-sm text-gray-500 mb-2">Restrict random picks to the same binder as the currently playing CD.</p>
+      <ol class="text-xs text-gray-400 list-decimal ml-4 mb-4 space-y-0.5">
+        <li>Currently playing item</li>
+        <li>First item in the Up Next queue</li>
+        <li>Last played item (by end time)</li>
+      </ol>
+      <div class="flex items-center gap-3">
+        <%= form.label :location_scope, "Scope", class: "text-sm font-medium text-gray-700" %>
+        <%= form.select :location_scope,
+              [["Any binder (disabled)", "none"], ["Same binder", "same_binder"]],
+              {},
+              class: ["block shadow rounded-md border outline-none px-3 py-2",
+                      {"border-gray-400 focus:outline-blue-600 bg-white text-gray-900": config.errors[:location_scope].none?,
+                       "border-red-400 focus:outline-red-600": config.errors[:location_scope].any?}] %>
+      </div>
+    <% end %>
+    <p class="text-xs text-gray-400 mt-2">Falls back to any location if no anchor can be determined from the steps above.</p>
   </div>
 
   <div class="flex gap-3">
