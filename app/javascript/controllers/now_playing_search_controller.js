@@ -2,13 +2,14 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["input", "results", "queueToggle", "queueBadge"]
-  static values = { url: String, randomUrl: String }
+  static values = { url: String, randomUrl: String, vinylDescription: String, cdDescription: String }
 
   connect() {
     this.selectedIndex = -1
     this.results = []
     this.debounceTimeout = null
     this.mediaType = "Vinyl" // Default
+    this.randomTooltip = null
 
     // Close results when clicking outside
     document.addEventListener("click", this.handleClickOutside.bind(this))
@@ -20,9 +21,8 @@ export default class extends Controller {
   disconnect() {
     document.removeEventListener("click", this.handleClickOutside.bind(this))
     this.element.removeEventListener("media-type-toggle:changed", this.handleMediaTypeChange.bind(this))
-    if (this.debounceTimeout) {
-      clearTimeout(this.debounceTimeout)
-    }
+    if (this.debounceTimeout) clearTimeout(this.debounceTimeout)
+    this.hideRandomTooltip()
   }
 
   handleMediaTypeChange(event) {
@@ -308,6 +308,35 @@ export default class extends Controller {
   hideResults() {
     this.resultsTarget.classList.add("hidden")
     this.selectedIndex = -1
+  }
+
+  showRandomTooltip(event) {
+    if (this.randomTooltip) return
+
+    const description = this.mediaType === "CD" ? this.cdDescriptionValue : this.vinylDescriptionValue
+    if (!description) return
+
+    this.randomTooltip = document.createElement("div")
+    this.randomTooltip.innerHTML = `<span class="font-semibold">${this.escapeHtml(this.mediaType)} random picks:</span><br>${this.escapeHtml(description)}`
+    this.randomTooltip.className = "fixed z-50 px-3 py-2 text-xs text-white bg-gray-900 rounded shadow-lg pointer-events-none max-w-xs"
+    document.body.appendChild(this.randomTooltip)
+
+    const btn = event.currentTarget
+    const rect = btn.getBoundingClientRect()
+    const tip = this.randomTooltip.getBoundingClientRect()
+    let left = rect.right - tip.width
+    let top = rect.top - tip.height - 6
+    if (left < 4) left = 4
+    if (top < 4) top = rect.bottom + 6
+    this.randomTooltip.style.left = `${left}px`
+    this.randomTooltip.style.top = `${top}px`
+  }
+
+  hideRandomTooltip() {
+    if (this.randomTooltip) {
+      this.randomTooltip.remove()
+      this.randomTooltip = null
+    }
   }
 
   escapeHtml(text) {

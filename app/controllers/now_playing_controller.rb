@@ -167,11 +167,7 @@ class NowPlayingController < ApplicationController
 
   def random
     media_type = params[:media_type] || "Vinyl"
-    config = PickRandomConfig.current
-    @media_item = MediaItem.random_candidates(media_type)
-                           .includes(release: [ :media_owner, :cover_image_attachment ])
-                           .order("RANDOM()")
-                           .first
+    @media_item = MediaItem.random_candidate_with_scope(media_type)
 
     results = if @media_item
       [ {
@@ -186,7 +182,7 @@ class NowPlayingController < ApplicationController
       []
     end
 
-    render json: { results: results, filter_description: config.description }
+    render json: { results: results, filter_description: PickRandomConfig.current(media_type).description }
   end
 
   def delete

@@ -50,6 +50,25 @@
         <p class="text-gray-400 italic">Disabled (all ratings included)</p>
       <% end %>
     </div>
+
+    <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+      <% if @media_type == "Vinyl" %>
+        <h2 class="font-semibold text-lg mb-3">Location Scope</h2>
+        <% if @config.location_scope_active? %>
+          <% label = { "same_cube" => "Same cube as currently playing", "same_section" => "Same section as currently playing" }[@config.location_scope] %>
+          <p class="text-gray-700"><strong><%= label %></strong></p>
+        <% else %>
+          <p class="text-gray-400 italic">Disabled (any location)</p>
+        <% end %>
+      <% else %>
+        <h2 class="font-semibold text-lg mb-3">Binder Scope</h2>
+        <% if @config.location_scope_active? %>
+          <p class="text-gray-700"><strong>Same binder as currently playing</strong></p>
+        <% else %>
+          <p class="text-gray-400 italic">Disabled (any binder)</p>
+        <% end %>
+      <% end %>
+    </div>
   </div>
 
   <hr class="my-10 border-gray-200">

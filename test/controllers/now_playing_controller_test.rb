@@ -236,4 +236,97 @@ class NowPlayingControllerTest < ActionDispatch::IntegrationTest
     ids = response.parsed_body.map { |r| r["id"] }
     assert_includes ids, @media_item.id
   end
+
+  # Location scope tests
+
+  test "random returns filter_description for the requested media type" do
+    get now_playing_random_url, params: { media_type: "CD" }, as: :json
+    assert_response :success
+    assert_equal pick_random_configs(:cd).description, response.parsed_body["filter_description"]
+  end
+
+  test "random with same_cube picks from currently playing item's cube" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    # vinyl_one is in cube C but blocked by the active playlist; create a free candidate
+    extra = MediaItem.create!(
+      release: releases(:one), media_type: media_types(:vinyl),
+      location: locations(:vinyl_with_cube), play_count: 0, position: 99
+    )
+
+    get now_playing_random_url, params: { media_type: "Vinyl" }, as: :json
+    assert_response :success
+    result = response.parsed_body["results"].first
+    assert_not_nil result
+    assert_equal extra.id, result["id"]
+  end
+
+  test "random with same_section picks from currently playing item's location" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_section")
+    extra = MediaItem.create!(
+      release: releases(:one), media_type: media_types(:vinyl),
+      location: locations(:vinyl_with_cube), play_count: 0, position: 99
+    )
+
+    get now_playing_random_url, params: { media_type: "Vinyl" }, as: :json
+    assert_response :success
+    result = response.parsed_body["results"].first
+    assert_not_nil result
+    item = MediaItem.find(result["id"])
+    assert_equal locations(:vinyl_with_cube).id, item.location_id
+  end
+
+  test "random with same_cube excludes active playlist items from the scoped pool" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    # anchor: vinyl_now_playing in cube C
+    # vinyl_one is the only non-recently-played item in cube C but is in the active playlist
+    # all other cube C items are within the last_played_days_ago window → empty pool
+    get now_playing_random_url, params: { media_type: "Vinyl" }, as: :json
+    assert_response :success
+    assert_empty response.parsed_body["results"]
+  end
+
+  test "random with same_cube falls back to first playlist item as anchor when nothing playing" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    media_items(:vinyl_now_playing).update_columns(currently_playing: false)
+    # active_first playlist item is vinyl_one in cube C → serves as location anchor
+    extra = MediaItem.create!(
+      release: releases(:one), media_type: media_types(:vinyl),
+      location: locations(:vinyl_with_cube), play_count: 0, position: 99
+    )
+
+    get now_playing_random_url, params: { media_type: "Vinyl" }, as: :json
+    assert_response :success
+    result = response.parsed_body["results"].first
+    assert_not_nil result
+    assert_equal extra.id, result["id"]
+  end
+
+  test "random with same_cube falls back to last play_session as anchor when no current or playlist" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    media_items(:vinyl_now_playing).update_columns(currently_playing: false)
+    Playlist.delete_all
+    # recent_session (end_time: 2 days ago) has vinyl_recently_played in cube C → anchor
+    # vinyl_one also becomes a candidate (no longer in playlist), so assert cube not specific id
+    MediaItem.create!(
+      release: releases(:one), media_type: media_types(:vinyl),
+      location: locations(:vinyl_with_cube), play_count: 0, position: 99
+    )
+
+    get now_playing_random_url, params: { media_type: "Vinyl" }, as: :json
+    assert_response :success
+    result = response.parsed_body["results"].first
+    assert_not_nil result
+    assert_equal "C", MediaItem.find(result["id"]).location&.cube_location
+  end
+
+  test "random with same_cube uses full pool when no anchor can be determined" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    media_items(:vinyl_now_playing).update_columns(currently_playing: false)
+    Playlist.delete_all
+    PlaySession.delete_all
+
+    get now_playing_random_url, params: { media_type: "Vinyl" }, as: :json
+    assert_response :success
+    assert response.parsed_body.key?("results")
+  end
 end

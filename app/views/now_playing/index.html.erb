@@ -31,6 +31,8 @@
   <div class="mb-8" data-controller="now-playing-search media-type-toggle"
        data-now-playing-search-url-value="<%= now_playing_search_path %>"
        data-now-playing-search-random-url-value="<%= now_playing_random_path %>"
+       data-now-playing-search-vinyl-description-value="<%= PickRandomConfig.current('Vinyl').description %>"
+       data-now-playing-search-cd-description-value="<%= PickRandomConfig.current('CD').description %>"
        data-media-type-toggle-current-value="<%= @media_type %>">
     <div class="relative flex gap-2">
       <input type="text"
@@ -59,7 +61,7 @@
         </button>
       </div>
       <button type="button"
-              data-action="click->now-playing-search#fetchRandom"
+              data-action="click->now-playing-search#fetchRandom mouseenter->now-playing-search#showRandomTooltip mouseleave->now-playing-search#hideRandomTooltip"
               class="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg whitespace-nowrap">
         Pick Random
       </button>

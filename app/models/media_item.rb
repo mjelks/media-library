@@ -96,6 +96,41 @@ class MediaItem < ApplicationRecord
     random_candidates(media_type).order("RANDOM()").first
   end
 
+  def self.random_candidate_with_scope(media_type = "Vinyl")
+    config = PickRandomConfig.current(media_type)
+    scope = random_candidates(media_type)
+
+    if config.location_scope_active?
+      anchor = location_anchor_for(media_type)
+      if anchor
+        case config.location_scope
+        when "same_cube"
+          cube = anchor.location&.cube_location
+          if cube.present?
+            scope = scope.joins(:location).where(locations: { cube_location: cube })
+            already_queued = Playlist.active
+                                     .joins(media_item: :location)
+                                     .where(locations: { cube_location: cube })
+                                     .pluck(:media_item_id)
+            scope = scope.where.not(id: already_queued) if already_queued.any?
+          end
+        when "same_section", "same_binder"
+          loc_id = anchor.location_id
+          if loc_id.present?
+            scope = scope.where(location_id: loc_id)
+            already_queued = Playlist.active
+                                     .joins(:media_item)
+                                     .where(media_items: { location_id: loc_id })
+                                     .pluck(:media_item_id)
+            scope = scope.where.not(id: already_queued) if already_queued.any?
+          end
+        end
+      end
+    end
+
+    scope.order("RANDOM()").first
+  end
+
   def self.total_duration(items)
     items.sum { |item| item.release&.duration || 0 }
   end
@@ -220,6 +255,27 @@ class MediaItem < ApplicationRecord
   end
 
   private
+
+  def self.location_anchor_for(media_type)
+    current = where(currently_playing: true)
+                .media_type_option(media_type)
+                .joins(:location)
+                .first
+    return current if current
+
+    playlist_item = Playlist.active
+                            .joins(media_item: [ :location, :media_type ])
+                            .where(media_types: { name: media_type })
+                            .first&.media_item
+    return playlist_item if playlist_item
+
+    PlaySession.joins(media_item: [ :location, :media_type ])
+               .where(media_types: { name: media_type })
+               .where.not(end_time: nil)
+               .order(end_time: :desc)
+               .first&.media_item
+  end
+  private_class_method :location_anchor_for
 
   def currently_playing_changed_to_false?
     saved_change_to_currently_playing? && !currently_playing

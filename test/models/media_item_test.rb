@@ -771,4 +771,82 @@ test "currently_playing_changed_to_false? logic tested via callback behavior" do
   media_item2.update!(currently_playing: true)
   assert_nil session2.reload.end_time, "Callback should not have closed the session"
 end
+
+  # .random_candidate_with_scope
+
+  test "random_candidate_with_scope with scope none behaves like random_candidate" do
+    pick_random_configs(:vinyl).update!(location_scope: "none")
+    result = MediaItem.random_candidate_with_scope("Vinyl")
+    assert_not_nil result
+    assert_equal "Vinyl", result.media_type.name
+  end
+
+  test "random_candidate_with_scope with same_cube uses currently playing item's cube" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    extra = MediaItem.create!(
+      release: releases(:one), media_type: media_types(:vinyl),
+      location: locations(:vinyl_with_cube), play_count: 0, position: 99
+    )
+
+    result = MediaItem.random_candidate_with_scope("Vinyl")
+    assert_not_nil result
+    assert_equal "C", result.location&.cube_location
+  end
+
+  test "random_candidate_with_scope with same_section uses currently playing item's location" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_section")
+    MediaItem.create!(
+      release: releases(:one), media_type: media_types(:vinyl),
+      location: locations(:vinyl_with_cube), play_count: 0, position: 99
+    )
+
+    result = MediaItem.random_candidate_with_scope("Vinyl")
+    assert_not_nil result
+    assert_equal locations(:vinyl_with_cube).id, result.location_id
+  end
+
+  test "random_candidate_with_scope with same_cube excludes active playlist items" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    # vinyl_one is in cube C but in the active playlist; all others recently played → nil
+    result = MediaItem.random_candidate_with_scope("Vinyl")
+    assert_nil result
+  end
+
+  test "random_candidate_with_scope falls back to playlist anchor when nothing playing" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    media_items(:vinyl_now_playing).update_columns(currently_playing: false)
+    extra = MediaItem.create!(
+      release: releases(:one), media_type: media_types(:vinyl),
+      location: locations(:vinyl_with_cube), play_count: 0, position: 99
+    )
+
+    result = MediaItem.random_candidate_with_scope("Vinyl")
+    assert_not_nil result
+    assert_equal extra.id, result.id
+  end
+
+  test "random_candidate_with_scope falls back to last play_session anchor when no current or playlist" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    media_items(:vinyl_now_playing).update_columns(currently_playing: false)
+    Playlist.delete_all
+    MediaItem.create!(
+      release: releases(:one), media_type: media_types(:vinyl),
+      location: locations(:vinyl_with_cube), play_count: 0, position: 99
+    )
+
+    result = MediaItem.random_candidate_with_scope("Vinyl")
+    assert_not_nil result
+    assert_equal "C", result.location&.cube_location
+  end
+
+  test "random_candidate_with_scope uses full pool when no anchor can be determined" do
+    pick_random_configs(:vinyl).update!(location_scope: "same_cube")
+    media_items(:vinyl_now_playing).update_columns(currently_playing: false)
+    Playlist.delete_all
+    PlaySession.delete_all
+
+    result = MediaItem.random_candidate_with_scope("Vinyl")
+    assert_not_nil result
+    assert_equal "Vinyl", result.media_type.name
+  end
 end

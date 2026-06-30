@@ -4,12 +4,17 @@
 #
 #  id                   :integer          not null, primary key
 #  last_played_days_ago :integer          default(60), not null
+#  location_scope       :string           default("none"), not null
 #  media_type           :string           default("Vinyl"), not null
 #  play_count_operator  :string           default("none"), not null
 #  play_count_threshold :integer
 #  rating_filter        :string           default("none"), not null
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
+#
+# Indexes
+#
+#  index_pick_random_configs_on_media_type  (media_type) UNIQUE
 #
 
 vinyl:
