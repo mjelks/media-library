@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_30_185218) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_09_234735) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -181,6 +181,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_185218) do
     t.string "user_agent"
     t.integer "user_id", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "site_settings", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "subhead"
+    t.string "title"
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "theme_sets", force: :cascade do |t|
+    t.boolean "active", default: false, null: false
+    t.string "button_primary_bg_color", default: "#2563eb", null: false
+    t.string "button_primary_font_color", default: "#ffffff", null: false
+    t.string "button_secondary_bg_color", default: "#f3f4f6", null: false
+    t.string "button_secondary_font_color", default: "#374151", null: false
+    t.datetime "created_at", null: false
+    t.string "footer_bg_color"
+    t.string "footer_font_color"
+    t.string "h1_font_color"
+    t.string "main_bg_color"
+    t.string "name"
+    t.string "nav_bg_color"
+    t.string "nav_font_color"
+    t.string "page_subtitle_font_color", default: "#6b7280", null: false
+    t.string "toggle_active_bg_color", default: "#4f46e5", null: false
+    t.string "toggle_active_font_color", default: "#ffffff", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_theme_sets_on_name", unique: true
   end
 
   create_table "users", force: :cascade do |t|

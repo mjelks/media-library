@@ -91,6 +91,10 @@ Rails.application.routes.draw do
     end
   end
   resources :genres
+  resource :site_setting, only: %i[show edit update]
+  resources :theme_sets, except: [ :show ] do
+    patch :activate, on: :member
+  end
   resource :session, only: %i[new create destroy]
   resources :passwords, param: :token
   resource :registration, only: %i[new create]

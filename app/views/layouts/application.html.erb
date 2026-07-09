@@ -22,10 +22,11 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="flex flex-col">
+  <% theme = ThemeSet.active %>
+  <body class="flex flex-col" style="<%= theme_style_vars(theme) %>">
     <%= render 'shared/header' %>
     <%= render 'shared/nav' %>
-    <main class="w-full bg-stone-400">
+    <main class="w-full themed-main">
      <div class="max-w-7xl mx-auto px-4 flex space-x-6">
       <%= yield %>
       <%= yield :modals %>

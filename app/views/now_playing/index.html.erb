@@ -5,7 +5,7 @@
     <div>
       <h1 class="font-bold text-4xl">Now Playing</h1>
       <% if is_admin? %>
-      <p class="text-gray-500 mt-1">Search your collection and track what you're listening to</p>
+      <p class="themed-page-subtitle mt-1">Search your collection and track what you're listening to</p>
       <% end %>
     </div>
     <% if is_admin? %>
@@ -21,7 +21,7 @@
         </svg>
       </button>
       <%= link_to "Back to Collection", record_collection_path,
-          class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-200 font-medium" %>
+          class: "rounded-md px-3.5 py-2.5 themed-btn-secondary font-medium" %>
     </div>
     <% end %>
   </div>

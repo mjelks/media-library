@@ -22,11 +22,8 @@ export default class extends Controller {
   updateButtonStates() {
     this.buttonTargets.forEach(button => {
       const isActive = button.dataset.mediaType === this.currentValue
-      button.classList.toggle("bg-indigo-600", isActive)
-      button.classList.toggle("text-white", isActive)
-      button.classList.toggle("bg-gray-100", !isActive)
-      button.classList.toggle("text-gray-700", !isActive)
-      button.classList.toggle("hover:bg-gray-200", !isActive)
+      button.classList.toggle("themed-toggle-active", isActive)
+      button.classList.toggle("themed-btn-secondary", !isActive)
     })
   }
 }
