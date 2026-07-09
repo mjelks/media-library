@@ -86,7 +86,6 @@ module Api
 
       def delete
         media_item = MediaItem.find(params[:id])
-        media_item.play_sessions.order(created_at: :desc).first&.destroy
         media_item.rollback_play!
 
         render json: { success: true }
