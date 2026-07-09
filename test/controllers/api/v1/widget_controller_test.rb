@@ -1023,6 +1023,22 @@ class Api::V1::WidgetControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "delete should destroy only one play session when multiple exist" do
+    @vinyl_item.update!(play_count: 5)
+    older_session = @vinyl_item.play_sessions.create!(start_time: 2.hours.ago)
+    @vinyl_item.play_sessions.create!(start_time: 1.hour.ago)
+
+    assert_difference "PlaySession.count", -1 do
+      delete api_v1_widget_delete_url(id: @vinyl_item.id),
+             headers: { "X-Api-Token" => @api_token }
+    end
+    assert_response :success
+
+    @vinyl_item.reload
+    assert_equal 4, @vinyl_item.play_count
+    assert PlaySession.exists?(older_session.id)
+  end
+
   # Wishlist tests
   test "wishlist should return all wishlist items" do
     get api_v1_widget_wishlist_url,
