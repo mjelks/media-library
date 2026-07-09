@@ -7,7 +7,7 @@
 
   <div class="flex justify-between items-center mb-6">
     <h1 class="font-bold text-4xl">LP Cartridges</h1>
-    <%= link_to "New Cartridge", new_lp_cartridge_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
+    <%= link_to "New Cartridge", new_lp_cartridge_path, class: "rounded-md px-3.5 py-2.5 themed-btn-primary font-medium" %>
   </div>
 
   <% if @lp_cartridges.any? %>
@@ -28,7 +28,7 @@
               <% end %>
             </div>
             <div class="flex gap-2 ml-4">
-              <%= link_to "Edit", edit_lp_cartridge_path(cartridge), class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-medium" %>
+              <%= link_to "Edit", edit_lp_cartridge_path(cartridge), class: "rounded-md px-3 py-1.5 themed-btn-secondary text-sm font-medium" %>
               <%= button_to "Delete", lp_cartridge_path(cartridge), method: :delete,
                   class: "rounded-md px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium",
                   data: { turbo_confirm: "Delete this cartridge entry?" } %>

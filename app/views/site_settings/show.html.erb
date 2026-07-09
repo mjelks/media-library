@@ -1,0 +1,30 @@
+<% content_for :title, "Site Settings" %>
+
+<div class="p-4 w-full max-w-6xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="font-bold text-4xl">Site Settings</h1>
+      <p class="themed-page-subtitle mt-1">Customize the header banner shown across the site.</p>
+    </div>
+    <%= link_to "Edit", edit_site_setting_path, class: "rounded-md px-3.5 py-2.5 themed-btn-primary font-medium" %>
+  </div>
+
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5 space-y-4">
+    <div>
+      <h2 class="font-semibold text-sm text-gray-500">Title</h2>
+      <p class="text-lg text-gray-900"><%= @site_setting.title %></p>
+    </div>
+    <div>
+      <h2 class="font-semibold text-sm text-gray-500">Subhead</h2>
+      <p class="text-lg text-gray-900"><%= @site_setting.subhead %></p>
+    </div>
+    <div>
+      <h2 class="font-semibold text-sm text-gray-500 mb-2">Background Image</h2>
+      <% if @site_setting.background_image.attached? %>
+        <%= image_tag @site_setting.background_image.variant(resize_to_limit: [ 600, 300 ]), class: "rounded-lg shadow" %>
+      <% else %>
+        <p class="text-sm text-gray-400 italic">No custom background image set — using the default.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

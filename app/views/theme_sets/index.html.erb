@@ -1,0 +1,43 @@
+<% content_for :title, "Theme Sets" %>
+
+<div class="p-4 w-full max-w-6xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="font-bold text-4xl">Theme Sets</h1>
+      <p class="themed-page-subtitle mt-1">Save and switch between color themes for the main background, nav, footer, and page headers.</p>
+    </div>
+    <%= link_to "New Theme Set", new_theme_set_path, class: "rounded-md px-3.5 py-2.5 themed-btn-primary font-medium" %>
+  </div>
+
+  <div class="space-y-3">
+    <% @theme_sets.each do |theme_set| %>
+      <div class="bg-white rounded-lg shadow border border-gray-100 p-5 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="flex gap-1">
+            <% [theme_set.main_bg_color, theme_set.nav_bg_color, theme_set.footer_bg_color, theme_set.h1_font_color, theme_set.button_primary_bg_color, theme_set.toggle_active_bg_color].each do |color| %>
+              <span class="w-6 h-6 rounded border border-gray-200 inline-block" style="background-color: <%= color %>;"></span>
+            <% end %>
+          </div>
+          <div>
+            <span class="font-semibold text-gray-900"><%= theme_set.name %></span>
+            <% if theme_set.active? %>
+              <span class="ml-2 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800">Active</span>
+            <% end %>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <% unless theme_set.active? %>
+            <%= button_to "Activate", activate_theme_set_path(theme_set), method: :patch,
+                class: "rounded-md px-3 py-2 themed-btn-secondary font-medium text-sm cursor-pointer" %>
+          <% end %>
+          <%= link_to "Edit", edit_theme_set_path(theme_set), class: "rounded-md px-3 py-2 themed-btn-secondary font-medium text-sm" %>
+          <% unless theme_set.active? %>
+            <%= button_to "Delete", theme_set_path(theme_set), method: :delete,
+                class: "rounded-md px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 font-medium text-sm cursor-pointer",
+                data: { turbo_confirm: "Delete theme set \"#{theme_set.name}\"?" } %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

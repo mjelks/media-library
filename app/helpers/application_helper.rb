@@ -65,6 +65,12 @@ module ApplicationHelper
     "#%02x%02x%02x" % [ r, g, b ]
   end
 
+  def theme_style_vars(theme_set)
+    ThemeSet::COLOR_ATTRIBUTES.map do |attr|
+      "--theme-#{attr.delete_suffix('_color').tr('_', '-')}: #{theme_set.public_send(attr)};"
+    end.join(" ")
+  end
+
   def quarter_hours(total_seconds)
     return nil if total_seconds.nil?
     (total_seconds / 3600.0 * 4).round / 4.0

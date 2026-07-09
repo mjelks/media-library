@@ -1,0 +1,105 @@
+<%= form_with model: theme_set, class: "space-y-4" do |form| %>
+  <% if theme_set.errors.any? %>
+    <div class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md">
+      <h2><%= pluralize(theme_set.errors.count, "error") %> prohibited this theme set from being saved:</h2>
+      <ul class="list-disc list-inside">
+        <% theme_set.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+    <%= form.label :name, class: "block text-sm font-medium text-gray-700" %>
+    <%= form.text_field :name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+  </div>
+
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+    <h2 class="font-semibold text-lg mb-3 text-gray-900">Main Content Area</h2>
+    <div class="flex items-center gap-3">
+      <%= form.label :main_bg_color, "Background", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :main_bg_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+    <h2 class="font-semibold text-lg mb-3 text-gray-900">Top Navigation</h2>
+    <div class="flex items-center gap-3 mb-3">
+      <%= form.label :nav_bg_color, "Background", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :nav_bg_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+    <div class="flex items-center gap-3">
+      <%= form.label :nav_font_color, "Font Color", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :nav_font_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+    <h2 class="font-semibold text-lg mb-3 text-gray-900">Footer</h2>
+    <div class="flex items-center gap-3 mb-3">
+      <%= form.label :footer_bg_color, "Background", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :footer_bg_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+    <div class="flex items-center gap-3">
+      <%= form.label :footer_font_color, "Font Color", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :footer_font_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+    <h2 class="font-semibold text-lg mb-3 text-gray-900">Page Headers</h2>
+    <div class="flex items-center gap-3 mb-3">
+      <%= form.label :h1_font_color, "H1 Font Color", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :h1_font_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+    <div class="flex items-center gap-3">
+      <%= form.label :page_subtitle_font_color, "Subtitle Font Color", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :page_subtitle_font_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+    <h2 class="font-semibold text-lg mb-3 text-gray-900">Primary Buttons</h2>
+    <p class="text-sm text-gray-500 mb-3">Submit buttons and primary actions (e.g. "Edit", "Save").</p>
+    <div class="flex items-center gap-3 mb-3">
+      <%= form.label :button_primary_bg_color, "Background", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :button_primary_bg_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+    <div class="flex items-center gap-3">
+      <%= form.label :button_primary_font_color, "Font Color", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :button_primary_font_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+    <h2 class="font-semibold text-lg mb-3 text-gray-900">Secondary Buttons</h2>
+    <p class="text-sm text-gray-500 mb-3">Cancel links and secondary actions (e.g. "Back to Collection", inactive Vinyl/CD toggle).</p>
+    <div class="flex items-center gap-3 mb-3">
+      <%= form.label :button_secondary_bg_color, "Background", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :button_secondary_bg_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+    <div class="flex items-center gap-3">
+      <%= form.label :button_secondary_font_color, "Font Color", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :button_secondary_font_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+    <h2 class="font-semibold text-lg mb-3 text-gray-900">Active Toggle</h2>
+    <p class="text-sm text-gray-500 mb-3">The selected Vinyl/CD toggle button on Now Playing.</p>
+    <div class="flex items-center gap-3 mb-3">
+      <%= form.label :toggle_active_bg_color, "Background", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :toggle_active_bg_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+    <div class="flex items-center gap-3">
+      <%= form.label :toggle_active_font_color, "Font Color", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :toggle_active_font_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+  </div>
+
+  <div class="flex gap-3">
+    <%= form.submit "Save Theme Set", class: "rounded-md px-3.5 py-2.5 themed-btn-primary font-medium cursor-pointer" %>
+    <%= link_to "Cancel", theme_sets_path, class: "rounded-md px-3.5 py-2.5 themed-btn-secondary font-medium" %>
+  </div>
+<% end %>

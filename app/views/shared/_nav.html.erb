@@ -1,6 +1,6 @@
  <div data-controller="modal">
   <!-- Menu Section -->
-  <nav class="bg-gray-800 text-white py-3" data-controller="nav">
+  <nav class="themed-nav py-3" data-controller="nav">
     <div class="max-w-6xl mx-auto px-4">
       <div class="flex items-center justify-between">
 
@@ -21,13 +21,15 @@
                   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
               </button>
-              <div data-dropdown-target="menu" class="hidden absolute left-0 mt-2 bg-gray-800 rounded shadow-lg z-50 min-w-max">
+              <div data-dropdown-target="menu" class="hidden absolute left-0 mt-2 themed-nav rounded shadow-lg z-50 min-w-max">
                 <%= link_to "Album/CD Locations", locations_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
                 <%= link_to "LP Cartridges", lp_cartridges_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
                 <%= link_to "Media Items", media_items_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
                 <%= link_to "Media Types", media_types_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
                 <%= link_to "Pick Random Settings", pick_random_config_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
                 <%= link_to "Releases", releases_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
+                <%= link_to "Site Settings", site_setting_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
+                <%= link_to "Theme Sets", theme_sets_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400 border-b border-[#eee]" %>
                 <%= link_to "Users", users_path, class: "block px-4 py-2 hover:bg-gray-700 hover:text-blue-400" %>
               </div>
             </div>
@@ -75,6 +77,8 @@
               <%= link_to "Media Types", media_types_path, class: "block hover:text-blue-400" %>
               <%= link_to "Pick Random Settings", pick_random_config_path, class: "block hover:text-blue-400" %>
               <%= link_to "Releases", releases_path, class: "block hover:text-blue-400" %>
+              <%= link_to "Site Settings", site_setting_path, class: "block hover:text-blue-400" %>
+              <%= link_to "Theme Sets", theme_sets_path, class: "block hover:text-blue-400" %>
               <%= link_to "Users", users_path, class: "block hover:text-blue-400" %>
             </div>
           </div>

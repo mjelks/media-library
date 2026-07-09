@@ -5,18 +5,63 @@
     --font-sans: InterVariable, sans-serif;
   }
 
+h1 {
+  color: var(--theme-h1-font);
+}
+
+.themed-main {
+  background-color: var(--theme-main-bg);
+}
+
+.themed-nav {
+  background-color: var(--theme-nav-bg);
+  color: var(--theme-nav-font);
+}
+
+.themed-footer {
+  background-color: var(--theme-footer-bg);
+  color: var(--theme-footer-font);
+}
+
+.themed-page-subtitle {
+  color: var(--theme-page-subtitle-font);
+}
+
+.themed-btn-primary, .button-standard {
+  background-color: var(--theme-button-primary-bg);
+  color: var(--theme-button-primary-font);
+}
+
+.themed-btn-primary:hover, .button-standard:hover {
+  background-color: color-mix(in srgb, var(--theme-button-primary-bg) 85%, white);
+}
+
+.themed-btn-secondary, .button-cancel {
+  background-color: var(--theme-button-secondary-bg);
+  color: var(--theme-button-secondary-font);
+}
+
+.themed-btn-secondary:hover, .button-cancel:hover {
+  background-color: color-mix(in srgb, var(--theme-button-secondary-bg) 85%, black);
+}
+
+.themed-toggle-active {
+  background-color: var(--theme-toggle-active-bg);
+  color: var(--theme-toggle-active-font);
+}
+
 @layer utilities {
-  
+
   form {
     @apply text-gray-200;
   }
 
   .button-standard {
-    @apply rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer mr-1;
+    @apply rounded-md px-3.5 py-2.5 inline-block font-medium cursor-pointer mr-1;
   }
-  
+
   .button-cancel {
-    @apply rounded-md px-3.5 py-2.5 bg-gray-400 hover:bg-gray-200 text-gray-900 inline-block font-medium cursor-pointer;
+    @apply rounded-md px-3.5 py-2.5 inline-block font-medium cursor-pointer;
   }
 
   .tab-header {
