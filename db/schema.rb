@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_09_234735) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_10_120000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -196,6 +196,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_09_234735) do
     t.string "button_primary_font_color", default: "#ffffff", null: false
     t.string "button_secondary_bg_color", default: "#f3f4f6", null: false
     t.string "button_secondary_font_color", default: "#374151", null: false
+    t.integer "color_scheme_hue"
+    t.integer "color_scheme_lightness"
+    t.string "color_scheme_mode"
+    t.integer "color_scheme_saturation"
     t.datetime "created_at", null: false
     t.string "footer_bg_color"
     t.string "footer_font_color"
@@ -204,6 +208,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_09_234735) do
     t.string "name"
     t.string "nav_bg_color"
     t.string "nav_font_color"
+    t.string "now_playing_card_bg_color", default: "#eff6ff", null: false
+    t.string "now_playing_card_border_color", default: "#dbeafe", null: false
+    t.string "now_playing_card_border_radius", default: "0.75rem", null: false
     t.string "page_subtitle_font_color", default: "#6b7280", null: false
     t.string "toggle_active_bg_color", default: "#4f46e5", null: false
     t.string "toggle_active_font_color", default: "#ffffff", null: false

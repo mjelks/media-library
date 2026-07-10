@@ -10,13 +10,16 @@
   </div>
 
   <div class="space-y-3">
-    <% @theme_sets.each do |theme_set| %>
+    <% @theme_sets.each_with_index do |theme_set, index| %>
       <div class="bg-white rounded-lg shadow border border-gray-100 p-5 flex items-center justify-between">
         <div class="flex items-center gap-4">
           <div class="flex gap-1">
             <% [theme_set.main_bg_color, theme_set.nav_bg_color, theme_set.footer_bg_color, theme_set.h1_font_color, theme_set.button_primary_bg_color, theme_set.toggle_active_bg_color].each do |color| %>
               <span class="w-6 h-6 rounded border border-gray-200 inline-block" style="background-color: <%= color %>;"></span>
             <% end %>
+            <span class="w-6 h-6 border-2 inline-block"
+                  style="background-color: <%= theme_set.now_playing_card_bg_color %>; border-color: <%= theme_set.now_playing_card_border_color %>; border-radius: <%= theme_set.now_playing_card_border_radius %>;"
+                  title="Now Playing card"></span>
           </div>
           <div>
             <span class="font-semibold text-gray-900"><%= theme_set.name %></span>
@@ -31,10 +34,17 @@
                 class: "rounded-md px-3 py-2 themed-btn-secondary font-medium text-sm cursor-pointer" %>
           <% end %>
           <%= link_to "Edit", edit_theme_set_path(theme_set), class: "rounded-md px-3 py-2 themed-btn-secondary font-medium text-sm" %>
-          <% unless theme_set.active? %>
-            <%= button_to "Delete", theme_set_path(theme_set), method: :delete,
-                class: "rounded-md px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 font-medium text-sm cursor-pointer",
-                data: { turbo_confirm: "Delete theme set \"#{theme_set.name}\"?" } %>
+          <%= button_to "Duplicate", duplicate_theme_set_path(theme_set), method: :post,
+              class: "rounded-md px-3 py-2 themed-btn-secondary font-medium text-sm cursor-pointer" %>
+          <% if index.positive? %>
+            <%= button_to theme_set_path(theme_set), method: :delete,
+                class: "w-9 h-9 flex items-center justify-center rounded-md bg-red-50 hover:bg-red-100 text-red-700 cursor-pointer",
+                title: "Delete \"#{theme_set.name}\"",
+                data: { turbo_confirm: "Delete theme set \"#{theme_set.name}\"?" } do %>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            <% end %>
           <% end %>
         </div>
       </div>

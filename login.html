@@ -1,0 +1,239 @@
+<!-- BEGIN app/views/layouts/application.html.erb
+--><!DOCTYPE html>
+<html>
+  <head>
+    <title>Discogs Media</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="8pSavezdoTqUQ4M4nPBh1ldJkEH1O1rX8THibj54TSwnAwOqrG9hWzi3f-zbOXa45JlZdBhn-DzlxYPBk-kTLA" />
+    
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    
+
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <link rel="stylesheet" href="/assets/tailwind-8bb4419d.css" data-turbo-track="reload" />
+    <script type="importmap" data-turbo-track="reload">{
+  "imports": {
+    "application": "/assets/application-bfcdf840.js",
+    "@hotwired/turbo-rails": "/assets/turbo.min-9fd88cd5.js",
+    "@hotwired/stimulus": "/assets/stimulus.min-4b1e420e.js",
+    "@hotwired/stimulus-loading": "/assets/stimulus-loading-1fc53fe7.js",
+    "sortablejs": "https://ga.jspm.io/npm:sortablejs@1.15.2/modular/sortable.esm.js",
+    "controllers/application": "/assets/controllers/application-3affb389.js",
+    "controllers/carousel_controller": "/assets/controllers/carousel_controller-bf79b7c5.js",
+    "controllers/cd_binder_controller": "/assets/controllers/cd_binder_controller-f14f6439.js",
+    "controllers/color_scheme_controller": "/assets/controllers/color_scheme_controller-fee8a48e.js",
+    "controllers/dropdown_controller": "/assets/controllers/dropdown_controller-5ba3cb09.js",
+    "controllers/hello_controller": "/assets/controllers/hello_controller-708796bd.js",
+    "controllers": "/assets/controllers/index-ee64e1f1.js",
+    "controllers/infinite_scroll_controller": "/assets/controllers/infinite_scroll_controller-6fc0fece.js",
+    "controllers/inline_edit_controller": "/assets/controllers/inline_edit_controller-1c319641.js",
+    "controllers/location_filter_controller": "/assets/controllers/location_filter_controller-3a193ffb.js",
+    "controllers/media_type_toggle_controller": "/assets/controllers/media_type_toggle_controller-341372e9.js",
+    "controllers/modal_controller": "/assets/controllers/modal_controller-7971a730.js",
+    "controllers/nav_controller": "/assets/controllers/nav_controller-39b52489.js",
+    "controllers/now_playing_card_controller": "/assets/controllers/now_playing_card_controller-7b7c45b0.js",
+    "controllers/now_playing_search_controller": "/assets/controllers/now_playing_search_controller-9b7a019a.js",
+    "controllers/sortable_controller": "/assets/controllers/sortable_controller-62c3b7ce.js",
+    "controllers/tooltip_controller": "/assets/controllers/tooltip_controller-ee72d48b.js",
+    "controllers/tweak_toggle_controller": "/assets/controllers/tweak_toggle_controller-d93863d7.js",
+    "controllers/voting_controller": "/assets/controllers/voting_controller-bfd3f318.js"
+  }
+}</script>
+<link rel="modulepreload" href="/assets/application-bfcdf840.js">
+<link rel="modulepreload" href="/assets/turbo.min-9fd88cd5.js">
+<link rel="modulepreload" href="/assets/stimulus.min-4b1e420e.js">
+<link rel="modulepreload" href="/assets/stimulus-loading-1fc53fe7.js">
+<link rel="modulepreload" href="https://ga.jspm.io/npm:sortablejs@1.15.2/modular/sortable.esm.js">
+<link rel="modulepreload" href="/assets/controllers/application-3affb389.js">
+<link rel="modulepreload" href="/assets/controllers/carousel_controller-bf79b7c5.js">
+<link rel="modulepreload" href="/assets/controllers/cd_binder_controller-f14f6439.js">
+<link rel="modulepreload" href="/assets/controllers/color_scheme_controller-fee8a48e.js">
+<link rel="modulepreload" href="/assets/controllers/dropdown_controller-5ba3cb09.js">
+<link rel="modulepreload" href="/assets/controllers/hello_controller-708796bd.js">
+<link rel="modulepreload" href="/assets/controllers/index-ee64e1f1.js">
+<link rel="modulepreload" href="/assets/controllers/infinite_scroll_controller-6fc0fece.js">
+<link rel="modulepreload" href="/assets/controllers/inline_edit_controller-1c319641.js">
+<link rel="modulepreload" href="/assets/controllers/location_filter_controller-3a193ffb.js">
+<link rel="modulepreload" href="/assets/controllers/media_type_toggle_controller-341372e9.js">
+<link rel="modulepreload" href="/assets/controllers/modal_controller-7971a730.js">
+<link rel="modulepreload" href="/assets/controllers/nav_controller-39b52489.js">
+<link rel="modulepreload" href="/assets/controllers/now_playing_card_controller-7b7c45b0.js">
+<link rel="modulepreload" href="/assets/controllers/now_playing_search_controller-9b7a019a.js">
+<link rel="modulepreload" href="/assets/controllers/sortable_controller-62c3b7ce.js">
+<link rel="modulepreload" href="/assets/controllers/tooltip_controller-ee72d48b.js">
+<link rel="modulepreload" href="/assets/controllers/tweak_toggle_controller-d93863d7.js">
+<link rel="modulepreload" href="/assets/controllers/voting_controller-bfd3f318.js">
+<script type="module">import "application"</script>
+  </head>
+
+  <body class="flex flex-col" style="--theme-main-bg: #a6afb0; --theme-nav-bg: #293c3d; --theme-nav-font: #ffffff; --theme-footer-bg: #293c3d; --theme-footer-font: #ffffff; --theme-h1-font: #203a3c; --theme-button-primary-bg: #39bcc6; --theme-button-primary-font: #ffffff; --theme-button-secondary-bg: #f1f3f3; --theme-button-secondary-font: #435456; --theme-toggle-active-bg: #be37b5; --theme-toggle-active-font: #ffffff; --theme-page-subtitle-font: #677d7e; --theme-now-playing-card-bg: #f4f5f0; --theme-now-playing-card-border: #dfe0d1; --theme-now-playing-card-radius: 0.75rem;">
+    <!-- BEGIN app/views/shared/_header.html.erb
+--><div class="relative isolate overflow-hidden bg-gray-900 py-24 sm:py-32 w-full">
+    <img alt="" class="absolute inset-0 -z-10 w-full h-full object-cover object-right md:object-center" src="http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsiZGF0YSI6MTE2OSwicHVyIjoiYmxvYl9pZCJ9fQ==--04b311f4a4691a2259f4d5cccb8b84a61a3adafe/8A-2-positive.jpg" />
+
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto lg:mx-0">
+      <h2 class="text-5xl font-semibold tracking-tight text-white sm:text-7xl">Bicyclelad&#39;s Music Collection</h2>
+      <p class="mt-0 text-lg font-medium text-pretty text-gray-300 sm:text-xl">Record and CD collection</p>
+    </div>
+  </div>
+</div>
+<!-- END app/views/shared/_header.html.erb -->
+    <!-- BEGIN app/views/shared/_nav.html.erb
+--> <div data-controller="modal">
+  <!-- Menu Section -->
+  <nav class="themed-nav py-3" data-controller="nav">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex items-center justify-between">
+
+        <!-- Desktop nav links -->
+        <div class="hidden md:flex space-x-6 items-center">
+          <a class="hover:text-blue-400" href="/now_playing">Now Playing</a>
+          <a class="hover:text-blue-400" href="/record_collection">Record Collection</a>
+          <a class="hover:text-blue-400" href="/cd_collection">CD Collection</a>
+
+            <button data-action="modal#show"
+                  class="hover:text-blue-400 bg-transparent border-none cursor-pointer">Sign in</button>
+        </div>
+
+        <!-- Mobile top bar: hamburger + Now Playing + sign in/out -->
+        <div class="flex md:hidden items-center space-x-4">
+          <button data-action="click->nav#toggleMenu" class="p-2 rounded hover:bg-gray-700 focus:outline-none" aria-label="Toggle menu">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <a class="hover:text-blue-400" href="/now_playing">Now Playing</a>
+            <button data-action="modal#show" class="hover:text-blue-400 bg-transparent border-none cursor-pointer">Sign in</button>
+        </div>
+      </div>
+
+      <!-- Mobile menu (hidden by default) -->
+      <div data-nav-target="menu" class="hidden flex-col mt-3 space-y-2 pb-2 md:hidden">
+        <a class="block hover:text-blue-400" href="/record_collection">Record Collection</a>
+        <a class="block hover:text-blue-400" href="/cd_collection">CD Collection</a>
+      </div>
+    </div>
+  </nav>
+
+</div>
+<!-- END app/views/shared/_nav.html.erb -->
+    <main class="w-full themed-main">
+     <div class="max-w-7xl mx-auto px-4 flex space-x-6">
+      <!-- BEGIN app/views/sessions/new.html.erb
+--><div class="mx-auto md:w-2/3 w-full">
+
+
+  <h1 class="font-bold text-4xl" id="signIn">Sign in</h1>
+</div>
+<!-- END app/views/sessions/new.html.erb -->
+          <!-- BEGIN app/views/shared/_auth_modal.html.erb
+--><div id="modal" data-controller="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+  <div class="bg-gray-800 rounded-lg max-w-md w-full p-6 relative">
+    <!-- Close Button -->
+    <a data-action="modal#hide" class="absolute top-4 right-4 text-gray-400 hover:text-white" href="http://localhost:3000/">
+      &times;
+</a>    <!-- Tabs -->
+    <div class="flex mb-6">
+      <button data-action="modal#switchTab"
+              data-tab="login"
+              data-modal-target="tab"
+              class="modal-tab tab-header selected">
+        Login
+      </button>
+      <button data-action="modal#switchTab"
+              data-tab="password"
+              data-modal-target="tab"
+              class="modal-tab tab-header">
+        Forgot Password?
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div data-modal-target="content" id="login">
+      <!-- BEGIN app/views/sessions/_new.html.erb
+--><form id="login" class="modal-content" data-modal-target="content" action="http://localhost:3000/session" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="FTnW-TN6tna5oNxJb6Gs7ehaBC-7KB_y3ROCmSnQ8vfRGXkzNTkUAo6PwgEE60ZtKlcAJI-1RJGkZTpANB48Lw" autocomplete="off" />
+  <div class="my-5">
+    <input required="required" autofocus="autofocus" autocomplete="username" placeholder="Enter your email address" class="block shadow rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" type="email" name="email_address" id="email_address" />
+  </div>
+
+  <div class="my-5">
+    <input required="required" autocomplete="current-password" placeholder="Enter your password" maxlength="72" class="block shadow rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" size="72" type="password" name="password" id="password" />
+  </div>
+
+  <div class="col-span-6 sm:flex sm:items-center sm:gap-4">
+    <div class="inline">
+      <input type="submit" name="commit" value="Sign in" class="rounded-md px-3.5 py-2.5 themed-btn-primary inline-block font-medium cursor-pointer" data-disable-with="Sign in" />
+    </div>
+    <div class="inline">
+      <a class="button-cancel" href="http://localhost:3000/">Cancel</a>
+    </div>
+    <div class="inline ml-auto">
+      <button type="button" data-action="modal#switchTab" data-tab="password" class="text-sm text-blue-400 hover:text-blue-300 bg-transparent border-none cursor-pointer">Forgot password?</button>
+    </div>
+  </div>
+</form><!-- END app/views/sessions/_new.html.erb -->
+    </div>
+    <div data-modal-target="content" id="signup" class="hidden">
+      <!-- BEGIN app/views/registrations/_new.html.erb
+-->  <form id="signup" class="modal-content hidden" data-modal-target="content" action="http://localhost:3000/registration" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="mg_wnqwCuI82wbTuC_MTYvuVNj4kJJSgBOMB9qNWm20eCrpcQ8T92qlXEaC-Tv-rAa3vo5oFABEg9kgSvjmCLg" autocomplete="off" />
+    <div class="my-5">
+        <input required="required" autofocus="autofocus" autocomplete="email" placeholder="Enter your email address" class="block shadow rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" type="email" name="email_address" id="email_address" />
+    </div>
+
+    <div class="my-5">
+        <input required="required" autocomplete="new-password" placeholder="Create a password" maxlength="72" class="block shadow rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" size="72" type="password" name="password" id="password" />
+    </div>
+
+    <div class="inline">
+      <a class="button-cancel" href="http://localhost:3000/">Cancel</a>
+    </div>
+</form><!-- END app/views/registrations/_new.html.erb -->
+    </div>
+    <div data-modal-target="content" id="password" class="hidden">
+      <!-- BEGIN app/views/passwords/_new.html.erb
+-->
+  <form id="password" class="modal-content hidden" data-modal-target="content" action="/passwords" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="phwmPDqvK-CIPjc1UMu-8r6GjvoLvxAiFtGT3LLdTa-RyPOIzXyCiVMU6Ot202R0ClDkPPqrnkQJ_pPxgDtaRw" autocomplete="off" />
+    <div class="my-5">
+      <input required="required" autofocus="autofocus" autocomplete="username" placeholder="Enter your email address" class="block shadow rounded-md border border-gray-400 outline-none focus:outline-blue-600 px-3 py-2 mt-2 w-full" type="email" name="email_address" id="email_address" />
+    </div>
+
+    <div class="inline">
+      <input type="submit" name="commit" value="Email reset instructions" class="button-standard" data-disable-with="Email reset instructions" />
+    </div>
+    <div class="inline">
+      <a class="button-cancel" href="http://localhost:3000/">Cancel</a>
+    </div>
+</form>
+<!-- END app/views/passwords/_new.html.erb -->
+    </div>
+  </div>
+</div>
+<!-- END app/views/shared/_auth_modal.html.erb -->
+
+      </div>
+    </main>
+    <!-- BEGIN app/views/shared/_footer.html.erb
+--><footer class="themed-footer py-4">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+      <!-- Copyright -->
+      <p class="text-sm">&copy; 2026 Bicyclelad. All rights reserved.</p>
+
+      <!-- Links -->
+      <div class="space-x-4">
+        <a href="#" class="hover:text-blue-400 text-sm">Privacy Policy</a>
+        <a href="#" class="hover:text-blue-400 text-sm">Terms of Service</a>
+        <a href="#" class="hover:text-blue-400 text-sm">Contact</a>
+      </div>
+    </div>
+  </footer><!-- END app/views/shared/_footer.html.erb -->
+  </body>
+</html> 
+<!-- END app/views/layouts/application.html.erb -->
