@@ -66,9 +66,11 @@ module ApplicationHelper
   end
 
   def theme_style_vars(theme_set)
-    ThemeSet::COLOR_ATTRIBUTES.map do |attr|
+    vars = ThemeSet::COLOR_ATTRIBUTES.map do |attr|
       "--theme-#{attr.delete_suffix('_color').tr('_', '-')}: #{theme_set.public_send(attr)};"
-    end.join(" ")
+    end
+    vars << "--theme-now-playing-card-radius: #{theme_set.now_playing_card_border_radius};"
+    vars.join(" ")
   end
 
   def quarter_hours(total_seconds)

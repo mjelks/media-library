@@ -94,6 +94,7 @@ Rails.application.routes.draw do
   resource :site_setting, only: %i[show edit update]
   resources :theme_sets, except: [ :show ] do
     patch :activate, on: :member
+    post :duplicate, on: :member
   end
   resource :session, only: %i[new create destroy]
   resources :passwords, param: :token

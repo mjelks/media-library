@@ -50,6 +50,16 @@ h1 {
   color: var(--theme-toggle-active-font);
 }
 
+.themed-card {
+  background-color: var(--theme-now-playing-card-bg);
+  border-color: var(--theme-now-playing-card-border);
+  border-radius: var(--theme-now-playing-card-radius);
+}
+
+.themed-card-radius {
+  border-radius: var(--theme-now-playing-card-radius);
+}
+
 @layer utilities {
 
   form {

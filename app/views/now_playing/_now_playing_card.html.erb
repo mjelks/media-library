@@ -1,0 +1,180 @@
+<%
+  compact = local_assigns.fetch(:compact, false)
+  since = local_assigns.fetch(:since, media_item.last_played)
+  image_dims = compact ? [ 80, 80 ] : [ 150, 150 ]
+  image_class = compact ? "w-20 h-20 object-cover rounded-md shadow" : "w-36 h-36 object-cover rounded-lg shadow-lg"
+  placeholder_size = compact ? "w-20 h-20" : "w-36 h-36"
+  placeholder_icon_size = compact ? "w-8 h-8" : "w-12 h-12"
+  placeholder_radius = compact ? "rounded-md" : "rounded-lg"
+  title_class = compact ? "font-semibold text-lg truncate" : "font-bold text-2xl text-gray-900"
+  artist_class = compact ? "text-gray-600 truncate" : "text-lg text-gray-600 mt-1"
+  gap_class = compact ? "gap-4" : "gap-6"
+  meta_text_class = compact ? "text-sm text-gray-400" : "text-sm text-gray-500 mt-2"
+  lp_badge_class = compact ? "w-5 h-5 text-[10px]" : "w-6 h-6 text-xs"
+  location_link_class = compact ? "italic text-xs text-gray-400 hover:text-gray-600 hover:underline" : "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block"
+  vote_btn_class = compact ? "px-3 py-1.5 text-sm" : "px-3 py-2"
+  card_padding = compact ? "p-4" : "p-6"
+  modal_padding = compact ? "p-4" : "p-6"
+  modal_btn_class = compact ? "px-3 py-1.5 text-sm" : "px-4 py-2"
+  notes_border = compact ? "mt-3 pt-3 border-t border-gray-100" : "mt-4 pt-4 border-t border-blue-200"
+  notes_text_class = compact ? "text-xs" : "text-sm"
+  notes_rows = compact ? 2 : 3
+%>
+<div data-controller="now-playing-card" data-now-playing-card-confirm-url-value="<%= now_playing_confirm_path(media_item) %>">
+  <div class="relative themed-card <%= card_padding %> shadow-lg border <%= "hover:shadow-md" if compact %> transition-shadow transition-opacity duration-300" data-now-playing-card-target="card">
+    <!-- Close/Confirm buttons in upper right -->
+    <%= render partial: "close_confirm_buttons", locals: { media_item: media_item } %>
+
+    <!-- Confirmation Modal -->
+    <div data-now-playing-card-target="modal" class="hidden absolute inset-0 bg-black/50 themed-card-radius flex items-center justify-center z-20">
+      <div class="bg-white rounded-lg <%= modal_padding %> shadow-xl max-w-sm mx-4">
+        <p class="text-gray-800 font-medium text-center <%= compact ? "mb-3" : "mb-4" %>">Are you sure?</p>
+        <p class="text-gray-500 text-sm text-center <%= compact ? "mb-4" : "mb-6" %>">This will remove the album and undo the play count.</p>
+        <div class="flex gap-3 justify-center">
+          <button type="button"
+                  data-action="click->now-playing-card#hideConfirm"
+                  class="<%= modal_btn_class %> bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+            No
+          </button>
+          <button type="button"
+                  data-action="click->now-playing-card#confirmDelete"
+                  data-now-playing-card-url-param="<%= now_playing_delete_path(media_item) %>"
+                  class="<%= modal_btn_class %> bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors">
+            Yes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center <%= gap_class %>">
+      <div class="flex-shrink-0 relative group/cover">
+        <%= link_to compact ? edit_media_item_path(media_item) : media_item_path(media_item) do %>
+          <% if media_item.release&.cover_image&.attached? %>
+            <%= image_tag media_item.release.cover_image.variant(resize_to_limit: image_dims), class: image_class %>
+          <% else %>
+            <div class="<%= placeholder_size %> bg-gray-200 <%= placeholder_radius %> flex items-center justify-center <%= "shadow-lg" unless compact %>">
+              <svg class="<%= placeholder_icon_size %> text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+              </svg>
+            </div>
+          <% end %>
+        <% end %>
+        <!-- Hover details popup -->
+        <div class="absolute left-full top-0 ml-4 z-20 opacity-0 invisible group-hover/cover:opacity-100 group-hover/cover:visible transition-all duration-200 pointer-events-none">
+          <%= render partial: "record_collection/media_item_hover_details", locals: { media_item: media_item } %>
+        </div>
+      </div>
+      <div class="flex-1 <%= "min-w-0" if compact %>">
+        <%= link_to edit_media_item_path(media_item), class: compact ? "block hover:text-gray-900" : "block hover:opacity-80" do %>
+          <h3 class="<%= title_class %>"><%= media_item.display_title || "Unknown Album" %></h3>
+          <p class="<%= artist_class %>"><%= media_item.release&.media_owner&.name || "Unknown Artist" %>
+            <% unless compact %>
+              <span class="text-xs text-gray-600 mt-1">
+                (<%= duration_formatter(media_item.release&.duration) || "Unknown" %>)
+              </span>
+            <% end %>
+          </p>
+        <% end %>
+        <p class="<%= meta_text_class %>">
+          <%= compact ? "Played" : "Started" %> <%= time_ago_in_words(since) %> ago
+          <span class="mx-2">&middot;</span>
+          <%= pluralize(media_item.play_count || 0, "play") %><%= " total" unless compact %>
+          <span class="mx-2">&middot;</span>
+          <% if media_item.media_type&.name == "CD" %>
+            <span title="CD">💿</span>
+          <% else %>
+            <span title="Vinyl" class="inline-flex items-center justify-center <%= lp_badge_class %> bg-gray-800 text-white font-bold rounded-full align-middle">LP</span>
+          <% end %>
+        </p>
+        <% if media_item.location %>
+          <% if media_item.media_type&.name == "Vinyl" %>
+            <%= link_to record_collection_location_path(media_item.location), class: location_link_class do %>
+              <% if media_item.location.cube_location.present? %>Cube <%= media_item.location.cube_location %>, <% end %>Section <%= media_item.location.name %>
+            <% end %>
+            <% unless compact %>
+              <%= render partial: "now_playing/position_helper", locals: { now_playing: media_item } %>
+            <% end %>
+          <% else %>
+            <% ps = page_and_side_for(media_item.slot_position) %>
+            <%= link_to cd_collection_location_path(media_item.location, page: ps[:page], side: ps[:side]), class: location_link_class do %>
+              <%= media_item.location.name %> — Page <%= ps[:page] %> Side <%= ps[:side] %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+      <% if is_admin? %>
+      <div class="flex flex-col gap-2">
+        <% unless compact %>
+          <%= button_to "Done Playing", now_playing_done_path(media_item),
+              class: "px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors",
+              data: { turbo: false } %>
+        <% end %>
+        <div class="flex gap-2" data-controller="voting" data-voting-url-value="<%= now_playing_rate_path(media_item) %>">
+          <button type="button"
+              data-action="click->voting#vote"
+              data-rating="meh"
+              data-active="false"
+              class="<%= vote_btn_class %> bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium rounded-lg transition-all text-center">
+            🫤 <span class="text-xs" data-voting-target="mehCount">(<%= media_item.release&.meh_count || 0 %>)</span>
+          </button>
+          <button type="button"
+              data-action="click->voting#vote"
+              data-rating="thumbs_up"
+              data-active="false"
+              class="<%= vote_btn_class %> bg-green-100 hover:bg-green-200 text-green-800 font-medium rounded-lg transition-all text-center">
+            👍 <span class="text-xs" data-voting-target="thumbsUpCount">(<%= media_item.release&.thumbs_up_count || 0 %>)</span>
+          </button>
+        </div>
+      </div>
+      <% end %>
+    </div>
+
+    <!-- Inline Notes Editor -->
+    <% if is_admin? %>
+    <div class="<%= notes_border %>"
+         data-controller="inline-edit"
+         data-inline-edit-url-value="<%= now_playing_update_notes_path(media_item) %>">
+      <!-- Display Mode -->
+      <div data-inline-edit-target="display" class="group">
+        <a href="#" data-action="click->inline-edit#edit" class="flex items-start gap-2 <%= compact ? "text-gray-500 hover:text-gray-700" : "text-gray-600 hover:text-gray-900" %>">
+          <svg class="<%= compact ? "w-3.5 h-3.5" : "w-4 h-4" %> mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          <span data-notes-placeholder class="<%= notes_text_class %> italic text-gray-400 <%= media_item.notes.present? ? 'hidden' : '' %>">
+            <%= compact ? "Add notes..." : "Add notes about this album..." %>
+          </span>
+          <span data-notes-text class="<%= notes_text_class %> whitespace-pre-wrap <%= media_item.notes.blank? ? 'hidden' : '' %>"><%= media_item.notes %></span>
+        </a>
+      </div>
+
+      <!-- Edit Mode -->
+      <div data-inline-edit-target="form" class="hidden">
+        <textarea data-inline-edit-target="input"
+                  data-action="keydown->inline-edit#handleKeydown"
+                  rows="<%= notes_rows %>"
+                  placeholder="<%= compact ? "Add notes..." : "Add notes about tracks, album, recording quality, etc..." %>"
+                  class="w-full <%= compact ? "px-2 py-1.5 text-xs" : "px-3 py-2 text-sm" %> border border-gray-300 <%= compact ? "rounded-md" : "rounded-lg" %> focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"><%= media_item.notes %></textarea>
+        <div class="flex justify-end gap-2 <%= compact ? "mt-1.5" : "mt-2" %>">
+          <button type="button"
+                  data-action="click->inline-edit#cancel"
+                  class="<%= compact ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-sm" %> text-gray-600 hover:text-gray-800 font-medium">
+            Cancel
+          </button>
+          <button type="button"
+                  data-action="click->inline-edit#save"
+                  class="<%= compact ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-sm" %> bg-blue-600 hover:bg-blue-700 text-white font-medium <%= compact ? "rounded" : "rounded-md" %>">
+            Save
+          </button>
+        </div>
+        <% unless compact %>
+          <p class="text-xs text-gray-400 mt-1">Enter to save, Alt+Enter for new line, Esc to cancel</p>
+        <% end %>
+      </div>
+    </div>
+    <% elsif media_item.notes.present? %>
+    <div class="<%= notes_border %>">
+      <p class="<%= notes_text_class %> whitespace-pre-wrap text-gray-500"><%= media_item.notes %></p>
+    </div>
+    <% end %>
+  </div>
+</div>

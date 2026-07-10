@@ -15,6 +15,71 @@
     <%= form.text_field :name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
   </div>
 
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5" data-controller="color-scheme"
+       data-color-scheme-mode-value="<%= theme_set.color_scheme_mode || 'complementary' %>"
+       data-color-scheme-hue-value="<%= theme_set.color_scheme_hue || 210 %>"
+       data-color-scheme-saturation-value="<%= theme_set.color_scheme_saturation || 55 %>"
+       data-color-scheme-lightness-value="<%= theme_set.color_scheme_lightness || 50 %>"
+       data-color-scheme-has-saved-scheme-value="<%= theme_set.color_scheme_mode.present? %>">
+    <h2 class="font-semibold text-lg mb-1 text-gray-900">Color Scheme Generator</h2>
+    <p class="text-sm text-gray-500 mb-4">Pick a base color and a harmony, then apply it to autofill every color field below.</p>
+
+    <%= form.hidden_field :color_scheme_mode, data: { color_scheme_target: "modeField" } %>
+    <%= form.hidden_field :color_scheme_hue, data: { color_scheme_target: "hueField" } %>
+    <%= form.hidden_field :color_scheme_saturation, data: { color_scheme_target: "saturationField" } %>
+    <%= form.hidden_field :color_scheme_lightness, data: { color_scheme_target: "lightnessField" } %>
+
+    <div class="flex flex-col sm:flex-row gap-6 items-start">
+      <div class="flex flex-col items-center gap-2 shrink-0">
+        <div class="relative w-40 h-40 rounded-full cursor-crosshair select-none touch-none"
+             data-color-scheme-target="wheel"
+             data-action="pointerdown->color-scheme#startDrag"
+             style="background: conic-gradient(from 0deg, hsl(0,100%,50%), hsl(60,100%,50%), hsl(120,100%,50%), hsl(180,100%,50%), hsl(240,100%,50%), hsl(300,100%,50%), hsl(360,100%,50%));">
+          <div class="absolute inset-6 rounded-full bg-white pointer-events-none"></div>
+          <div data-color-scheme-target="dot2" class="hidden absolute w-3.5 h-3.5 rounded-full border-2 border-white shadow -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+          <div data-color-scheme-target="dot3" class="hidden absolute w-3.5 h-3.5 rounded-full border-2 border-white shadow -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+          <div data-color-scheme-target="puck" class="absolute w-5 h-5 rounded-full border-2 border-white shadow -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+        </div>
+        <span class="text-xs text-gray-500 text-center max-w-[10rem]">Click or drag the ring to set the base color</span>
+      </div>
+
+      <div class="flex-1 min-w-[240px] space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Harmony</label>
+          <div class="flex flex-wrap gap-2" data-color-scheme-target="modeButtons">
+            <% [["complementary", "Complementary"], ["triadic", "Triadic"], ["analogous", "Analogous"], ["monochromatic", "Monochromatic"]].each do |value, label| %>
+              <button type="button" data-mode="<%= value %>" data-action="click->color-scheme#setMode"
+                      class="rounded-md px-3 py-1.5 text-sm font-medium border cursor-pointer">
+                <%= label %>
+              </button>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Saturation</label>
+            <input type="range" min="0" max="100" data-color-scheme-target="saturation" data-action="input->color-scheme#update" class="w-full cursor-pointer">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Lightness</label>
+            <input type="range" min="10" max="90" data-color-scheme-target="lightness" data-action="input->color-scheme#update" class="w-full cursor-pointer">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Scheme Colors</label>
+          <div class="flex gap-2" data-color-scheme-target="swatches"></div>
+        </div>
+
+        <button type="button" data-action="click->color-scheme#apply"
+                class="rounded-md px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm cursor-pointer">
+          Apply to Theme
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
     <h2 class="font-semibold text-lg mb-3 text-gray-900">Main Content Area</h2>
     <div class="flex items-center gap-3">
@@ -95,6 +160,24 @@
     <div class="flex items-center gap-3">
       <%= form.label :toggle_active_font_color, "Font Color", class: "text-sm font-medium text-gray-700 w-28" %>
       <%= form.color_field :toggle_active_font_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
+    <h2 class="font-semibold text-lg mb-3 text-gray-900">Now Playing Card</h2>
+    <p class="text-sm text-gray-500 mb-3">The "Now Playing" hero card and the compact cards in "Recently Played".</p>
+    <div class="flex items-center gap-3 mb-3">
+      <%= form.label :now_playing_card_bg_color, "Background", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :now_playing_card_bg_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+    <div class="flex items-center gap-3 mb-3">
+      <%= form.label :now_playing_card_border_color, "Border Color", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.color_field :now_playing_card_border_color, class: "h-10 w-16 rounded border border-gray-300 cursor-pointer" %>
+    </div>
+    <div class="flex items-center gap-3">
+      <%= form.label :now_playing_card_border_radius, "Roundedness", class: "text-sm font-medium text-gray-700 w-28" %>
+      <%= form.select :now_playing_card_border_radius, ThemeSet::RADIUS_OPTIONS.to_a,
+            {}, class: "block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
     </div>
   </div>
 
