@@ -8,11 +8,7 @@ class ThemeSetsController < ApplicationController
   end
 
   def new
-    prefill_attrs = ThemeSet::COLOR_ATTRIBUTES + %w[
-      now_playing_card_border_radius
-      color_scheme_mode color_scheme_hue color_scheme_saturation color_scheme_lightness
-    ]
-    @theme_set = ThemeSet.new(ThemeSet.active.attributes.slice(*prefill_attrs))
+    @theme_set = ThemeSet.new(config: ThemeSet.active.config.deep_dup)
   end
 
   def create
@@ -77,10 +73,6 @@ class ThemeSetsController < ApplicationController
   end
 
   def theme_set_params
-    params.expect(theme_set: [
-      :name, :now_playing_card_border_radius,
-      :color_scheme_mode, :color_scheme_hue, :color_scheme_saturation, :color_scheme_lightness,
-      *ThemeSet::COLOR_ATTRIBUTES
-    ])
+    params.expect(theme_set: [ :name, *ThemeSet::CONFIG_ATTRIBUTES ])
   end
 end
