@@ -1,0 +1,56 @@
+# == Schema Information
+#
+# Table name: theme_sets
+#
+#  id         :integer          not null, primary key
+#  active     :boolean          default(FALSE), not null
+#  config     :json             not null
+#  name       :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Indexes
+#
+#  index_theme_sets_on_name  (name) UNIQUE
+#
+active_theme:
+  name: "Active Fixture Theme"
+  active: true
+  config:
+    main_bg_color: "#a8a29e"
+    nav_bg_color: "#1f2937"
+    nav_font_color: "#ffffff"
+    footer_bg_color: "#1f2937"
+    footer_font_color: "#ffffff"
+    h1_font_color: "#000000"
+    button_primary_bg_color: "#2563eb"
+    button_primary_font_color: "#ffffff"
+    button_secondary_bg_color: "#f3f4f6"
+    button_secondary_font_color: "#374151"
+    toggle_active_bg_color: "#4f46e5"
+    toggle_active_font_color: "#ffffff"
+    page_subtitle_font_color: "#6b7280"
+    now_playing_card_bg_color: "#eff6ff"
+    now_playing_card_border_color: "#dbeafe"
+    now_playing_card_border_radius: "0.75rem"
+
+inactive_theme:
+  name: "Inactive Fixture Theme"
+  active: false
+  config:
+    main_bg_color: "#a6afb0"
+    nav_bg_color: "#293c3d"
+    nav_font_color: "#ffffff"
+    footer_bg_color: "#293c3d"
+    footer_font_color: "#ffffff"
+    h1_font_color: "#203a3c"
+    button_primary_bg_color: "#39bcc6"
+    button_primary_font_color: "#ffffff"
+    button_secondary_bg_color: "#f1f3f3"
+    button_secondary_font_color: "#435456"
+    toggle_active_bg_color: "#be37b5"
+    toggle_active_font_color: "#ffffff"
+    page_subtitle_font_color: "#677d7e"
+    now_playing_card_bg_color: "#f4f5f0"
+    now_playing_card_border_color: "#dfe0d1"
+    now_playing_card_border_radius: "0.5rem"
