@@ -132,4 +132,54 @@ class RecordCollectionControllerTest < ActionDispatch::IntegrationTest
     get record_collection_url
     assert_redirected_to new_session_path
   end
+
+  # Up Next overlay in the spine hover popup
+
+  test "show renders add-to-queue overlay for non-queued items" do
+    location = locations(:vinyl_with_cube)
+    not_queued = media_items(:vinyl_played_long_ago)
+
+    get record_collection_location_url(location)
+    assert_response :success
+
+    assert_select "button[data-controller='add-to-queue'][data-add-to-queue-media-item-id-value='#{not_queued.id}'][data-add-to-queue-queued-value='false']" do
+      assert_select "span", text: "Add to Up Next"
+    end
+  end
+
+  test "show renders queued state with remove affordance for queued items" do
+    location = locations(:vinyl_with_cube)
+    queued = playlists(:active_first).media_item
+    assert_equal location, queued.location, "fixture expectation: queued item lives in this location"
+
+    get record_collection_location_url(location)
+    assert_response :success
+
+    assert_select "button[data-add-to-queue-media-item-id-value='#{queued.id}'][data-add-to-queue-queued-value='true']" do
+      assert_select "span", text: "In Up Next"
+      assert_select "span", text: "Remove from Up Next"
+    end
+  end
+
+  test "show treats played queue entries as not queued" do
+    location = locations(:vinyl_with_cube)
+    played = playlists(:already_played).media_item
+    assert_equal location, played.location, "fixture expectation: played item lives in this location"
+
+    get record_collection_location_url(location)
+    assert_response :success
+
+    assert_select "button[data-add-to-queue-media-item-id-value='#{played.id}'][data-add-to-queue-queued-value='false']"
+  end
+
+  test "show hides add-to-queue overlay from non-admins" do
+    auditor = User.create!(email_address: "auditor@example.com", password: "password", role: "auditor")
+    delete session_path
+    login_as(auditor)
+
+    get record_collection_location_url(locations(:vinyl_with_cube))
+    assert_response :success
+
+    assert_select "button[data-controller='add-to-queue']", count: 0
+  end
 end

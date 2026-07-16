@@ -57,6 +57,7 @@ Rails.application.routes.draw do
 
   # Playlist (Up Next queue)
   post "playlist", to: "playlist#create", as: :playlist
+  delete "playlist/by_media_item/:media_item_id", to: "playlist#destroy_by_media_item", as: :playlist_remove_media_item
   delete "playlist/:id", to: "playlist#destroy", as: :playlist_item
   patch "playlist/reorder", to: "playlist#reorder", as: :playlist_reorder
   post "playlist/:id/play", to: "playlist#play", as: :playlist_play
