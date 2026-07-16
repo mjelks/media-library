@@ -125,4 +125,36 @@ class ApplicationHelperTest < ActionView::TestCase
   test "duration_formatter handles zero" do
     assert_equal "0:00", duration_formatter(0)
   end
+
+  test "duration_formatter formats singular day, hour, and minute, rounding up any leftover seconds" do
+    assert_equal "1 Day, 1 Hour, 36 Minutes", duration_formatter(86400 + 3600 + (35 * 60) + 15)
+  end
+
+  test "duration_formatter formats plural days, hours, and minutes, rounding up any leftover seconds" do
+    assert_equal "2 Days, 3 Hours, 16 Minutes", duration_formatter((2 * 86400) + (3 * 3600) + (15 * 60) + 42)
+  end
+
+  test "duration_formatter formats zero hours and minutes with correct pluralization" do
+    assert_equal "1 Day, 0 Hours, 0 Minutes", duration_formatter(86400)
+  end
+
+  test "duration_formatter rounds up even a single leftover second" do
+    assert_equal "1 Day, 0 Hours, 1 Minute", duration_formatter(86400 + 1)
+  end
+
+  test "duration_formatter carries rounded minutes into the next hour" do
+    assert_equal "1 Day, 1 Hour, 0 Minutes", duration_formatter(86400 + 3599 + 1)
+  end
+
+  test "duration_formatter carries rounded minutes into the next day" do
+    assert_equal "2 Days, 0 Hours, 0 Minutes", duration_formatter(86400 + (23 * 3600) + (59 * 60) + 1)
+  end
+
+  test "duration_font_size_class returns large size under 24 hours" do
+    assert_equal "text-2xl", duration_font_size_class(86399)
+  end
+
+  test "duration_font_size_class returns small size at 24 hours and above" do
+    assert_equal "text-m", duration_font_size_class(86400)
+  end
 end
