@@ -86,6 +86,19 @@ h1 {
     @apply text-white border-blue-500 font-semibold;
   }
 
+  /* Page-level segmented pill tabs (e.g. Now Playing / Up Next) */
+  .page-tab {
+    @apply px-4 py-2 text-lg font-semibold text-center text-stone-500 rounded-md transition-colors cursor-pointer;
+  }
+
+  .page-tab:hover {
+    @apply text-stone-700;
+  }
+
+  .page-tab.selected {
+    @apply bg-white text-stone-800 shadow;
+  }
+
   /* Playlist counter — auto-renumbers on DOM reorder without a server round-trip */
   #up-next-list {
     counter-reset: playlist-item;

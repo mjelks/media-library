@@ -123,9 +123,9 @@ Rails.application.routes.draw do
   # root "homepage#index"
   root "now_playing#index"
 
-  # :nocov:
+  # simplecov:disable
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
   end
-  # :nocov:
+  # simplecov:enable
 end

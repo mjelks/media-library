@@ -200,7 +200,7 @@ module Api
 
       private
 
-      # :nocov:
+      # simplecov:disable
       # Safe navigation operators create branches for nil cases that can't occur
       # due to database constraints (foreign keys ensure release/media_owner exist)
       def serialize_media_item(item)
@@ -235,7 +235,7 @@ module Api
           date_added: item.created_at.iso8601
         }
       end
-      # :nocov:
+      # simplecov:enable
 
       def serialize_tracks(tracks)
         return [] if tracks.blank?
@@ -296,7 +296,7 @@ module Api
         end
       end
 
-      # :nocov:
+      # simplecov:disable
       # Safe navigation operators create branches for nil cases that can't occur
       # due to database constraints (foreign keys ensure release/media_owner exist)
       def serialize_play_session(session)
@@ -316,7 +316,7 @@ module Api
           duration: media_item_duration
         }
       end
-      # :nocov:
+      # simplecov:enable
 
       def sanitize_like(string)
         string.gsub(/[%_']/) { |match| "\\#{match}" }

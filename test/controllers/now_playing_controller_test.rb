@@ -209,32 +209,58 @@ class NowPlayingControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should exclude items by id from search results" do
-    get now_playing_search_url, params: { q: @media_item.release.title, exclude_ids: @media_item.id.to_s }
+  test "search flags items already in the up next queue" do
+    assert Playlist.active.exists?(media_item_id: @media_item.id), "fixture should queue this item"
+
+    get now_playing_search_url, params: { q: @media_item.release.title }
     assert_response :success
 
-    ids = response.parsed_body.map { |r| r["id"] }
-    assert_not_includes ids, @media_item.id
+    result = response.parsed_body.find { |r| r["id"] == @media_item.id }
+    assert result, "queued item should still appear in search results"
+    assert result["queued"]
   end
 
-  test "should exclude multiple items by id from search results" do
-    other = media_items(:vinyl_now_playing)
-    exclude = "#{@media_item.id},#{other.id}"
+  test "search does not flag items missing from the up next queue" do
+    Playlist.where(media_item_id: @media_item.id).delete_all
 
-    get now_playing_search_url, params: { q: @media_item.release.title, exclude_ids: exclude }
+    get now_playing_search_url, params: { q: @media_item.release.title }
     assert_response :success
 
-    ids = response.parsed_body.map { |r| r["id"] }
-    assert_not_includes ids, @media_item.id
-    assert_not_includes ids, other.id
+    result = response.parsed_body.find { |r| r["id"] == @media_item.id }
+    assert result
+    assert_not result["queued"]
   end
 
-  test "should return full results when exclude_ids is empty" do
-    get now_playing_search_url, params: { q: @media_item.release.title, exclude_ids: "" }
+  test "search flags the currently playing item" do
+    assert @now_playing_item.currently_playing?, "fixture should be currently playing"
+
+    get now_playing_search_url, params: { q: @now_playing_item.release.title }
     assert_response :success
 
-    ids = response.parsed_body.map { |r| r["id"] }
-    assert_includes ids, @media_item.id
+    result = response.parsed_body.find { |r| r["id"] == @now_playing_item.id }
+    assert result, "currently playing item should still appear in search results"
+    assert result["playing"]
+  end
+
+  test "search does not flag items that are not playing" do
+    get now_playing_search_url, params: { q: @media_item.release.title }
+    assert_response :success
+
+    result = response.parsed_body.find { |r| r["id"] == @media_item.id }
+    assert result
+    assert_not result["playing"]
+  end
+
+  test "search does not flag items whose queue entry is already played" do
+    Playlist.where(media_item_id: @media_item.id).delete_all
+    Playlist.create!(media_item: @media_item, position: Playlist.next_position, played: true)
+
+    get now_playing_search_url, params: { q: @media_item.release.title }
+    assert_response :success
+
+    result = response.parsed_body.find { |r| r["id"] == @media_item.id }
+    assert result
+    assert_not result["queued"]
   end
 
   # Location scope tests

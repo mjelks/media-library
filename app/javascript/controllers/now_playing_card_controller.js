@@ -1,8 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["card", "modal", "buttonGroup", "deleteBtn", "confirmBtn"]
+  static targets = ["card", "modal", "buttonGroup", "deleteBtn", "confirmBtn", "pencilBtn"]
   static values = { confirmUrl: String }
+
+  // Pencil swaps itself for the X/checkmark group; the checkmark swaps back
+  exposeButtons() {
+    // Clear the fade-out state confirmListening may have left behind
+    this.buttonGroupTarget.classList.remove("opacity-0", "pointer-events-none", "hidden")
+    if (this.hasPencilBtnTarget) this.pencilBtnTarget.classList.add("hidden")
+  }
 
   showConfirm() {
     this.modalTarget.classList.remove("hidden")
@@ -18,9 +25,10 @@ export default class extends Controller {
     // Fade out the button group
     this.buttonGroupTarget.classList.add("opacity-0", "pointer-events-none", "transition-opacity", "duration-300")
 
-    // After animation, hide it completely
+    // After animation, hide it completely and bring the pencil back
     setTimeout(() => {
       this.buttonGroupTarget.classList.add("hidden")
+      if (this.hasPencilBtnTarget) this.pencilBtnTarget.classList.remove("hidden")
     }, 300)
 
     // Persist the confirmation

@@ -1,6 +1,8 @@
 <li class="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-lg mb-2 hover:bg-gray-50 transition-colors"
     data-playlist-id="<%= playlist_item.id %>"
-    data-media-item-id="<%= playlist_item.media_item_id %>">
+    data-media-item-id="<%= playlist_item.media_item_id %>"
+    data-controller="up-next-item"
+    data-up-next-item-remove-url-value="<%= playlist_item_path(playlist_item) %>">
 
   <!-- Drag handle -->
   <div class="drag-handle cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 flex-shrink-0">
@@ -30,6 +32,23 @@
     <p class="text-sm text-gray-500 truncate"><%= mi.release&.media_owner&.name || "Unknown Artist" %></p>
   </div>
 
+  <!-- Play history / media type -->
+  <p class="flex items-center flex-shrink-0 text-sm text-gray-400">
+    <% if mi.last_played %>
+      <span class="hidden sm:inline">
+        Played <%= time_ago_in_words(mi.last_played) %> ago
+        <span class="mx-2">&middot;</span>
+        <%= pluralize(mi.play_count || 0, "play") %>
+        <span class="mx-2">&middot;</span>
+      </span>
+    <% end %>
+    <% if mi.media_type&.name == "CD" %>
+      <span title="CD">💿</span>
+    <% else %>
+      <span title="Vinyl" class="inline-flex items-center justify-center w-5 h-5 text-[10px] bg-gray-800 text-white font-bold rounded-full align-middle">LP</span>
+    <% end %>
+  </p>
+
   <!-- Actions -->
   <div class="flex items-center gap-1 flex-shrink-0">
     <!-- Play Now (same behavior as Done on current + start this) -->
@@ -44,14 +63,13 @@
     <% end %>
 
     <!-- Remove from queue -->
-    <%= button_to playlist_item_path(playlist_item),
-        method: :delete,
-        class: "p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 transition-colors",
-        title: "Remove from Up Next",
-        form: { data: { turbo: false } } do %>
+    <button type="button"
+            data-action="click->up-next-item#remove"
+            class="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 transition-colors"
+            title="Remove from Up Next">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
       </svg>
-    <% end %>
+    </button>
   </div>
 </li>
