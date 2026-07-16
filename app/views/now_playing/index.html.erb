@@ -133,29 +133,37 @@
                 </button>
               </nav>
               <div class="flex-1 content-center">
+                <% last_days_tooltip_lines = [] %>
+                <% last_days_tooltip_lines << pluralize(@recently_played_vinyl_count, "LP") if @recently_played_vinyl_count.to_i > 0 %>
+                <% last_days_tooltip_lines << pluralize(@recently_played_cd_count, "CD") if @recently_played_cd_count.to_i > 0 %>
+                <% last_days_album_icon = album_stat_bubble(@total_recently_played, last_days_tooltip_lines) %>
+                <% last_days_duration = capture do %>
+                  <p class="<%= duration_font_size_class(@recently_played_in_seconds) %> font-bold text-stone-700 leading-tight"><%= duration_formatter(@recently_played_in_seconds) %></p>
+                <% end %>
                 <div data-tabs-target="panel" data-tab="last-days">
                   <div class="grid grid-cols-2 text-center">
                     <div class="p-2 flex items-center justify-center">
-                      <span title="Albums" class="relative inline-flex items-center justify-center w-16 h-16 bg-gray-800 rounded-full align-middle">
-                        <span class="w-6 h-6 bg-[#eee] rounded-full"></span>
-                        <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-black"><%= @total_recently_played %></span>
-                      </span>
+                      <%= is_admin? ? link_to(last_days_album_icon, play_sessions_path(days: @days_ago_play_history), class: "contents") : last_days_album_icon %>
                     </div>
                     <div class="p-2 flex items-center justify-center">
-                      <p class="<%= duration_font_size_class(@recently_played_in_seconds) %> font-bold text-stone-700 leading-tight"><%= duration_formatter(@recently_played_in_seconds) %></p>
+                      <%= is_admin? ? link_to(last_days_duration, play_sessions_path(days: @days_ago_play_history), class: "contents") : last_days_duration %>
                     </div>
                   </div>
                 </div>
+                <% lifetime_tooltip_lines = [] %>
+                <% lifetime_tooltip_lines << pluralize(@lifetime_vinyl_count, "LP") if @lifetime_vinyl_count.to_i > 0 %>
+                <% lifetime_tooltip_lines << pluralize(@lifetime_cd_count, "CD") if @lifetime_cd_count.to_i > 0 %>
+                <% lifetime_album_icon = album_stat_bubble(@total_lifetime_played, lifetime_tooltip_lines) %>
+                <% lifetime_duration = capture do %>
+                  <p class="<%= duration_font_size_class(@lifetime_played_in_seconds) %> font-bold text-stone-700 leading-tight"><%= duration_formatter(@lifetime_played_in_seconds) %></p>
+                <% end %>
                 <div data-tabs-target="panel" data-tab="lifetime" class="hidden">
                   <div class="grid grid-cols-2 text-center">
                     <div class="p-2 flex items-center justify-center">
-                      <span title="Albums" class="relative inline-flex items-center justify-center w-16 h-16 bg-gray-800 rounded-full align-middle">
-                        <span class="w-6 h-6 bg-[#eee] rounded-full"></span>
-                        <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-black"><%= @total_lifetime_played %></span>
-                      </span>
+                      <%= is_admin? ? link_to(lifetime_album_icon, play_sessions_path, class: "contents") : lifetime_album_icon %>
                     </div>
                     <div class="p-2 flex items-center justify-center">
-                      <p class="<%= duration_font_size_class(@lifetime_played_in_seconds) %> font-bold text-stone-700 leading-tight"><%= duration_formatter(@lifetime_played_in_seconds) %></p>
+                      <%= is_admin? ? link_to(lifetime_duration, play_sessions_path, class: "contents") : lifetime_duration %>
                     </div>
                   </div>
                 </div>

@@ -1,17 +1,15 @@
-<% content_for :title, "#{@cartridge.name} Play History" %>
+<% content_for :title, "#{@heading} Play History" %>
 
 <div class="p-4 w-full max-w-6xl mx-auto">
   <div class="flex justify-between items-center mb-6">
     <div>
       <h1 class="font-bold text-4xl">Play History</h1>
-      <p class="themed-page-subtitle mt-1">
-        <%= @cartridge.name %> &middot; installed <%= @cartridge.installed_at.strftime("%b %-d, %Y") %>
-      </p>
+      <p class="themed-page-subtitle mt-1"><%= @heading %></p>
     </div>
     <%= link_to "Back to Now Playing", now_playing_path, class: "rounded-md px-3.5 py-2.5 themed-btn-secondary font-medium" %>
   </div>
 
-  <% if @media_items.any? %>
+  <% if @play_sessions.any? %>
     <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
       <table class="w-full">
         <thead class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200">
@@ -25,13 +23,14 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <% @media_items.each do |item| %>
+          <% @play_sessions.each do |play_session| %>
+            <% item = play_session.media_item %>
             <tr class="hover:bg-gray-50 transition-colors">
               <td class="px-4 py-3 text-center"><%= render "play_sessions/media_type_icon", media_type_name: item.media_type&.name %></td>
               <td class="px-4 py-3 font-medium text-gray-900"><%= item.display_title %></td>
               <td class="px-4 py-3 text-gray-500 text-sm"><%= item.release&.media_owner&.name || "-" %></td>
               <td class="px-4 py-3 text-gray-500 text-sm"><%= item.release&.original_year || item.year || "-" %></td>
-              <td class="px-4 py-3 text-gray-500 text-xs whitespace-nowrap"><%= item.last_played&.strftime("%b %-d, %Y %-I:%M %p") || "-" %></td>
+              <td class="px-4 py-3 text-gray-500 text-xs whitespace-nowrap"><%= play_session.start_time.strftime("%b %-d, %Y %-I:%M %p") %></td>
               <td class="px-4 py-3 text-right text-gray-500 text-sm font-mono"><%= duration_formatter(item.release&.duration) %></td>
             </tr>
           <% end %>
@@ -40,8 +39,12 @@
           <tr class="bg-gray-50 border-t-2 border-gray-200">
             <td colspan="5" class="px-4 py-3 text-right font-semibold text-gray-700">Total</td>
             <td class="px-4 py-3 text-right font-mono font-semibold text-gray-900">
-              <%= duration_formatter(@total_seconds) %>
-              <span class="block text-xs font-sans font-normal text-gray-500"><%= quarter_hours(@total_seconds) %> hrs</span>
+              <% if @days.nil? %>
+                <%= duration_hms(@total_seconds) %>
+                <span class="block text-xs font-sans font-normal text-gray-500"><%= duration_formatter(@total_seconds) %></span>
+              <% else %>
+                <%= duration_formatter(@total_seconds) %>
+              <% end %>
             </td>
           </tr>
         </tfoot>
@@ -49,7 +52,7 @@
     </div>
   <% else %>
     <div class="text-center py-12 bg-gray-50 rounded-lg">
-      <p class="text-gray-500">No albums played on this cartridge yet.</p>
+      <p class="text-gray-500">No albums played in this window yet.</p>
     </div>
   <% end %>
 </div>

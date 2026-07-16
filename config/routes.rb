@@ -83,6 +83,7 @@ Rails.application.routes.draw do
   resources :lp_cartridges do
     resources :play_sessions, only: :index, controller: "play_sessions"
   end
+  get "play_sessions", to: "play_sessions#recent", as: :play_sessions
   resources :media_types
   resources :media_items do
     post :clone, on: :member
