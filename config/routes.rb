@@ -80,7 +80,9 @@ Rails.application.routes.draw do
     get :candidates, on: :member
     get :inverse_candidates, on: :member
   end
-  resources :lp_cartridges
+  resources :lp_cartridges do
+    resources :play_sessions, only: :index, controller: "play_sessions"
+  end
   resources :media_types
   resources :media_items do
     post :clone, on: :member

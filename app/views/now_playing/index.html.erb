@@ -170,9 +170,14 @@
                     <div class="mt-1.5 h-1.5 rounded-full bg-gray-200 overflow-hidden">
                       <div class="h-full rounded-full <%= bar_color %>" style="width: <%= pct.round(1) %>%"></div>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1"><%= used_hours %> of <%= @current_cartridge.usage_limit %> hrs &middot; <%= @current_cartridge.hours_remaining(@cartridge_hours_used) %> remain</p>
+                    <% usage_text = "#{used_hours} of #{@current_cartridge.usage_limit} hrs · #{@current_cartridge.hours_remaining(@cartridge_hours_used)} remain" %>
                   <% else %>
-                    <p class="text-xs text-gray-500 mt-1"><%= used_hours %> hrs used</p>
+                    <% usage_text = "#{used_hours} hrs used" %>
+                  <% end %>
+                  <% if is_admin? %>
+                    <%= link_to usage_text, lp_cartridge_play_sessions_path(@current_cartridge), class: "text-xs text-gray-500 mt-1 hover:text-gray-700 hover:underline block" %>
+                  <% else %>
+                    <p class="text-xs text-gray-500 mt-1"><%= usage_text %></p>
                   <% end %>
                   <p class="text-xs text-gray-400 mt-0.5">Install Date: <%= @current_cartridge.installed_at.strftime("%b %-d, %Y") %></p>
                 </div>
