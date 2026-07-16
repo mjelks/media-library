@@ -3,10 +3,10 @@ ENV["DISCOGS_TOKEN"] ||= "test_token"
 
 require "simplecov"
 SimpleCov.start "rails" do
-  add_filter "/test/"
-  add_filter "/lib/itunes_import/"
+  skip "/test/"
+  skip "/lib/itunes_import/"
 
-  track_files "{app,lib}/**/*.rb"
+  cover "{app,lib}/**/*.rb"
   enable_coverage :branch
 
   # Coverage thresholds - CI will fail if not met

@@ -54,19 +54,9 @@ export default class extends Controller {
     }, 200)
   }
 
-  getActiveQueueIds() {
-    const list = document.getElementById("up-next-list")
-    if (!list) return []
-    return Array.from(list.querySelectorAll("[data-media-item-id]"))
-      .map(el => el.dataset.mediaItemId)
-      .filter(Boolean)
-  }
-
   async performSearch(query) {
-    const excludeIds = this.getActiveQueueIds()
-    const excludeParam = excludeIds.length ? `&exclude_ids=${excludeIds.join(",")}` : ""
     try {
-      const response = await fetch(`${this.urlValue}?q=${encodeURIComponent(query)}&media_type=${encodeURIComponent(this.mediaType)}${excludeParam}`, {
+      const response = await fetch(`${this.urlValue}?q=${encodeURIComponent(query)}&media_type=${encodeURIComponent(this.mediaType)}`, {
         headers: {
           "Accept": "application/json"
         }
@@ -129,7 +119,7 @@ export default class extends Controller {
     }
 
     const html = this.results.map((item, index) => `
-      <div class="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${index === this.selectedIndex ? 'bg-blue-50' : ''}"
+      <div class="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${item.playing || item.queued ? 'opacity-50' : ''} ${index === this.selectedIndex ? 'bg-blue-50' : ''}"
            data-index="${index}"
            data-action="click->now-playing-search#selectResult mouseenter->now-playing-search#highlightResult">
         ${item.cover_url
@@ -146,7 +136,13 @@ export default class extends Controller {
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
           <span class="text-sm text-gray-400">${item.play_count || 0} plays</span>
-          <button type="button"
+          ${item.playing
+            ? `<span class="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full whitespace-nowrap"
+                     title="This album is playing right now — click to view">Currently Playing</span>`
+            : item.queued
+            ? `<span class="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full whitespace-nowrap"
+                     title="Already in Up Next — click to view">In Up Next</span>`
+            : `<button type="button"
                   class="p-1.5 rounded-md bg-indigo-100 hover:bg-indigo-200 text-indigo-700 transition-colors"
                   title="Add to Up Next"
                   data-item-id="${item.id}"
@@ -154,7 +150,8 @@ export default class extends Controller {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-          </button>
+          </button>`
+          }
         </div>
       </div>
     `).join('')
@@ -179,10 +176,15 @@ export default class extends Controller {
         case "Enter":
           event.preventDefault()
           if (this.selectedIndex >= 0 && this.results[this.selectedIndex]) {
-            if (this.hasQueueToggleTarget && this.queueToggleTarget.checked) {
-              this.addToQueueById(this.results[this.selectedIndex].id)
+            const item = this.results[this.selectedIndex]
+            if (item.playing) {
+              this.showPlayingItem()
+            } else if (item.queued) {
+              this.showQueuedItem(item)
+            } else if (this.hasQueueToggleTarget && this.queueToggleTarget.checked) {
+              this.addToQueueById(item.id)
             } else {
-              this.playItem(this.results[this.selectedIndex])
+              this.playItem(item)
             }
           }
           break
@@ -209,13 +211,50 @@ export default class extends Controller {
     event.preventDefault()
     event.stopPropagation()
     const index = parseInt(event.currentTarget.dataset.index, 10)
-    if (this.results[index]) {
-      if (this.hasQueueToggleTarget && this.queueToggleTarget.checked) {
-        this.addToQueueById(this.results[index].id)
+    const item = this.results[index]
+    if (item) {
+      if (item.playing) {
+        this.showPlayingItem()
+      } else if (item.queued) {
+        this.showQueuedItem(item)
+      } else if (this.hasQueueToggleTarget && this.queueToggleTarget.checked) {
+        this.addToQueueById(item.id)
       } else {
-        this.playItem(this.results[index])
+        this.playItem(item)
       }
     }
+  }
+
+  // The picked result is already playing — jump to the Now Playing card
+  showPlayingItem() {
+    this.hideResults()
+    this.inputTarget.value = ""
+    document.querySelector("#now-playing-tab-bar [data-tab='now-playing']")?.click()
+    const card = document.querySelector('[data-tabs-target="panel"][data-tab="now-playing"] [data-now-playing-card-target="card"]')
+    if (card) {
+      card.scrollIntoView({ block: "nearest", behavior: "smooth" })
+      card.classList.add("ring-2", "ring-indigo-300")
+      setTimeout(() => card.classList.remove("ring-2", "ring-indigo-300"), 2000)
+    }
+  }
+
+  // A queued result was picked — jump to its row in the Up Next tab instead of playing
+  showQueuedItem(item) {
+    this.hideResults()
+    this.inputTarget.value = ""
+    document.querySelector("#now-playing-tab-bar [data-tab='up-next']")?.click()
+    const row = document.querySelector(`#up-next-list [data-media-item-id="${item.id}"]`)
+    if (row) this.flashRow(row)
+  }
+
+  flashRow(row) {
+    row.scrollIntoView({ block: "nearest", behavior: "smooth" })
+    row.classList.remove("bg-white")
+    row.classList.add("bg-indigo-50", "ring-2", "ring-indigo-300")
+    setTimeout(() => {
+      row.classList.add("bg-white")
+      row.classList.remove("bg-indigo-50", "ring-2", "ring-indigo-300")
+    }, 2000)
   }
 
   toggleQueueMode() {
@@ -290,6 +329,13 @@ export default class extends Controller {
           const list = document.getElementById("up-next-list")
           if (section) section.classList.remove("hidden")
           if (list) list.insertAdjacentHTML("beforeend", data.html)
+          // Swap the plain heading for the Now Playing / Up Next tab bar
+          document.getElementById("now-playing-tab-bar")?.classList.remove("hidden")
+          document.getElementById("now-playing-heading")?.classList.add("hidden")
+          // Open the Up Next tab and flash the new row
+          document.querySelector("#now-playing-tab-bar [data-tab='up-next']")?.click()
+          const row = list?.lastElementChild
+          if (row) this.flashRow(row)
         }
         this.hideResults()
         this.inputTarget.value = ""

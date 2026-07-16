@@ -51,7 +51,6 @@ class NowPlayingController < ApplicationController
     end
 
     media_type = params[:media_type] || "Vinyl"
-    exclude_ids = params[:exclude_ids].to_s.split(",").map(&:to_i).reject(&:zero?)
     sanitized_query = sanitize_like(query)
     @media_items = MediaItem.media_type_option(media_type)
                             .joins(release: :media_owner)
@@ -60,7 +59,6 @@ class NowPlayingController < ApplicationController
                               "releases.title LIKE :query OR media_owners.name LIKE :query",
                               query: "%#{query}%"
                             )
-                            .then { |scope| exclude_ids.any? ? scope.where.not(id: exclude_ids) : scope }
                             .order(
                               Arel.sql(
                                 ActiveRecord::Base.sanitize_sql_array([
@@ -72,16 +70,8 @@ class NowPlayingController < ApplicationController
                             )
                             .limit(5)
 
-    render json: @media_items.map { |item|
-      {
-        id: item.id,
-        title: item.display_title,
-        artist: item.release&.media_owner&.name,
-        year: item.year || item.release&.original_year,
-        play_count: item.play_count || 0,
-        cover_url: item.release&.cover_image&.attached? ? url_for(item.release.cover_image.variant(resize_to_limit: [ 100, 100 ])) : nil
-      }
-    }
+    queued_ids = Playlist.active.pluck(:media_item_id)
+    render json: @media_items.map { |item| search_result_json(item, queued_ids) }
   end
 
   # def tweak
@@ -170,14 +160,7 @@ class NowPlayingController < ApplicationController
     @media_item = MediaItem.random_candidate_with_scope(media_type)
 
     results = if @media_item
-      [ {
-        id: @media_item.id,
-        title: @media_item.display_title,
-        artist: @media_item.release&.media_owner&.name,
-        year: @media_item.year || @media_item.release&.original_year,
-        play_count: @media_item.play_count || 0,
-        cover_url: @media_item.release&.cover_image&.attached? ? url_for(@media_item.release.cover_image.variant(resize_to_limit: [ 100, 100 ])) : nil
-      } ]
+      [ search_result_json(@media_item, Playlist.active.pluck(:media_item_id)) ]
     else
       []
     end
@@ -196,6 +179,19 @@ class NowPlayingController < ApplicationController
   end
 
   private
+
+  def search_result_json(item, queued_ids)
+    {
+      id: item.id,
+      title: item.display_title,
+      artist: item.release&.media_owner&.name,
+      year: item.year || item.release&.original_year,
+      play_count: item.play_count || 0,
+      queued: queued_ids.include?(item.id),
+      playing: item.currently_playing?,
+      cover_url: item.release&.cover_image&.attached? ? url_for(item.release.cover_image.variant(resize_to_limit: [ 100, 100 ])) : nil
+    }
+  end
 
   def play_session_scope
     PlaySession.recent(@days_ago_play_history)

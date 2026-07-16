@@ -8,22 +8,6 @@
       <p class="themed-page-subtitle mt-1">Search your collection and track what you're listening to</p>
       <% end %>
     </div>
-    <% if is_admin? %>
-    <div class="flex items-center gap-4">
-      <button type="button"
-              data-controller="tweak-toggle"
-              data-action="click->tweak-toggle#toggle"
-              data-tweak-toggle-active-value="<%= params[:tweak].present? %>"
-              title="Toggle undo mode — show delete buttons on confirmed items"
-              class="text-gray-500 hover:text-gray-700 p-1 rounded transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-        </svg>
-      </button>
-      <%= link_to "Back to Collection", record_collection_path,
-          class: "rounded-md px-3.5 py-2.5 themed-btn-secondary font-medium" %>
-    </div>
-    <% end %>
   </div>
 
   <!-- Search with Autocomplete -->
@@ -91,26 +75,112 @@
   </div> 
   <% end %>
 
-  <!-- Now Playing Section (within last 60 minutes) -->
-  <% if @now_playing %>
-    <div class="mb-8" id="now-playing-section">
-      <h2 class="font-bold text-2xl mb-4 text-stone-700">Now Playing</h2>
-      <%= render partial: "now_playing_card", locals: { media_item: @now_playing } %>
-    </div>
-  <% end %>
+  <!-- Now Playing / Up Next Tabs -->
+  <% show_up_next = is_admin? && @playlist.any? %>
+  <% show_now_playing = @now_playing.present? || show_up_next %>
+  <% if show_now_playing %>
+    <div class="mb-8" id="now-playing-section" data-controller="tabs">
+      <!-- Plain heading when the queue is empty; tab bar when Up Next has items -->
+      <h2 id="now-playing-heading" class="font-bold text-2xl mb-4 text-stone-700 <%= 'hidden' if show_up_next %>">Now Playing</h2>
+      <div id="now-playing-tab-bar" class="mb-4 <%= 'hidden' unless show_up_next %>">
+        <nav class="grid grid-cols-2 gap-1 rounded-lg bg-gray-200/70 p-1">
+          <button type="button"
+                  data-tabs-target="tab"
+                  data-tab="now-playing"
+                  data-action="tabs#select"
+                  class="page-tab selected">
+            Now Playing
+          </button>
+          <button type="button"
+                  data-tabs-target="tab"
+                  data-tab="up-next"
+                  data-action="tabs#select"
+                  class="page-tab">
+            Up Next
+          </button>
+        </nav>
+      </div>
 
-  <!-- Up Next Section -->
-  <% if is_admin? %>
-    <%= render partial: "up_next" %>
+      <!-- Now Playing panel: card at 75%, listening stats widget at 25% -->
+      <div data-tabs-target="panel" data-tab="now-playing">
+        <div class="flex flex-col lg:flex-row gap-4 items-stretch">
+          <div class="lg:w-3/4">
+            <% if @now_playing %>
+              <%= render partial: "now_playing_card", locals: { media_item: @now_playing } %>
+            <% else %>
+              <div class="themed-card border shadow-lg p-6 h-full flex items-center justify-center text-gray-400">
+                Nothing playing right now
+              </div>
+            <% end %>
+          </div>
+          <div class="lg:w-1/4">
+            <div class="relative themed-card border shadow-lg p-4 h-full flex flex-col">
+              <h3 class="font-semibold text-xs uppercase tracking-wide text-gray-500 mb-3 text-center">Listening Stats</h3>
+              <div class="flex-1 content-center grid grid-cols-2 gap-3 text-center">
+                <div>
+                  <p class="text-2xl font-bold text-stone-700 leading-tight"><%= @total_recently_played %></p>
+                  <p class="text-xs text-gray-500 mt-0.5"><%= "album".pluralize(@total_recently_played) %><br>past <%= @days_ago_play_history %> days</p>
+                </div>
+                <div>
+                  <p class="text-2xl font-bold text-stone-700 leading-tight"><%= duration_formatter(@recently_played_in_seconds) %></p>
+                  <p class="text-xs text-gray-500 mt-0.5">listening<br>time</p>
+                </div>
+              </div>
+              <% if @current_cartridge %>
+                <div class="pt-3 border-t border-gray-200">
+                  <p class="text-xs font-medium text-gray-600 truncate" title="<%= @current_cartridge.name %>"><%= @current_cartridge.name %></p>
+                  <% used_hours = quarter_hours(@cartridge_hours_used) %>
+                  <% if @current_cartridge.usage_limit %>
+                    <% pct = [ used_hours / @current_cartridge.usage_limit.to_f * 100, 100 ].min %>
+                    <% bar_color = pct >= 90 ? "bg-red-500" : pct >= 75 ? "bg-amber-500" : "bg-emerald-500" %>
+                    <div class="mt-1.5 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                      <div class="h-full rounded-full <%= bar_color %>" style="width: <%= pct.round(1) %>%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1"><%= used_hours %> of <%= @current_cartridge.usage_limit %> hrs &middot; <%= @current_cartridge.hours_remaining(@cartridge_hours_used) %> remain</p>
+                  <% else %>
+                    <p class="text-xs text-gray-500 mt-1"><%= used_hours %> hrs used</p>
+                  <% end %>
+                  <p class="text-xs text-gray-400 mt-0.5">Install Date: <%= @current_cartridge.installed_at.strftime("%b %-d, %Y") %></p>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Up Next panel -->
+      <% if is_admin? %>
+        <div data-tabs-target="panel" data-tab="up-next" class="hidden">
+          <%= render partial: "up_next" %>
+        </div>
+      <% end %>
+    </div>
   <% end %>
 
   <!-- Recently Played Section (older than 60 minutes) -->
   <% if @play_sessions&.any? %>
     <div class="mt-8">
-      <h2 class="font-bold text-2xl mb-4 text-stone-700">Recently Played</h2>
-      You've listened to <strong><%= @total_recently_played %></strong> albums over the past <strong><%= @days_ago_play_history %></strong> days for a total of <strong><%= duration_formatter(@recently_played_in_seconds) %></strong>.
-      <% if @current_cartridge %>
-        <br><span class="text-xs font-mono text-gray-500">Currently used <%= quarter_hours(@cartridge_hours_used) %> hours of <%= @current_cartridge.name %> last installed <%= @current_cartridge.installed_at.strftime("%b %-d, %Y") %><% if @current_cartridge.usage_limit %> (<%= @current_cartridge.hours_remaining(@cartridge_hours_used) %> hours remain)<% end %></span>
+      <div class="flex items-center gap-2 mb-4">
+        <h2 class="font-bold text-2xl text-stone-700">Recently Played</h2>
+        <% if is_admin? %>
+          <button type="button"
+                  data-controller="tweak-toggle"
+                  data-action="click->tweak-toggle#toggle"
+                  data-tweak-toggle-active-value="<%= params[:tweak].present? %>"
+                  title="Toggle undo mode — show delete buttons on confirmed items"
+                  class="text-gray-500 hover:text-gray-700 p-1 rounded transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+            </svg>
+          </button>
+        <% end %>
+      </div>
+      <% unless show_now_playing %>
+        <%# Stats live in the Now Playing widget when that section is visible %>
+        You've listened to <strong><%= @total_recently_played %></strong> albums over the past <strong><%= @days_ago_play_history %></strong> days for a total of <strong><%= duration_formatter(@recently_played_in_seconds) %></strong>.
+        <% if @current_cartridge %>
+          <br><span class="text-xs font-mono text-gray-500">Currently used <%= quarter_hours(@cartridge_hours_used) %> hours of <%= @current_cartridge.name %> last installed <%= @current_cartridge.installed_at.strftime("%b %-d, %Y") %><% if @current_cartridge.usage_limit %> (<%= @current_cartridge.hours_remaining(@cartridge_hours_used) %> hours remain)<% end %></span>
+        <% end %>
       <% end %>
       <div data-controller="infinite-scroll" class="mt-4">
         <div data-infinite-scroll-target="container">

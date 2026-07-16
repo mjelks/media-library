@@ -59,6 +59,21 @@ export default class extends Controller {
       const list = document.getElementById("up-next-list")
       if (section) section.classList.remove("hidden")
       if (list) list.insertAdjacentHTML("beforeend", data.html)
+      // Swap the plain heading for the Now Playing / Up Next tab bar
+      document.getElementById("now-playing-tab-bar")?.classList.remove("hidden")
+      document.getElementById("now-playing-heading")?.classList.add("hidden")
+      // Open the Up Next tab and flash the new row
+      document.querySelector("#now-playing-tab-bar [data-tab='up-next']")?.click()
+      const row = list?.lastElementChild
+      if (row) {
+        row.scrollIntoView({ block: "nearest", behavior: "smooth" })
+        row.classList.remove("bg-white")
+        row.classList.add("bg-indigo-50", "ring-2", "ring-indigo-300")
+        setTimeout(() => {
+          row.classList.add("bg-white")
+          row.classList.remove("bg-indigo-50", "ring-2", "ring-indigo-300")
+        }, 2000)
+      }
     }
 
     this.setQueued(true)
@@ -79,7 +94,15 @@ export default class extends Controller {
       row.remove()
       const list = document.getElementById("up-next-list")
       const section = document.getElementById("up-next-section")
-      if (section && list && list.children.length === 0) section.classList.add("hidden")
+      if (section && list && list.children.length === 0) {
+        section.classList.add("hidden")
+        // Queue is empty again — drop the tab bar and restore the plain heading
+        document.getElementById("now-playing-tab-bar")?.classList.add("hidden")
+        document.getElementById("now-playing-heading")?.classList.remove("hidden")
+        document.querySelectorAll("#now-playing-section [data-tabs-target='panel']").forEach(panel => {
+          panel.classList.toggle("hidden", panel.dataset.tab !== "now-playing")
+        })
+      }
     }
 
     this.setQueued(false)

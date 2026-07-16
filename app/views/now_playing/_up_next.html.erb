@@ -1,5 +1,4 @@
-<div id="up-next-section" class="mb-8 <%= @playlist.none? ? 'hidden' : '' %>">
-  <h2 class="font-bold text-2xl mb-4 text-stone-700">Up Next</h2>
+<div id="up-next-section" class="<%= @playlist.none? ? 'hidden' : '' %>">
   <ol id="up-next-list"
       data-controller="sortable"
       data-sortable-url-value="<%= playlist_reorder_path %>"
