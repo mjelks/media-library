@@ -9,6 +9,7 @@ export default class extends Controller {
 
   show(event) {
     if (this.tooltip) return
+    if (!this.textValue) return
 
     this.tooltip = document.createElement("div")
     this.tooltip.textContent = this.textValue

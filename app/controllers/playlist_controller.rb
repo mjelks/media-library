@@ -20,6 +20,17 @@ class PlaylistController < ApplicationController
     render json: { success: true, html: html }
   end
 
+  def destroy_by_media_item
+    playlist_item = Playlist.active.find_by(media_item_id: params[:media_item_id])
+
+    if playlist_item
+      playlist_item.destroy!
+      render json: { success: true, playlist_id: playlist_item.id }
+    else
+      render json: { success: true, already_removed: true }
+    end
+  end
+
   def destroy
     Playlist.find(params[:id]).destroy!
 

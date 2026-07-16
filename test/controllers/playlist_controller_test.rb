@@ -65,6 +65,51 @@ class PlaylistControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to now_playing_path
   end
 
+  # destroy_by_media_item
+
+  test "should remove active item by media item id" do
+    media_item = @active_item.media_item
+
+    assert_difference "Playlist.active.count", -1 do
+      delete playlist_remove_media_item_url(media_item_id: media_item.id), as: :json
+    end
+
+    assert_response :success
+    json = response.parsed_body
+    assert json["success"]
+    assert_equal @active_item.id, json["playlist_id"]
+    assert_raises(ActiveRecord::RecordNotFound) { @active_item.reload }
+  end
+
+  test "destroy_by_media_item is a no-op when item is not queued" do
+    assert_no_difference "Playlist.count" do
+      delete playlist_remove_media_item_url(media_item_id: @media_item.id), as: :json
+    end
+
+    assert_response :success
+    json = response.parsed_body
+    assert json["success"]
+    assert json["already_removed"]
+  end
+
+  test "destroy_by_media_item does not touch played entries" do
+    played_entry = playlists(:already_played)
+
+    assert_no_difference "Playlist.count" do
+      delete playlist_remove_media_item_url(media_item_id: played_entry.media_item_id), as: :json
+    end
+
+    assert_response :success
+    assert response.parsed_body["already_removed"]
+    assert_nothing_raised { played_entry.reload }
+  end
+
+  test "destroy_by_media_item requires authentication" do
+    delete session_path
+    delete playlist_remove_media_item_url(media_item_id: @media_item.id), as: :json
+    assert_response :redirect
+  end
+
   # reorder
 
   test "should reorder playlist items" do

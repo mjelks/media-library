@@ -17,6 +17,11 @@ module ApplicationHelper
     LOCATION_COLORS[location.id % LOCATION_COLORS.length]
   end
 
+  # Memoized per request so hover popups can check queue state without N+1s
+  def queued_media_item_ids
+    @_queued_media_item_ids ||= Playlist.active.pluck(:media_item_id).to_set
+  end
+
   def location_color_dark(location)
     color = location_color(location)
     darken_color(color, 30)
