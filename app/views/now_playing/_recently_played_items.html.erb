@@ -9,7 +9,7 @@
   </div>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
   <% sessions.each do |play_session| %>
-    <%= render partial: "now_playing_card", locals: { media_item: play_session.media_item, compact: true, since: play_session.start_time } %>
+    <%= render partial: "now_playing_card", locals: { media_item: play_session.media_item, compact: true, since: play_session.start_time, play_session_id: play_session.id } %>
   <% end %>
   </div>
 <% end %>

@@ -114,16 +114,50 @@
             <% end %>
           </div>
           <div class="lg:w-1/4">
-            <div class="relative themed-card border shadow-lg p-4 h-full flex flex-col">
+            <div class="relative themed-card border shadow-lg p-4 h-full flex flex-col" data-controller="tabs">
               <h3 class="font-semibold text-xs uppercase tracking-wide text-gray-500 mb-3 text-center">Listening Stats</h3>
-              <div class="flex-1 content-center grid grid-cols-2 gap-3 text-center">
-                <div>
-                  <p class="text-2xl font-bold text-stone-700 leading-tight"><%= @total_recently_played %></p>
-                  <p class="text-xs text-gray-500 mt-0.5"><%= "album".pluralize(@total_recently_played) %><br>past <%= @days_ago_play_history %> days</p>
+              <nav class="grid grid-cols-2 gap-1 rounded-lg bg-gray-200/70 p-1 mb-3">
+                <button type="button"
+                        data-tabs-target="tab"
+                        data-tab="last-days"
+                        data-action="tabs#select"
+                        class="widget-tab selected">
+                  Last <%= @days_ago_play_history %> Days
+                </button>
+                <button type="button"
+                        data-tabs-target="tab"
+                        data-tab="lifetime"
+                        data-action="tabs#select"
+                        class="widget-tab">
+                  Lifetime
+                </button>
+              </nav>
+              <div class="flex-1 content-center">
+                <div data-tabs-target="panel" data-tab="last-days">
+                  <div class="grid grid-cols-2 text-center">
+                    <div class="p-2 flex items-center justify-center">
+                      <span title="Albums" class="relative inline-flex items-center justify-center w-16 h-16 bg-gray-800 rounded-full align-middle">
+                        <span class="w-6 h-6 bg-[#eee] rounded-full"></span>
+                        <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-black"><%= @total_recently_played %></span>
+                      </span>
+                    </div>
+                    <div class="p-2 flex items-center justify-center">
+                      <p class="text-2xl font-bold text-stone-700 leading-tight"><%= duration_formatter(@recently_played_in_seconds) %></p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p class="text-2xl font-bold text-stone-700 leading-tight"><%= duration_formatter(@recently_played_in_seconds) %></p>
-                  <p class="text-xs text-gray-500 mt-0.5">listening<br>time</p>
+                <div data-tabs-target="panel" data-tab="lifetime" class="hidden">
+                  <div class="grid grid-cols-2 text-center">
+                    <div class="p-2 flex items-center justify-center">
+                      <span title="Albums" class="relative inline-flex items-center justify-center w-16 h-16 bg-gray-800 rounded-full align-middle">
+                        <span class="w-6 h-6 bg-[#eee] rounded-full"></span>
+                        <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-black"><%= @total_lifetime_played %></span>
+                      </span>
+                    </div>
+                    <div class="p-2 flex items-center justify-center">
+                      <p class="text-2xl font-bold text-stone-700 leading-tight"><%= duration_formatter(@lifetime_played_in_seconds) %></p>
+                    </div>
+                  </div>
                 </div>
               </div>
               <% if @current_cartridge %>

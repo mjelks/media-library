@@ -715,6 +715,34 @@ test "rollback_play handles nil play_count" do
 
   assert_equal 0, media_item.reload.play_count
 end
+
+test "rollback_play with play_session_id destroys the specified session, not just the latest" do
+  media_item = media_items(:vinyl_one)
+  media_item.update!(play_count: 2, currently_playing: false)
+  older_session = media_item.play_sessions.create!(start_time: 2.days.ago, end_time: 2.days.ago + 30.minutes)
+  newer_session = media_item.play_sessions.create!(start_time: 1.day.ago, end_time: 1.day.ago + 30.minutes)
+  media_item.update!(last_played: newer_session.start_time)
+
+  media_item.rollback_play!(play_session_id: older_session.id)
+
+  assert_not PlaySession.exists?(older_session.id)
+  assert PlaySession.exists?(newer_session.id)
+  assert_equal newer_session.start_time, media_item.reload.last_played
+  assert_equal 1, media_item.play_count
+end
+
+test "rollback_play only clears currently_playing when the destroyed session is the open one" do
+  media_item = media_items(:vinyl_one)
+  media_item.update!(play_count: 1, currently_playing: true)
+  closed_session = media_item.play_sessions.create!(start_time: 1.day.ago, end_time: 1.day.ago + 30.minutes)
+  open_session = media_item.play_sessions.create!(start_time: 10.minutes.ago, end_time: nil)
+  media_item.update!(last_played: open_session.start_time)
+
+  media_item.rollback_play!(play_session_id: closed_session.id)
+
+  assert_equal true, media_item.reload.currently_playing
+  assert_equal open_session.start_time, media_item.reload.last_played
+end
 # ...existing code...
 
 test "currently_playing_changed_to_false? returns true when changed from true to false" do

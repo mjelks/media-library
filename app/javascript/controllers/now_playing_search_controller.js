@@ -280,8 +280,13 @@ export default class extends Controller {
       })
 
       if (response.ok) {
-        // Reload the page to show updated recently played
-        window.location.reload()
+        // Refresh the page to show updated recently played / cartridge stats.
+        // Turbo.visit replace avoids the hard-reload flash that window.location.reload() causes.
+        if (window.Turbo) {
+          window.Turbo.visit(window.location.href, { action: "replace" })
+        } else {
+          window.location.reload()
+        }
       } else {
         console.error("Failed to mark as playing")
       }
