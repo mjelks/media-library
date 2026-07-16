@@ -31,9 +31,12 @@ class NowPlayingController < ApplicationController
     @total_recently_played = windowed_scope.count
     @recently_played_in_seconds = windowed_scope.sum { |ps| ps.media_item.release&.duration || 0 }
 
-    list_scope = all_play_sessions_scope
-    @play_sessions = list_scope.limit(PER_PAGE)
-    @has_more = list_scope.count > PER_PAGE
+    lifetime_scope = all_play_sessions_scope
+    @total_lifetime_played = lifetime_scope.count
+    @lifetime_played_in_seconds = lifetime_scope.sum { |ps| ps.media_item.release&.duration || 0 }
+
+    @play_sessions = lifetime_scope.limit(PER_PAGE)
+    @has_more = @total_lifetime_played > PER_PAGE
 
     @current_cartridge = LpCartridge.current
     @cartridge_hours_used = @current_cartridge&.hours_used_in_seconds
@@ -170,7 +173,7 @@ class NowPlayingController < ApplicationController
 
   def delete
     @media_item = MediaItem.find(params[:id])
-    @media_item.rollback_play!
+    @media_item.rollback_play!(play_session_id: params[:play_session_id])
 
     respond_to do |format|
       format.html { redirect_to now_playing_path, notice: "Removed: #{@media_item.display_title || 'Unknown Album'}" }

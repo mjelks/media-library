@@ -179,6 +179,21 @@ class NowPlayingControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, @media_item.play_count
   end
 
+  test "should delete a specific play_session_id rather than always the latest" do
+    older_session = @media_item.play_sessions.create!(start_time: 2.days.ago, end_time: 2.days.ago + 30.minutes)
+    newer_session = @media_item.play_sessions.create!(start_time: 1.day.ago, end_time: 1.day.ago + 30.minutes)
+    @media_item.update!(play_count: 2, last_played: newer_session.start_time)
+
+    delete now_playing_delete_url(@media_item, play_session_id: older_session.id)
+    assert_redirected_to now_playing_path
+
+    assert_not PlaySession.exists?(older_session.id)
+    assert PlaySession.exists?(newer_session.id)
+    @media_item.reload
+    assert_equal newer_session.start_time, @media_item.last_played
+    assert_equal 1, @media_item.play_count
+  end
+
   test "should require authentication" do
     delete session_path
     get now_playing_url

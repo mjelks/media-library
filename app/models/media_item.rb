@@ -238,19 +238,30 @@ class MediaItem < ApplicationRecord
     release.release_tracks.select { |t| t.position.start_with?("#{disc_number}.") }
   end
 
-  # Rollback a play: destroy the latest session, decrement play count,
-  # and restore last_played to the previous session (or nil if none remain).
-  def rollback_play!
+  # Rollback a play: destroy a session (the latest by default, or a specific
+  # one when play_session_id is given — e.g. deleting an older Recently Played
+  # entry for an item that's been played more than once), decrement play
+  # count, and restore last_played to the latest remaining session (or nil).
+  # last_played drives LpCartridge#hours_used_in_seconds, so this must target
+  # the exact session being removed rather than always assuming "most recent".
+  def rollback_play!(play_session_id: nil)
     transaction do
-      play_sessions.order(start_time: :desc).first&.destroy
+      session = play_session_id ? play_sessions.find_by(id: play_session_id) : play_sessions.order(start_time: :desc).first
+      # No explicit id means "undo the live play" — always clears currently_playing,
+      # as before. With an explicit id (an older Recently Played entry), only clear
+      # it if that specific session was the open one.
+      clear_currently_playing = play_session_id.nil? || (session.present? && session.end_time.nil?)
+      session&.destroy
 
       previous_session = play_sessions.order(start_time: :desc).first
 
-      update!(
+      attrs = {
         play_count: [ (play_count || 1) - 1, 0 ].max,
-        last_played: previous_session&.start_time,
-        currently_playing: false
-      )
+        last_played: previous_session&.start_time
+      }
+      attrs[:currently_playing] = false if clear_currently_playing
+
+      update!(attrs)
     end
   end
 

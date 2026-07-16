@@ -63,11 +63,14 @@ export default class extends Controller {
       })
 
       if (response.ok) {
-        // Wait for fade animation to complete
-        setTimeout(() => {
-          // Remove the entire now-playing section
-          this.element.remove()
-        }, 300)
+        // Refresh so the pane falls back to "Nothing playing right now" when
+        // applicable and the cartridge (needle) stats reflect the removed
+        // play — Turbo.visit replace avoids the hard-reload flash.
+        if (window.Turbo) {
+          window.Turbo.visit(window.location.href, { action: "replace" })
+        } else {
+          window.location.reload()
+        }
       } else {
         // Restore opacity if delete failed
         this.cardTarget.classList.remove("opacity-0")

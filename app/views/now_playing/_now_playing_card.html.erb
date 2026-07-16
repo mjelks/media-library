@@ -1,6 +1,7 @@
 <%
   compact = local_assigns.fetch(:compact, false)
   since = local_assigns.fetch(:since, media_item.last_played)
+  play_session_id = local_assigns.fetch(:play_session_id, nil)
   image_dims = compact ? [ 80, 80 ] : [ 150, 150 ]
   image_class = compact ? "w-20 h-20 object-cover rounded-md shadow" : "w-36 h-36 object-cover rounded-lg shadow-lg"
   placeholder_size = compact ? "w-20 h-20" : "w-36 h-36"
@@ -51,7 +52,7 @@
           </button>
           <button type="button"
                   data-action="click->now-playing-card#confirmDelete"
-                  data-now-playing-card-url-param="<%= now_playing_delete_path(media_item) %>"
+                  data-now-playing-card-url-param="<%= now_playing_delete_path(media_item, play_session_id: play_session_id) %>"
                   class="<%= modal_btn_class %> bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors">
             Yes
           </button>
