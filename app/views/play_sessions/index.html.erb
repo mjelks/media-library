@@ -12,22 +12,22 @@
   </div>
 
   <% if @media_items.any? %>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100">
       <table class="w-full">
         <thead class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200">
           <tr>
-            <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 w-24">Type</th>
+            <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 w-24 rounded-tl-lg">Type</th>
             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Album Title</th>
             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Album Artist</th>
             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-32">Release Date</th>
             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-40">Played</th>
-            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700 w-32">Duration</th>
+            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700 w-32 rounded-tr-lg">Duration</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
           <% @media_items.each do |item| %>
             <tr class="hover:bg-gray-50 transition-colors">
-              <td class="px-4 py-3 text-center"><%= render "play_sessions/media_type_icon", media_type_name: item.media_type&.name %></td>
+              <td class="px-4 py-3 text-center"><%= media_type_icon(item.media_type&.name) %></td>
               <td class="px-4 py-3 font-medium text-gray-900"><%= item.display_title %></td>
               <td class="px-4 py-3 text-gray-500 text-sm"><%= item.release&.media_owner&.name || "-" %></td>
               <td class="px-4 py-3 text-gray-500 text-sm"><%= item.release&.original_year || item.year || "-" %></td>
@@ -38,8 +38,8 @@
         </tbody>
         <tfoot>
           <tr class="bg-gray-50 border-t-2 border-gray-200">
-            <td colspan="5" class="px-4 py-3 text-right font-semibold text-gray-700">Total</td>
-            <td class="px-4 py-3 text-right font-mono font-semibold text-gray-900">
+            <td colspan="5" class="px-4 py-3 text-right font-semibold text-gray-700 rounded-bl-lg">Total</td>
+            <td class="px-4 py-3 text-right font-mono font-semibold text-gray-900 rounded-br-lg">
               <%= duration_formatter(@total_seconds) %>
               <span class="block text-xs font-sans font-normal text-gray-500"><%= quarter_hours(@total_seconds) %> hrs</span>
             </td>
