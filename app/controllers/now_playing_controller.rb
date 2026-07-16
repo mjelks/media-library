@@ -27,15 +27,19 @@ class NowPlayingController < ApplicationController
                             .first
 
     # Stats are scoped to the configured window; the list shows all history
-    windowed_scope = play_session_scope
-    @total_recently_played = windowed_scope.count
-    @recently_played_in_seconds = windowed_scope.sum { |ps| ps.media_item.release&.duration || 0 }
+    windowed_sessions = play_session_scope.to_a
+    @total_recently_played = windowed_sessions.count
+    @recently_played_in_seconds = windowed_sessions.sum { |ps| ps.media_item.release&.duration || 0 }
+    @recently_played_vinyl_count = windowed_sessions.count { |ps| ps.media_item.media_type.name == "Vinyl" }
+    @recently_played_cd_count = windowed_sessions.count { |ps| ps.media_item.media_type.name == "CD" }
 
-    lifetime_scope = all_play_sessions_scope
-    @total_lifetime_played = lifetime_scope.count
-    @lifetime_played_in_seconds = lifetime_scope.sum { |ps| ps.media_item.release&.duration || 0 }
+    lifetime_sessions = all_play_sessions_scope.to_a
+    @total_lifetime_played = lifetime_sessions.count
+    @lifetime_played_in_seconds = lifetime_sessions.sum { |ps| ps.media_item.release&.duration || 0 }
+    @lifetime_vinyl_count = lifetime_sessions.count { |ps| ps.media_item.media_type.name == "Vinyl" }
+    @lifetime_cd_count = lifetime_sessions.count { |ps| ps.media_item.media_type.name == "CD" }
 
-    @play_sessions = lifetime_scope.limit(PER_PAGE)
+    @play_sessions = lifetime_sessions.first(PER_PAGE)
     @has_more = @total_lifetime_played > PER_PAGE
 
     @current_cartridge = LpCartridge.current

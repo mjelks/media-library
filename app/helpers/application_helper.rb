@@ -78,6 +78,26 @@ module ApplicationHelper
     vars.join(" ")
   end
 
+  # Album count bubble for the Listening Stats widget. Shows a plain "Albums"
+  # tooltip when no LP/CD breakdown is available, otherwise a per-media-type
+  # breakdown via the tooltip Stimulus controller.
+  def album_stat_bubble(count, tooltip_lines = [])
+    attrs = if tooltip_lines.any?
+      { data: {
+        controller: "tooltip",
+        tooltip_text_value: tooltip_lines.join("\n"),
+        action: "mouseenter->tooltip#show mouseleave->tooltip#hide"
+      } }
+    else
+      { title: "Albums" }
+    end
+
+    content_tag :span, **attrs, class: "relative inline-flex items-center justify-center w-16 h-16 bg-gray-800 rounded-full align-middle" do
+      concat content_tag(:span, "", class: "w-6 h-6 bg-[#eee] rounded-full")
+      concat content_tag(:span, count, class: "absolute inset-0 flex items-center justify-center text-xs font-bold text-black")
+    end
+  end
+
   def quarter_hours(total_seconds)
     return nil if total_seconds.nil?
     (total_seconds / 3600.0 * 4).round / 4.0
@@ -85,6 +105,16 @@ module ApplicationHelper
 
   def duration_font_size_class(total_seconds)
     total_seconds.to_i >= 86400 ? "text-m" : "text-2xl"
+  end
+
+  # Unlike duration_formatter, hours are never rolled over into days —
+  # e.g. 247:23:23 rather than "10 Days, 7 Hours, 23 Minutes".
+  def duration_hms(total_seconds)
+    return "-" if total_seconds.nil?
+
+    hours, remainder = total_seconds.divmod(3600)
+    minutes, seconds = remainder.divmod(60)
+    format("%d:%02d:%02d", hours, minutes, seconds)
   end
 
   def duration_formatter(total_seconds)

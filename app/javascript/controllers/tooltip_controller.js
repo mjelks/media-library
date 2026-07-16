@@ -12,7 +12,10 @@ export default class extends Controller {
     if (!this.textValue) return
 
     this.tooltip = document.createElement("div")
-    this.tooltip.textContent = this.textValue
+    this.textValue.split("\n").forEach((line, index) => {
+      if (index > 0) this.tooltip.appendChild(document.createElement("br"))
+      this.tooltip.appendChild(document.createTextNode(line))
+    })
     this.tooltip.className = "fixed z-50 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded shadow-lg pointer-events-none whitespace-nowrap"
 
     document.body.appendChild(this.tooltip)
