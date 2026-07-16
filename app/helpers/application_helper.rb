@@ -98,6 +98,24 @@ module ApplicationHelper
     end
   end
 
+  # Media type badge shown next to play history rows: a skeuomorphic vinyl
+  # disc for LPs, the CD emoji for CDs. `size` takes Tailwind width/height
+  # classes (e.g. "w-5 h-5"); the label and spindle inside the disc are sized
+  # in percentages so they scale with it without needing new Tailwind classes.
+  def media_type_icon(media_type_name, size: "w-5 h-5")
+    if media_type_name == "CD"
+      content_tag :span, "💿", title: "CD", class: "text-lg align-middle"
+    else
+      content_tag :span, title: "Vinyl",
+        class: "inline-flex items-center justify-center #{size} rounded-full align-middle",
+        style: "background-image: repeating-radial-gradient(circle at center, #2a2a2a 0px, #2a2a2a 1px, #161616 1.5px, #161616 2px);" do
+        content_tag :span, class: "flex items-center justify-center rounded-full bg-[#eee]", style: "width: 33%; height: 33%;" do
+          content_tag :span, "", class: "rounded-full bg-gray-900", style: "width: 40%; height: 40%;"
+        end
+      end
+    end
+  end
+
   def quarter_hours(total_seconds)
     return nil if total_seconds.nil?
     (total_seconds / 3600.0 * 4).round / 4.0
