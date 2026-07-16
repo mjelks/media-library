@@ -83,13 +83,23 @@ module ApplicationHelper
     (total_seconds / 3600.0 * 4).round / 4.0
   end
 
+  def duration_font_size_class(total_seconds)
+    total_seconds.to_i >= 86400 ? "text-m" : "text-2xl"
+  end
+
   def duration_formatter(total_seconds)
     return "-" if total_seconds.nil?
 
-    hours, remainder = total_seconds.divmod(3600)
+    days, remainder = total_seconds.divmod(86400)
+    hours, remainder = remainder.divmod(3600)
     minutes, seconds = remainder.divmod(60)
 
-    if hours > 0
+    if days > 0
+      total_minutes = (total_seconds / 60.0).ceil
+      days, remainder = total_minutes.divmod(1440)
+      hours, minutes = remainder.divmod(60)
+      "#{pluralize(days, 'Day')}, #{pluralize(hours, 'Hour')}, #{pluralize(minutes, 'Minute')}"
+    elsif hours > 0
       format("%d:%02d:%02d", hours, minutes, seconds)
     else
       format("%d:%02d", minutes, seconds)
