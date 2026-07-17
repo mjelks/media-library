@@ -9,50 +9,9 @@
     <%= link_to "Back to Now Playing", now_playing_path, class: "rounded-md px-3.5 py-2.5 themed-btn-secondary font-medium" %>
   </div>
 
-  <% if @play_sessions.any? %>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100">
-      <table class="w-full">
-        <thead class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200">
-          <tr>
-            <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 w-24 rounded-tl-lg">Type</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Album Title</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Album Artist</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-32">Release Date</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-40">Played</th>
-            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700 w-32 rounded-tr-lg">Duration</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <% @play_sessions.each do |play_session| %>
-            <% item = play_session.media_item %>
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="px-4 py-3 text-center"><%= media_type_icon(item.media_type&.name) %></td>
-              <td class="px-4 py-3 font-medium text-gray-900"><%= item.display_title %></td>
-              <td class="px-4 py-3 text-gray-500 text-sm"><%= item.release&.media_owner&.name || "-" %></td>
-              <td class="px-4 py-3 text-gray-500 text-sm"><%= item.release&.original_year || item.year || "-" %></td>
-              <td class="px-4 py-3 text-gray-500 text-xs whitespace-nowrap"><%= play_session.start_time.strftime("%b %-d, %Y %-I:%M %p") %></td>
-              <td class="px-4 py-3 text-right text-gray-500 text-sm font-mono"><%= duration_formatter(item.release&.duration) %></td>
-            </tr>
-          <% end %>
-        </tbody>
-        <tfoot>
-          <tr class="bg-gray-50 border-t-2 border-gray-200">
-            <td colspan="5" class="px-4 py-3 text-right font-semibold text-gray-700 rounded-bl-lg">Total</td>
-            <td class="px-4 py-3 text-right font-mono font-semibold text-gray-900 rounded-br-lg">
-              <% if @days.nil? %>
-                <%= duration_hms(@total_seconds) %>
-                <span class="block text-xs font-sans font-normal text-gray-500"><%= duration_formatter(@total_seconds) %></span>
-              <% else %>
-                <%= duration_formatter(@total_seconds) %>
-              <% end %>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  <% else %>
-    <div class="text-center py-12 bg-gray-50 rounded-lg">
-      <p class="text-gray-500">No albums played in this window yet.</p>
-    </div>
-  <% end %>
+  <%= render "table",
+      items_with_played_at: @play_sessions.map { |ps| [ ps.media_item, ps.start_time ] },
+      total_primary: @days.nil? ? duration_hms(@total_seconds) : duration_formatter(@total_seconds),
+      total_secondary: @days.nil? ? duration_formatter(@total_seconds) : nil,
+      empty_message: "No albums played in this window yet." %>
 </div>
