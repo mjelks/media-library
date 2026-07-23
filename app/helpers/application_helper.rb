@@ -117,6 +117,7 @@ module ApplicationHelper
   # (the same Tailwind w-*/h-* pair passed for the Vinyl icon) is mapped to a
   # font-size class that renders at roughly the same visual size.
   SIZE_FONT_CLASSES = {
+    "w-3 h-3" => "text-xs",
     "w-4 h-4" => "text-sm",
     "w-5 h-5" => "text-lg",
     "w-6 h-6" => "text-xl"

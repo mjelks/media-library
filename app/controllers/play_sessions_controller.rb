@@ -35,7 +35,10 @@ class PlaySessionsController < ApplicationController
                           .where(start_time: @month.beginning_of_month..@month.end_of_month.end_of_day)
                           .includes(media_item: [ :media_type, :release ])
                           .to_a
-    @counts_by_day = sessions.group_by { |ps| ps.start_time.to_date }.transform_values(&:count)
+    sessions_by_day = sessions.group_by { |ps| ps.start_time.to_date }
+    @counts_by_day = sessions_by_day.transform_values(&:count)
+    @lp_counts_by_day = sessions_by_day.transform_values { |day_sessions| day_sessions.count { |ps| ps.media_item.media_type&.name == "Vinyl" } }
+    @cd_counts_by_day = sessions_by_day.transform_values { |day_sessions| day_sessions.count { |ps| ps.media_item.media_type&.name == "CD" } }
     @total_plays = sessions.size
     @total_albums_played = sessions.map(&:media_item_id).uniq.size
     @total_seconds = sessions.sum { |ps| ps.media_item.release&.duration || 0 }

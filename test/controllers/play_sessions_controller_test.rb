@@ -196,6 +196,30 @@ class PlaySessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "span[title='CD']"
   end
 
+  test "calendar day cell only shows media type badges for types actually played that day" do
+    vinyl_day = Date.current.beginning_of_month + 5.days
+    cd_day = Date.current.beginning_of_month + 10.days
+    vinyl_item = media_items(:vinyl_recently_played)
+    cd_item = media_items(:cd_multi_disc_1)
+    # Noon UTC keeps the session on the intended calendar date after the
+    # controller's America/Los_Angeles conversion (set_user_timezone).
+    PlaySession.create!(media_item: vinyl_item, start_time: vinyl_day.to_time + 12.hours, end_time: vinyl_day.to_time + 12.hours + 10.minutes)
+    PlaySession.create!(media_item: cd_item, start_time: cd_day.to_time + 12.hours, end_time: cd_day.to_time + 12.hours + 10.minutes)
+
+    get play_sessions_calendar_url(year: Date.current.year, month: Date.current.month)
+    assert_response :success
+
+    assert_select "a[href='#{play_sessions_day_path(date: cd_day.iso8601)}']" do
+      assert_select "span[title='CD']"
+      assert_select "span[title='Vinyl']", false
+    end
+
+    assert_select "a[href='#{play_sessions_day_path(date: vinyl_day.iso8601)}']" do
+      assert_select "span[title='Vinyl']"
+      assert_select "span[title='CD']", false
+    end
+  end
+
   test "calendar shows total plays when an album was played more than once in the month" do
     media_item = media_items(:vinyl_recently_played)
     PlaySession.create!(media_item: media_item, start_time: Date.current.beginning_of_month + 1.day, end_time: Date.current.beginning_of_month + 1.day + 10.minutes)
