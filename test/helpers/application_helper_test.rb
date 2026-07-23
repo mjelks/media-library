@@ -150,6 +150,36 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal "2 Days, 0 Hours, 0 Minutes", duration_formatter(86400 + (23 * 3600) + (59 * 60) + 1)
   end
 
+  # duration_words tests
+
+  test "duration_words returns dash for nil" do
+    assert_equal "-", duration_words(nil)
+  end
+
+  test "duration_words formats minutes only" do
+    assert_equal "3 minutes", duration_words(225)
+  end
+
+  test "duration_words formats a single minute" do
+    assert_equal "1 minute", duration_words(65)
+  end
+
+  test "duration_words handles zero" do
+    assert_equal "0 minutes", duration_words(0)
+  end
+
+  test "duration_words formats hours and minutes in words" do
+    assert_equal "16 hours and 34 minutes", duration_words((16 * 3600) + (34 * 60) + 1)
+  end
+
+  test "duration_words formats a single hour and single minute" do
+    assert_equal "1 hour and 1 minute", duration_words(3600 + 60)
+  end
+
+  test "duration_words rolls over into days at 24 hours, matching duration_formatter" do
+    assert_equal "1 Day, 2 Hours, 37 Minutes", duration_words(86400 + (2 * 3600) + (36 * 60) + 15)
+  end
+
   test "duration_font_size_class returns large size under 24 hours" do
     assert_equal "text-2xl", duration_font_size_class(86399)
   end

@@ -84,6 +84,9 @@ Rails.application.routes.draw do
     resources :play_sessions, only: :index, controller: "play_sessions"
   end
   get "play_sessions", to: "play_sessions#recent", as: :play_sessions
+  get "play_sessions/calendar", to: "play_sessions#calendar", as: :play_sessions_calendar
+  get "play_sessions/month", to: "play_sessions#month", as: :play_sessions_month
+  get "play_sessions/day", to: "play_sessions#day", as: :play_sessions_day
   resources :media_types
   resources :media_items do
     post :clone, on: :member
