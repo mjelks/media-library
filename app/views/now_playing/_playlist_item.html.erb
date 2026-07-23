@@ -11,8 +11,13 @@
     </svg>
   </div>
 
-  <!-- Cover art -->
   <% mi = playlist_item.media_item %>
+  <!-- Media type -->
+  <div class="flex-shrink-0">
+    <%= media_type_icon(mi.media_type&.name, opacity: 60) %>
+  </div>
+
+  <!-- Cover art -->
   <div class="flex-shrink-0">
     <% if mi.release&.cover_image&.attached? %>
       <%= image_tag mi.release.cover_image.variant(resize_to_limit: [ 48, 48 ]),
@@ -32,18 +37,14 @@
     <p class="text-sm text-gray-500 truncate"><%= mi.release&.media_owner&.name || "Unknown Artist" %></p>
   </div>
 
-  <!-- Play history / media type -->
-  <p class="flex items-center flex-shrink-0 text-sm text-gray-400">
-    <% if mi.last_played %>
-      <span class="hidden sm:inline">
-        Played <%= time_ago_in_words(mi.last_played) %> ago
-        <span class="mx-2">&middot;</span>
-        <%= pluralize(mi.play_count || 0, "play") %>
-        <span class="mx-2">&middot;</span>
-      </span>
-    <% end %>
-    <%= media_type_icon(mi.media_type&.name) %>
-  </p>
+  <!-- Play history -->
+  <% if mi.last_played %>
+    <p class="hidden sm:flex items-center flex-shrink-0 text-sm text-gray-400">
+      Played <%= time_ago_in_words(mi.last_played) %> ago
+      <span class="mx-2">&middot;</span>
+      <%= pluralize(mi.play_count || 0, "play") %>
+    </p>
+  <% end %>
 
   <!-- Actions -->
   <div class="flex items-center gap-1 flex-shrink-0">

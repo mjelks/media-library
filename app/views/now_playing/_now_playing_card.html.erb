@@ -11,7 +11,7 @@
   artist_class = compact ? "text-gray-600 truncate" : "text-lg text-gray-600 mt-1"
   gap_class = compact ? "gap-4" : "gap-6"
   meta_text_class = compact ? "text-sm text-gray-400" : "text-sm text-gray-500 mt-2"
-  lp_badge_class = compact ? "w-5 h-5 text-[10px]" : "w-6 h-6 text-xs"
+  lp_badge_class = compact ? "w-5 h-5" : "w-6 h-6"
   location_link_class = compact ? "italic text-xs text-gray-400 hover:text-gray-600 hover:underline" : "italic text-xs text-gray-600 hover:text-gray-800 hover:underline mt-1 inline-block"
   vote_btn_class = compact ? "px-3 py-1.5 text-sm" : "px-3 py-2"
   card_padding = compact ? "p-4" : "p-6"
@@ -94,11 +94,7 @@
           <span class="mx-2">&middot;</span>
           <%= pluralize(media_item.play_count || 0, "play") %><%= " total" unless compact %>
           <span class="mx-2">&middot;</span>
-          <% if media_item.media_type&.name == "CD" %>
-            <span title="CD">💿</span>
-          <% else %>
-            <span title="Vinyl" class="inline-flex items-center justify-center <%= lp_badge_class %> bg-gray-800 text-white font-bold rounded-full align-middle">LP</span>
-          <% end %>
+          <%= media_type_icon(media_item.media_type&.name, size: lp_badge_class) %>
         </p>
         <% if media_item.location %>
           <% if media_item.media_type&.name == "Vinyl" %>
