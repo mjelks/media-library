@@ -176,6 +176,26 @@ class PlaySessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "#{ApplicationController.helpers.duration_words(expected_avg_seconds, round_to_minute: true)} daily avg"
   end
 
+  test "calendar shows lp and cd counts using media type icons" do
+    cd_item = media_items(:cd_multi_disc_1)
+    PlaySession.create!(media_item: cd_item, start_time: Date.current.beginning_of_month + 2.days, end_time: Date.current.beginning_of_month + 2.days + 10.minutes)
+
+    get play_sessions_calendar_url(year: Date.current.year, month: Date.current.month)
+    assert_response :success
+
+    sessions = PlaySession.all_history.where(
+      start_time: Date.current.beginning_of_month..Date.current.end_of_month.end_of_day
+    )
+    unique_media_items = sessions.map(&:media_item).uniq(&:id)
+    expected_lp_count = unique_media_items.count { |mi| mi.media_type&.name == "Vinyl" }
+    expected_cd_count = unique_media_items.count { |mi| mi.media_type&.name == "CD" }
+
+    assert_select "span", text: /\A#{expected_lp_count}\s*\z/
+    assert_select "span", text: /\A#{expected_cd_count} 💿\z/
+    assert_select "span[title='Vinyl']"
+    assert_select "span[title='CD']"
+  end
+
   test "calendar shows total plays when an album was played more than once in the month" do
     media_item = media_items(:vinyl_recently_played)
     PlaySession.create!(media_item: media_item, start_time: Date.current.beginning_of_month + 1.day, end_time: Date.current.beginning_of_month + 1.day + 10.minutes)
