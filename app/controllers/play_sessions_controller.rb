@@ -39,6 +39,7 @@ class PlaySessionsController < ApplicationController
     @total_plays = sessions.size
     @total_albums_played = sessions.map(&:media_item_id).uniq.size
     @total_seconds = sessions.sum { |ps| ps.media_item.release&.duration || 0 }
+    @avg_daily_seconds = average_daily_seconds(@total_seconds, @month)
 
     render partial: "calendar_body", layout: false if request.xhr?
   end
@@ -89,5 +90,11 @@ class PlaySessionsController < ApplicationController
   def earliest_play_month
     earliest = PlaySession.minimum(:start_time)
     earliest ? earliest.to_date.beginning_of_month : Date.current.beginning_of_month
+  end
+
+  # Divides by the Gregorian day count for the month (28-31), regardless
+  # of how much of the month has elapsed.
+  def average_daily_seconds(total_seconds, month)
+    (total_seconds.to_f / month.end_of_month.day).round
   end
 end

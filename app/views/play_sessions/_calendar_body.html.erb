@@ -38,6 +38,10 @@
       <p class="text-lg font-semibold text-gray-900"><%= duration_hms(@total_seconds) %></p>
       <p class="text-xs text-gray-500"><%= duration_words(@total_seconds) %></p>
     </div>
+    <div class="text-center">
+      <p class="text-lg font-semibold text-gray-900"><%= duration_hms(@avg_daily_seconds) %></p>
+      <p class="text-xs text-gray-500"><%= duration_words(@avg_daily_seconds, round_to_minute: true) %> daily avg</p>
+    </div>
   </div>
 
   <div class="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden border border-gray-200">

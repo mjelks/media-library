@@ -169,8 +169,10 @@ module ApplicationHelper
   # Same day-rollover as duration_formatter, but always in words rather than
   # H:MM:SS — for pairing as a caption under a duration_hms/duration_formatter
   # value that's already showing the compact number.
-  def duration_words(total_seconds)
+  def duration_words(total_seconds, round_to_minute: false)
     return "-" if total_seconds.nil?
+
+    total_seconds = (total_seconds / 60.0).round * 60 if round_to_minute
 
     days, remainder = total_seconds.divmod(86400)
     hours, remainder = remainder.divmod(3600)
