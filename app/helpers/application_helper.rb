@@ -113,10 +113,20 @@ module ApplicationHelper
     90 => "opacity-90", 95 => "opacity-95", 100 => "opacity-100"
   }.freeze
 
+  # The CD icon is a text glyph, not a box with width/height, so its `size`
+  # (the same Tailwind w-*/h-* pair passed for the Vinyl icon) is mapped to a
+  # font-size class that renders at roughly the same visual size.
+  SIZE_FONT_CLASSES = {
+    "w-4 h-4" => "text-sm",
+    "w-5 h-5" => "text-lg",
+    "w-6 h-6" => "text-xl"
+  }.freeze
+
   def media_type_icon(media_type_name, size: "w-5 h-5", opacity: nil)
     opacity_class = opacity ? " #{OPACITY_CLASSES.fetch(opacity)}" : ""
     if media_type_name == "CD"
-      content_tag :span, "💿", title: "CD", class: "text-lg align-middle#{opacity_class}"
+      font_class = SIZE_FONT_CLASSES.fetch(size, "text-lg")
+      content_tag :span, "💿", title: "CD", class: "#{font_class} align-middle#{opacity_class}"
     else
       content_tag :span, title: "Vinyl",
         class: "inline-flex items-center justify-center #{size} rounded-full align-middle#{opacity_class}",

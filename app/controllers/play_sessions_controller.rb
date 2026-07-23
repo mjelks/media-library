@@ -33,13 +33,17 @@ class PlaySessionsController < ApplicationController
 
     sessions = PlaySession.all_history
                           .where(start_time: @month.beginning_of_month..@month.end_of_month.end_of_day)
-                          .includes(media_item: :release)
+                          .includes(media_item: [ :media_type, :release ])
                           .to_a
     @counts_by_day = sessions.group_by { |ps| ps.start_time.to_date }.transform_values(&:count)
     @total_plays = sessions.size
     @total_albums_played = sessions.map(&:media_item_id).uniq.size
     @total_seconds = sessions.sum { |ps| ps.media_item.release&.duration || 0 }
     @avg_daily_seconds = average_daily_seconds(@total_seconds, @month)
+
+    unique_media_items = sessions.map(&:media_item).uniq(&:id)
+    @lp_count = unique_media_items.count { |mi| mi.media_type&.name == "Vinyl" }
+    @cd_count = unique_media_items.count { |mi| mi.media_type&.name == "CD" }
 
     render partial: "calendar_body", layout: false if request.xhr?
   end
