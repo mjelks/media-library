@@ -162,6 +162,20 @@ class PlaySessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: ApplicationController.helpers.duration_words(expected_seconds)
   end
 
+  test "calendar shows avg daily listen, based on the Gregorian day count for the month" do
+    get play_sessions_calendar_url(year: Date.current.year, month: Date.current.month)
+    assert_response :success
+
+    sessions = PlaySession.all_history.where(
+      start_time: Date.current.beginning_of_month..Date.current.end_of_month.end_of_day
+    )
+    total_seconds = sessions.sum { |ps| ps.media_item.release&.duration || 0 }
+    expected_avg_seconds = (total_seconds.to_f / Date.current.end_of_month.day).round
+
+    assert_select "p", text: duration_hms(expected_avg_seconds)
+    assert_select "p", text: "#{ApplicationController.helpers.duration_words(expected_avg_seconds, round_to_minute: true)} daily avg"
+  end
+
   test "calendar shows total plays when an album was played more than once in the month" do
     media_item = media_items(:vinyl_recently_played)
     PlaySession.create!(media_item: media_item, start_time: Date.current.beginning_of_month + 1.day, end_time: Date.current.beginning_of_month + 1.day + 10.minutes)

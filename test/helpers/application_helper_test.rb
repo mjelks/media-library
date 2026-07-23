@@ -180,6 +180,18 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal "1 Day, 2 Hours, 37 Minutes", duration_words(86400 + (2 * 3600) + (36 * 60) + 15)
   end
 
+  test "duration_words truncates seconds by default" do
+    assert_equal "4 minutes", duration_words((4 * 60) + 47)
+  end
+
+  test "duration_words rounds up to the nearest minute when round_to_minute is true" do
+    assert_equal "5 minutes", duration_words((4 * 60) + 47, round_to_minute: true)
+  end
+
+  test "duration_words rounds down to the nearest minute when round_to_minute is true" do
+    assert_equal "4 minutes", duration_words((4 * 60) + 29, round_to_minute: true)
+  end
+
   test "duration_font_size_class returns large size under 24 hours" do
     assert_equal "text-2xl", duration_font_size_class(86399)
   end
