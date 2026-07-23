@@ -102,12 +102,24 @@ module ApplicationHelper
   # disc for LPs, the CD emoji for CDs. `size` takes Tailwind width/height
   # classes (e.g. "w-5 h-5"); the label and spindle inside the disc are sized
   # in percentages so they scale with it without needing new Tailwind classes.
-  def media_type_icon(media_type_name, size: "w-5 h-5")
+  # `opacity` takes a Tailwind opacity scale value (e.g. 70 for "opacity-70").
+  # Mapped through a literal lookup (rather than interpolated directly) so
+  # Tailwind's content scanner, which matches literal text rather than
+  # evaluating Ruby, can see each class name and generate it.
+  OPACITY_CLASSES = {
+    0 => "opacity-0", 5 => "opacity-5", 10 => "opacity-10", 20 => "opacity-20",
+    25 => "opacity-25", 30 => "opacity-30", 40 => "opacity-40", 50 => "opacity-50",
+    60 => "opacity-60", 70 => "opacity-70", 75 => "opacity-75", 80 => "opacity-80",
+    90 => "opacity-90", 95 => "opacity-95", 100 => "opacity-100"
+  }.freeze
+
+  def media_type_icon(media_type_name, size: "w-5 h-5", opacity: nil)
+    opacity_class = opacity ? " #{OPACITY_CLASSES.fetch(opacity)}" : ""
     if media_type_name == "CD"
-      content_tag :span, "💿", title: "CD", class: "text-lg align-middle"
+      content_tag :span, "💿", title: "CD", class: "text-lg align-middle#{opacity_class}"
     else
       content_tag :span, title: "Vinyl",
-        class: "inline-flex items-center justify-center #{size} rounded-full align-middle",
+        class: "inline-flex items-center justify-center #{size} rounded-full align-middle#{opacity_class}",
         style: "background-image: repeating-radial-gradient(circle at center, #2a2a2a 0px, #2a2a2a 1px, #161616 1.5px, #161616 2px);" do
         content_tag :span, class: "flex items-center justify-center rounded-full bg-[#eee]", style: "width: 33%; height: 33%;" do
           content_tag :span, "", class: "rounded-full bg-gray-900", style: "width: 40%; height: 40%;"
