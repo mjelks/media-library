@@ -165,4 +165,26 @@ module ApplicationHelper
       format("%d:%02d", minutes, seconds)
     end
   end
+
+  # Same day-rollover as duration_formatter, but always in words rather than
+  # H:MM:SS — for pairing as a caption under a duration_hms/duration_formatter
+  # value that's already showing the compact number.
+  def duration_words(total_seconds)
+    return "-" if total_seconds.nil?
+
+    days, remainder = total_seconds.divmod(86400)
+    hours, remainder = remainder.divmod(3600)
+    minutes, = remainder.divmod(60)
+
+    if days > 0
+      total_minutes = (total_seconds / 60.0).ceil
+      days, remainder = total_minutes.divmod(1440)
+      hours, minutes = remainder.divmod(60)
+      "#{pluralize(days, 'Day')}, #{pluralize(hours, 'Hour')}, #{pluralize(minutes, 'Minute')}"
+    elsif hours > 0
+      "#{pluralize(hours, 'hour')} and #{pluralize(minutes, 'minute')}"
+    else
+      pluralize(minutes, "minute")
+    end
+  end
 end

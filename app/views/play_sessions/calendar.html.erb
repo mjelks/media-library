@@ -1,0 +1,18 @@
+<% content_for :title, "Play History Calendar" %>
+
+<div class="p-4 w-full max-w-6xl mx-auto" data-controller="play-calendar">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="font-bold text-4xl">Play History</h1>
+      <p class="themed-page-subtitle mt-1">Browse by month</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <%= play_history_view_toggle(active: :calendar, month: @month) %>
+      <%= link_to "Back to Now Playing", now_playing_path, class: "rounded-md px-3.5 py-2.5 themed-btn-secondary font-medium" %>
+    </div>
+  </div>
+
+  <div class="mb-8" data-play-calendar-target="container">
+    <%= render "calendar_body" %>
+  </div>
+</div>

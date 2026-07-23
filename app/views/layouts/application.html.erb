@@ -23,10 +23,10 @@
   </head>
 
   <% theme = ThemeSet.active %>
-  <body class="flex flex-col" style="<%= theme_style_vars(theme) %>">
+  <body class="flex flex-col min-h-screen" style="<%= theme_style_vars(theme) %>">
     <%= render 'shared/header' %>
     <%= render 'shared/nav' %>
-    <main class="w-full themed-main">
+    <main class="w-full themed-main flex-1">
      <div class="max-w-7xl mx-auto px-4 flex space-x-6">
       <%= yield %>
       <%= yield :modals %>

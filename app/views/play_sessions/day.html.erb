@@ -1,0 +1,22 @@
+<% content_for :title, "Play History — #{@date.strftime('%B %-d, %Y')}" %>
+
+<div class="p-4 w-full max-w-6xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="font-bold text-4xl">Play History</h1>
+      <p class="themed-page-subtitle mt-1"><%= @date.strftime("%B %-d, %Y") %></p>
+    </div>
+    <div class="flex items-center gap-3">
+      <%= link_to play_sessions_calendar_path(year: @date.year, month: @date.month), class: "rounded-md px-3.5 py-2.5 themed-btn-secondary font-medium" do %>
+        &larr; <%= @date.strftime("%B %Y") %>
+      <% end %>
+      <%= link_to "Back to Now Playing", now_playing_path, class: "rounded-md px-3.5 py-2.5 themed-btn-secondary font-medium" %>
+    </div>
+  </div>
+
+  <%= render "table",
+      items_with_played_at: @play_sessions.map { |ps| [ ps.media_item, ps.start_time ] },
+      total_primary: duration_formatter(@total_seconds),
+      total_secondary: nil,
+      empty_message: "No albums played on this day." %>
+</div>

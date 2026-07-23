@@ -6,7 +6,12 @@
       <h1 class="font-bold text-4xl">Play History</h1>
       <p class="themed-page-subtitle mt-1"><%= @heading %></p>
     </div>
-    <%= link_to "Back to Now Playing", now_playing_path, class: "rounded-md px-3.5 py-2.5 themed-btn-secondary font-medium" %>
+    <div class="flex items-center gap-3">
+      <% if @days.nil? %>
+        <%= play_history_view_toggle(active: :list) %>
+      <% end %>
+      <%= link_to "Back to Now Playing", now_playing_path, class: "rounded-md px-3.5 py-2.5 themed-btn-secondary font-medium" %>
+    </div>
   </div>
 
   <%= render "table",

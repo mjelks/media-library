@@ -1,0 +1,77 @@
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+  <div class="flex items-center justify-between mb-4">
+    <% if @has_prev %>
+      <%= link_to play_sessions_calendar_path(year: @prev_month.year, month: @prev_month.month),
+          class: "p-2 rounded-md hover:bg-gray-100 text-gray-600",
+          data: { action: "click->play-calendar#navigate" } do %>
+        <%= chevron_left_icon %>
+      <% end %>
+    <% else %>
+      <span class="p-2 rounded-md text-gray-300 cursor-not-allowed"><%= chevron_left_icon %></span>
+    <% end %>
+
+    <h2 class="text-xl font-semibold text-gray-800"><%= @month.strftime("%B %Y") %></h2>
+
+    <% if @has_next %>
+      <%= link_to play_sessions_calendar_path(year: @next_month.year, month: @next_month.month),
+          class: "p-2 rounded-md hover:bg-gray-100 text-gray-600",
+          data: { action: "click->play-calendar#navigate" } do %>
+        <%= chevron_right_icon %>
+      <% end %>
+    <% else %>
+      <span class="p-2 rounded-md text-gray-300 cursor-not-allowed"><%= chevron_right_icon %></span>
+    <% end %>
+  </div>
+
+  <div class="flex items-center justify-center gap-8 mb-4">
+    <div class="text-center">
+      <p class="text-lg font-semibold text-gray-900"><%= @total_albums_played %></p>
+      <p class="text-xs text-gray-500">Total Albums Played</p>
+    </div>
+    <% if @total_plays != @total_albums_played %>
+      <div class="text-center">
+        <p class="text-lg font-semibold text-gray-900"><%= @total_plays %></p>
+        <p class="text-xs text-gray-500">Total Plays</p>
+      </div>
+    <% end %>
+    <div class="text-center">
+      <p class="text-lg font-semibold text-gray-900"><%= duration_hms(@total_seconds) %></p>
+      <p class="text-xs text-gray-500"><%= duration_words(@total_seconds) %></p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden border border-gray-200">
+    <% %w[Sun Mon Tue Wed Thu Fri Sat].each do |day_name| %>
+      <div class="bg-gray-50 text-center text-xs font-semibold text-gray-500 py-2"><%= day_name %></div>
+    <% end %>
+
+    <% leading_blanks = @month.wday %>
+    <% last_day = @month.end_of_month.day %>
+    <% trailing_blanks = 42 - (leading_blanks + last_day) %>
+
+    <% leading_blanks.times do %>
+      <div class="bg-gray-50 min-h-20"></div>
+    <% end %>
+
+    <% (@month..@month.end_of_month).each do |date| %>
+      <% count = @counts_by_day[date] || 0 %>
+      <% if count > 0 %>
+        <%= link_to play_sessions_day_path(date: date.iso8601),
+            class: "bg-white hover:bg-indigo-50 min-h-20 p-2 flex flex-col transition-colors" do %>
+          <span class="text-sm font-medium text-gray-700"><%= date.day %></span>
+          <span class="mt-auto self-start text-xs font-semibold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+            <%= pluralize(count, "play") %>
+          </span>
+        <% end %>
+      <% else %>
+        <div class="bg-white min-h-20 p-2 flex flex-col">
+          <span class="text-sm font-medium text-gray-400"><%= date.day %></span>
+        </div>
+      <% end %>
+    <% end %>
+
+    <% trailing_blanks.times do %>
+      <div class="bg-gray-50 min-h-20"></div>
+    <% end %>
+  </div>
+</div>
