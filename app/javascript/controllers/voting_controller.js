@@ -52,19 +52,19 @@ export default class extends Controller {
 
     if (rating === "meh") {
       if (isActive) {
-        button.classList.remove("bg-amber-100", "hover:bg-amber-200")
-        button.classList.add("bg-amber-300", "hover:bg-amber-400", "ring-2", "ring-amber-500")
+        button.classList.remove("bg-amber-100/50", "hover:bg-amber-200/50")
+        button.classList.add("bg-amber-300/50", "hover:bg-amber-400/50", "ring-2", "ring-amber-500")
       } else {
-        button.classList.remove("bg-amber-300", "hover:bg-amber-400", "ring-2", "ring-amber-500")
-        button.classList.add("bg-amber-100", "hover:bg-amber-200")
+        button.classList.remove("bg-amber-300/50", "hover:bg-amber-400/50", "ring-2", "ring-amber-500")
+        button.classList.add("bg-amber-100/50", "hover:bg-amber-200/50")
       }
     } else if (rating === "thumbs_up") {
       if (isActive) {
-        button.classList.remove("bg-green-100", "hover:bg-green-200")
-        button.classList.add("bg-green-300", "hover:bg-green-400", "ring-2", "ring-green-500")
+        button.classList.remove("bg-green-100/50", "hover:bg-green-200/50")
+        button.classList.add("bg-green-300/50", "hover:bg-green-400/50", "ring-2", "ring-green-500")
       } else {
-        button.classList.remove("bg-green-300", "hover:bg-green-400", "ring-2", "ring-green-500")
-        button.classList.add("bg-green-100", "hover:bg-green-200")
+        button.classList.remove("bg-green-300/50", "hover:bg-green-400/50", "ring-2", "ring-green-500")
+        button.classList.add("bg-green-100/50", "hover:bg-green-200/50")
       }
     }
   }
