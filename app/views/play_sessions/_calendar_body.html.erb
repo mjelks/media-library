@@ -72,7 +72,7 @@
             class: "bg-white hover:bg-indigo-50 min-h-20 p-2 flex flex-col transition-colors" do %>
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-gray-700"><%= date.day %></span>
-            <span class="flex flex-col items-end gap-0.5">
+            <span class="hidden sm:flex flex-col items-end gap-0.5">
               <% if lp_count > 0 %>
                 <span class="inline-flex items-center gap-2 text-[10px] text-gray-400"><%= lp_count %> <%= media_type_icon("Vinyl", size: "w-4 h-4") %></span>
               <% end %>
@@ -81,7 +81,7 @@
               <% end %>
             </span>
           </div>
-          <span class="mt-auto self-end text-xs font-semibold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+          <span class="mt-auto self-end text-xs font-medium text-indigo-600 hover:underline">
             <%= pluralize(count, "play") %>
           </span>
         <% end %>
