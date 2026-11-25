@@ -36,7 +36,7 @@ class PlaySessionTest < ActiveSupport::TestCase
   end
 
   test "recent includes sessions at a wider window" do
-    assert_includes PlaySession.recent(31), play_sessions(:old_session)
+    assert_includes PlaySession.recent(35), play_sessions(:old_session)
   end
 
   test "recent orders by start_time descending" do

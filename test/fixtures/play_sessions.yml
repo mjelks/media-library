@@ -25,8 +25,8 @@ recent_session:
 
 old_session:
   media_item: vinyl_played_long_ago
-  start_time: <%= 30.days.ago.to_fs(:db) %>
-  end_time: <%= (30.days.ago + 40.minutes).to_fs(:db) %>
+  start_time: <%= 33.days.ago.to_fs(:db) %>
+  end_time: <%= (33.days.ago + 40.minutes).to_fs(:db) %>
 
 now_playing_session:
   media_item: vinyl_now_playing
