@@ -60,7 +60,7 @@ class LpCartridgeTest < ActiveSupport::TestCase
   end
 
   test "hours_used_in_seconds excludes vinyl played before install date" do
-    # old_cartridge was installed 60 days ago, vinyl_played_long_ago was 30 days ago — included
+    # old_cartridge was installed 60 days ago, old_session was 33 days ago — included
     # current_cartridge installed 3 days ago, vinyl_played_long_ago excluded
     current = lp_cartridges(:current_cartridge)
     old     = lp_cartridges(:old_cartridge)
