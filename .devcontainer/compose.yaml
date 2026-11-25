@@ -11,14 +11,7 @@ services:
     - /Volumes:/mnt/volumes:cached
 
     # Overrides default command so things don't shut down after the process ends.
-    # command: sleep infinity
-    
-    entrypoint: >
-      sh -c "
-        apt-get update &&
-        apt-get install -y exiftool &&
-        sleep infinity
-      "
+    command: sleep infinity
 
     # Uncomment the next line to use a non-root user for all processes.
     # user: vscode
